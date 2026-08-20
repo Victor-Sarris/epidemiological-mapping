@@ -1,124 +1,53 @@
-import {
-  Map,
-  MapMarker,
-  MarkerContent,
-  MarkerLabel,
-  MarkerPopup,
-} from "@/components/ui/map";
-import { Button } from "@/components/ui/button";
-import { Star, Navigation, Clock, ExternalLink } from "lucide-react";
-
-const places = [
-  {
-    id: 1,
-    name: "Cais da Beira Rio",
-    label: "Ponto Turístico",
-    category: "Lazer",
-    rating: 4.8,
-    reviews: 1453,
-    hours: "Aberto 24 horas",
-    image:
-      "https://images.unsplash.com/photo-1575223970966-76ae61ee7838?w=300&h=200&fit=crop",
-    lng: -43.0184,
-    lat: -6.7643,
-  },
-  {
-    id: 2,
-    name: "Mercado Central",
-    label: "Comércio",
-    category: "Mercado",
-    rating: 4.5,
-    reviews: 834,
-    hours: "06:00 - 18:00",
-    image:
-      "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=300&h=200&fit=crop",
-    lng: -43.016,
-    lat: -6.7675,
-  },
-  {
-    id: 3,
-    name: "Praça Dr. Sebastião Martins",
-    label: "Praça",
-    category: "Público",
-    rating: 4.7,
-    reviews: 521,
-    hours: "Aberto 24 horas",
-    image:
-      "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=300&h=200&fit=crop",
-    lng: -43.0205,
-    lat: -6.7681,
-  },
-];
+import { Activity, Map as MapIcon, ShieldAlert } from "lucide-react";
 
 function Home() {
   return (
-    <div className="flex flex-col min-h-screen bg-white">
-      <header className="p-6 text-center border-b">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Mapa Epidemiológico - Floriano, PI
-        </h1>
-      </header>
-
-      <main className="flex-1 p-6">
-        <div className="h-150 w-full rounded-xl overflow-hidden border shadow-sm">
-          {/* Centralizado em Floriano, PI com zoom ajustado */}
-          <Map center={[-43.0225, -6.7672]} zoom={14}>
-            {places.map((place) => (
-              <MapMarker
-                key={place.id}
-                longitude={place.lng}
-                latitude={place.lat}
-              >
-                <MarkerContent>
-                  <div className="size-5 cursor-pointer rounded-full border-2 border-white bg-rose-500 shadow-lg transition-transform hover:scale-110" />
-                  <MarkerLabel position="bottom">{place.label}</MarkerLabel>
-                </MarkerContent>
-                <MarkerPopup className="w-62 p-0">
-                  <div className="relative h-32 overflow-hidden rounded-t-md">
-                    <img
-                      src={place.image}
-                      alt={place.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="space-y-2 p-3">
-                    <div>
-                      <p className="text-muted-foreground pb-0.5 text-[11px] font-medium tracking-wide uppercase">
-                        {place.category}
-                      </p>
-                      <h3 className="text-foreground leading-tight font-semibold">
-                        {place.name}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                        <span className="font-medium">{place.rating}</span>
-                        <span className="text-muted-foreground">
-                          ({place.reviews.toLocaleString()})
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                      <Clock className="size-3.5" />
-                      <span>{place.hours}</span>
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button size="sm" className="flex-1">
-                        <Navigation className="size-3.5 mr-2" />
-                        Rotas
-                      </Button>
-                      <Button size="icon" variant="outline" className="w-9 h-9">
-                        <ExternalLink className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                </MarkerPopup>
-              </MapMarker>
-            ))}
-          </Map>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
+      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl p-10 text-center space-y-8 border border-slate-100">
+        <div className="flex justify-center mb-4">
+          <div className="bg-rose-100 p-4 rounded-full shadow-inner">
+            <Activity className="size-12 text-rose-600" />
+          </div>
         </div>
-      </main>
+
+        <div className="space-y-4">
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">
+            Sistema de Mapeamento Epidemiológico
+          </h1>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Plataforma de inteligência em saúde pública para Floriano, PI.
+            Acompanhe a evolução de casos, identifique zonas de calor e gerencie
+            a cobertura territorial das UBSs.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6 pt-6">
+          <div className="p-6 border rounded-xl bg-slate-50 flex flex-col items-center gap-3 transition-colors hover:bg-slate-100">
+            <MapIcon className="size-8 text-blue-500" />
+            <h3 className="font-semibold text-slate-800">
+              Mapa de Calor (Quadrantes)
+            </h3>
+            <p className="text-sm text-slate-500 text-center">
+              Visualização da densidade de casos segmentados pelas áreas de
+              abrangência.
+            </p>
+          </div>
+          <div className="p-6 border rounded-xl bg-slate-50 flex flex-col items-center gap-3 transition-colors hover:bg-slate-100">
+            <ShieldAlert className="size-8 text-amber-500" />
+            <h3 className="font-semibold text-slate-800">Controle de Surtos</h3>
+            <p className="text-sm text-slate-500 text-center">
+              Mapeamento de riscos e suporte à tomada de decisão para contenção
+              de vetores.
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-8">
+          <button className="bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md">
+            Acessar Painel do Mapa
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
