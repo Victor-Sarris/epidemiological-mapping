@@ -17,7 +17,7 @@ function Home() {
 
       <div className="max-w-4xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 md:p-14 text-center space-y-10 border border-white/50 relative z-10">
         <div className="flex justify-center">
-          <div className="bg-gradient-to-br from-rose-100 to-rose-50 p-5 rounded-2xl shadow-inner border border-rose-100">
+          <div className="bg-linear-to-br from-rose-100 to-rose-50 p-5 rounded-2xl shadow-inner border border-rose-100">
             <Activity className="size-14 text-rose-600" />
           </div>
         </div>

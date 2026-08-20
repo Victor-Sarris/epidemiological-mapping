@@ -76,25 +76,25 @@ function Sidebar() {
         <nav className="flex-1 px-4 flex flex-col gap-2">
           <MenuButton
             icon={<IoHomeOutline size={20} />}
-            text="Home"
+            text="DashBoard"
             onClick={() => handleNavigation("/dashboard")}
             active={location.pathname === "/dashboard"}
           />
           <MenuButton
             icon={<IoCalendarOutline size={20} />}
-            text="Agenda"
+            text="Monitoramento X"
             onClick={() => handleNavigation("/diary")}
             active={location.pathname === "/diary"}
           />
           <MenuButton
             icon={<IoHelpCircleOutline size={20} />}
-            text="Suporte"
+            text="Monitoramento Y"
             onClick={() => handleNavigation("/support")}
             active={location.pathname === "/support"}
           />
           <MenuButton
             icon={<CgProfile size={20} />}
-            text="Perfil"
+            text="Monitoramento Z"
             onClick={() => handleNavigation("/profile")}
             active={location.pathname === "/profile"}
           />
