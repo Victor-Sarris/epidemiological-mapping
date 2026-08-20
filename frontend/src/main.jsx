@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./pages/App.jsx";
 import "./index.css";
-import "mapbox-gl/dist/mapbox-gl.css";
+import "maplibre-gl/dist/maplibre-gl.css";
+import App from "./pages/App.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
