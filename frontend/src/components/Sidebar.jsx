@@ -1,146 +1,96 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Logo from "../assets/Resource-Flow.png";
-
+import React, { useState } from "react";
 import {
-  IoArrowBackSharp,
-  IoHomeOutline,
-  IoCalendarOutline,
-  IoHelpCircleOutline,
-  IoLogOutOutline,
-  IoMenu,
-} from "react-icons/io5";
-import { CgProfile } from "react-icons/cg";
+  Home,
+  LayoutDashboard,
+  Map,
+  Activity,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 
-function Sidebar() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const handleNavigation = (path) => {
-    navigate(path);
-    setIsOpen(false);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/");
-  };
+const Sidebar = () => {
+  // Estado para controlar se o menu de endemias está aberto ou fechado
+  const [isEndemiasOpen, setIsEndemiasOpen] = useState(false);
 
   return (
-    <>
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          aria-label="Abrir menu"
-          className="fixed top-6 left-6 z-40 p-3 glass text-fg rounded-xl shadow-lg hover:bg-elevated transition-all border border-line cursor-pointer"
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col z-50">
+      {/* Cabeçalho da Sidebar */}
+      <div className="h-16 flex items-center px-6 border-b border-gray-200 text-xl font-bold text-gray-800">
+        Logo do Projeto
+      </div>
+
+      {/* Navegação principal */}
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
+        {/* Itens já existentes (Exemplos baseados na estrutura do seu projeto) */}
+        <a
+          href="/"
+          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
         >
-          <IoMenu size={24} />
-        </button>
-      )}
+          <Home className="mr-3 h-5 w-5" />
+          Home
+        </a>
+        <a
+          href="/dados-gerais"
+          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        >
+          <LayoutDashboard className="mr-3 h-5 w-5" />
+          Dashboard
+        </a>
+        <a
+          href="/mapa-epidemiologico"
+          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        >
+          <Map className="mr-3 h-5 w-5" />
+          Mapa Epidemiológico
+        </a>
 
-      <aside
-        className={`
-          fixed left-0 top-0 h-full w-64 glass-strong text-fg
-          rounded-r-3xl flex flex-col shadow-2xl z-50 border-r border-line
-          transition-transform duration-300 ease-in-out
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
-        `}
-      >
-        <div className="p-6 flex flex-col gap-5">
+        <hr className="my-2 border-gray-200" />
+
+        {/* Novo Item Expansível: Monitoramento de Endemias */}
+        <div>
           <button
-            onClick={() => setIsOpen(false)}
-            aria-label="Fechar menu"
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-elevated hover:opacity-80 transition-opacity text-muted cursor-pointer"
+            onClick={() => setIsEndemiasOpen(!isEndemiasOpen)}
+            className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors focus:outline-none"
           >
-            <IoArrowBackSharp size={20} />
-          </button>
-
-          <div className="flex items-center gap-3">
-            <img
-              src={Logo}
-              alt="Resource Flow"
-              className="h-11 w-11 object-contain drop-shadow-[0_0_15px_rgba(96,165,250,0.4)]"
-            />
-            <div>
-              <h3 className="text-xl font-bold text-gradient">Resource Flow</h3>
-              <p className="text-xs text-muted">Gerenciamento de Eventos</p>
+            <div className="flex items-center">
+              <Activity className="mr-3 h-5 w-5" />
+              <span>Monitoramento de Endemias</span>
             </div>
-          </div>
-        </div>
-
-        <div className="h-px bg-line mx-6 mb-2" />
-
-        <nav className="flex-1 px-4 flex flex-col gap-2">
-          <MenuButton
-            icon={<IoHomeOutline size={20} />}
-            text="DashBoard"
-            onClick={() => handleNavigation("/dados-gerais")}
-            active={location.pathname === "/dados-gerais"}
-          />
-          <MenuButton
-            icon={<IoCalendarOutline size={20} />}
-            text="Monitoramento de Endemias"
-            onClick={() => handleNavigation("/mapa-epidemiologico")}
-            active={location.pathname === "/mapa-epidemiologico"}
-          />
-          <MenuButton
-            icon={<IoHelpCircleOutline size={20} />}
-            text="Monitoramento Y"
-            onClick={() => handleNavigation("/support")}
-            active={location.pathname === "/support"}
-          />
-          <MenuButton
-            icon={<CgProfile size={20} />}
-            text="Monitoramento Z"
-            onClick={() => handleNavigation("/profile")}
-            active={location.pathname === "/profile"}
-          />
-        </nav>
-
-        <div className="p-4 mb-4">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-500/10 rounded-xl transition-all duration-300 group cursor-pointer"
-          >
-            <IoLogOutOutline
-              size={22}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            <span className="font-medium">Sair</span>
+            {/* Ícone muda dependendo se está aberto ou fechado */}
+            {isEndemiasOpen ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </button>
+
+          {/* Sub-itens que aparecem ao clicar */}
+          {isEndemiasOpen && (
+            <div className="mt-1 space-y-1 pl-11">
+              <a
+                href="/endemias/dengue"
+                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+              >
+                Monitoramento de Dengue
+              </a>
+              <a
+                href="/endemias/sifilis"
+                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+              >
+                Sífilis
+              </a>
+              <a
+                href="/endemias/tuberculose"
+                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+              >
+                Tuberculose
+              </a>
+            </div>
+          )}
         </div>
-      </aside>
-
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
-        />
-      )}
-    </>
+      </nav>
+    </aside>
   );
-}
-
-function MenuButton({ icon, text, active = false, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`
-        w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-300 cursor-pointer
-        ${
-          active
-            ? "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/30 text-white"
-            : "text-muted hover:bg-elevated hover:text-fg"
-        }
-      `}
-    >
-      {icon}
-      <span className="font-medium text-sm tracking-wide">{text}</span>
-    </button>
-  );
-}
+};
 
 export default Sidebar;
