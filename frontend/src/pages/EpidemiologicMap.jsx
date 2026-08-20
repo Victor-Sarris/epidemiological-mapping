@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Map } from "@/components/ui/map";
-import { Layers, Sun, Moon } from "lucide-react";
+import {
+  Map,
+  MapMarker,
+  MarkerContent,
+  MarkerPopup,
+  MarkerTooltip,
+} from "@/components/ui/map";
+import { Button } from "@/components/ui/button";
+import { Layers, Sun, Moon, AlertTriangle, Activity } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/sidebar.jsx";
 
@@ -11,11 +18,36 @@ const MAP_STYLES = {
   openstreetmap3d: "https://tiles.openfreemap.org/styles/liberty",
 };
 
+const locations = [
+  {
+    id: 1,
+    name: "Foco Confirmado - Alto da Cruz",
+    type: "Dengue",
+    status: "CRÍTICO",
+    lng: -43.0184,
+    lat: -6.7643,
+  },
+  {
+    id: 2,
+    name: "Suspeita - Centro",
+    type: "Zika",
+    status: "ALERTA",
+    lng: -43.024017,
+    lat: -6.768912,
+  },
+  {
+    id: 3,
+    name: "Foco Confirmado - Viazul",
+    type: "Chikungunya",
+    status: "CRÍTICO",
+    lng: -43.016,
+    lat: -6.7675,
+  },
+];
+
 function EpidemiologicMap() {
   const mapRef = useRef(null);
-
   const [activeStyle, setActiveStyle] = useState("light");
-
   const is3D = activeStyle === "openstreetmap3d";
 
   useEffect(() => {
@@ -32,6 +64,7 @@ function EpidemiologicMap() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar />
 
+      {/* Removido o ml-62.5 inválido para o Flexbox cuidar do layout lateral */}
       <div className="flex-1 flex flex-col h-full relative ml-62.5">
         <header className="px-8 py-5 border-b bg-white/80 backdrop-blur-md z-10 flex items-center justify-between">
           <div>
@@ -54,11 +87,83 @@ function EpidemiologicMap() {
                 light: MAP_STYLES[activeStyle],
                 dark: MAP_STYLES[activeStyle],
               }}
-            />
+            >
+              {/* Mapeando o array de locais para criar múltiplos marcadores */}
+              {locations.map((location) => (
+                <MapMarker
+                  key={location.id}
+                  longitude={location.lng}
+                  latitude={location.lat}
+                >
+                  {/* O "Ponto" no mapa */}
+                  <MarkerContent>
+                    <div
+                      className={`size-3.5 rounded-full border-2 border-white shadow-lg cursor-pointer transition-transform hover:scale-125 ${
+                        location.status === "CRÍTICO"
+                          ? "bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.8)]"
+                          : "bg-amber-500"
+                      }`}
+                    />
+                  </MarkerContent>
 
-            {/* Container unificado (flex gap-3) para os controles ficarem lado a lado */}
+                  {/* Nome flutuante ao passar o mouse */}
+                  <MarkerTooltip className="font-semibold text-xs rounded-md px-2 py-1">
+                    {location.name}
+                  </MarkerTooltip>
+
+                  {/* Card que abre ao clicar no marcador */}
+                  <MarkerPopup className="shadow-2xl rounded-2xl overflow-hidden p-0 border-0">
+                    <div className="p-4 w-64 bg-white">
+                      <div className="flex items-center gap-2 mb-2">
+                        {location.status === "CRÍTICO" ? (
+                          <AlertTriangle className="size-4 text-rose-500" />
+                        ) : (
+                          <Activity className="size-4 text-amber-500" />
+                        )}
+                        <h3 className="font-bold text-slate-800 text-sm">
+                          {location.name}
+                        </h3>
+                      </div>
+
+                      <div className="space-y-1 mb-4">
+                        <p className="text-xs text-slate-500 font-medium">
+                          Vetor:{" "}
+                          <span className="text-slate-700">
+                            {location.type}
+                          </span>
+                        </p>
+                        <p className="text-xs text-slate-500 font-medium">
+                          Status:{" "}
+                          <span
+                            className={
+                              location.status === "CRÍTICO"
+                                ? "text-rose-600 font-bold"
+                                : "text-amber-600 font-bold"
+                            }
+                          >
+                            {location.status}
+                          </span>
+                        </p>
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          Coordenadas: {location.lat.toFixed(4)},{" "}
+                          {location.lng.toFixed(4)}
+                        </p>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        className="w-full bg-rose-600 hover:bg-rose-700 text-white font-medium"
+                      >
+                        Ver Prontuário / Ação
+                      </Button>
+                    </div>
+                  </MarkerPopup>
+                </MapMarker>
+              ))}
+            </Map>
+
+            {/* Controles Flutuantes (Select + Tema) */}
             <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
-              {/* Select de Camadas */}
               <div className="bg-white/90 backdrop-blur-md p-1.5 rounded-xl shadow-lg border border-slate-200/60 flex items-center gap-2 transition-all hover:bg-white">
                 <div className="pl-2 text-slate-400">
                   <Layers className="size-4" />
@@ -75,7 +180,6 @@ function EpidemiologicMap() {
                 </select>
               </div>
 
-              {/* Botão de Tema */}
               <button
                 onClick={toggleTheme}
                 className="bg-white/90 backdrop-blur-md p-3 rounded-full shadow-lg border border-slate-200/60 text-slate-700 hover:bg-slate-100 transition-all focus:outline-none focus:ring-2 focus:ring-rose-500 flex items-center justify-center"

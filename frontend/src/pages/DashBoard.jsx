@@ -55,26 +55,22 @@ const distribuicaoUbs = [
 
 const casosRecentes = [
   {
-    name: "João S.",
     ubs: "Alto da Cruz",
     condition: "Dengue Clássica",
     status: "emerald",
   },
   {
-    name: "Maria O.",
     ubs: "Campo Velho",
     condition: "Suspeita de Zika",
     status: "amber",
   },
-  { name: "Pedro S.", ubs: "Viazul", condition: "Chikungunya", status: "rose" },
+  { ubs: "Viazul", condition: "Chikungunya", status: "rose" },
   {
-    name: "Ana C.",
     ubs: "Manguinha",
     condition: "Dengue com Sinais de Alarme",
     status: "rose",
   },
   {
-    name: "Carlos F.",
     ubs: "Centro",
     condition: "Dengue Clássica",
     status: "emerald",

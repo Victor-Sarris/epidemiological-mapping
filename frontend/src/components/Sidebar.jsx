@@ -77,14 +77,14 @@ function Sidebar() {
           <MenuButton
             icon={<IoHomeOutline size={20} />}
             text="DashBoard"
-            onClick={() => handleNavigation("/dashboard")}
-            active={location.pathname === "/dashboard"}
+            onClick={() => handleNavigation("/dados-gerais")}
+            active={location.pathname === "/dados-gerais"}
           />
           <MenuButton
             icon={<IoCalendarOutline size={20} />}
-            text="Monitoramento X"
-            onClick={() => handleNavigation("/diary")}
-            active={location.pathname === "/diary"}
+            text="Monitoramento de Endemias"
+            onClick={() => handleNavigation("/mapa-epidemiologico")}
+            active={location.pathname === "/mapa-epidemiologico"}
           />
           <MenuButton
             icon={<IoHelpCircleOutline size={20} />}
