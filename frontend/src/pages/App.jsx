@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
-import EpidemiologicMap from "./EpidemiologicMap.jsx";
+import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "mapbox-gl/dist/mapbox-gl.css";

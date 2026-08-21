@@ -15,7 +15,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["url", "name"]
 
 
-class PacienteEndemiaSerializer(serializers.ModelField):
+class PacienteEndemiaSerializer(serializers.ModelSerializer):
     class Meta:
         model = PacienteEndemia
         fields = "__all__"

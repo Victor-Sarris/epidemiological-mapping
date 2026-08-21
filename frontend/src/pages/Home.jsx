@@ -15,7 +15,7 @@ function Home() {
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rose-200/40 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/40 rounded-full blur-3xl" />
 
-      <div className="max-w-4xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 md:p-14 text-center space-y-10 border border-white/50 relative z-10">
+      <div className="max-w-3xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 md:p-14 text-center space-y-10 border border-white/50 relative z-10">
         <div className="flex justify-center">
           <div className="bg-linear-to-br from-rose-100 to-rose-50 p-5 rounded-2xl shadow-inner border border-rose-100">
             <Activity className="size-14 text-rose-600" />
@@ -23,7 +23,7 @@ function Home() {
         </div>
 
         <div className="space-y-5">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600">
             Sistema de Mapeamento Epidemiológico
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">

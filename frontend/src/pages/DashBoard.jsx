@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Sidebar from "../components/sidebar.jsx";
+import Sidebar from "../components/Sidebar.jsx";
 import {
   Users,
   Activity,
@@ -14,20 +14,11 @@ import {
   UserCircle,
 } from "lucide-react";
 
-function Dashboard() {
-  const getColorClasses = (color) => {
-    const map = {
-      blue: "border-l-blue-500 text-blue-600 bg-blue-50",
-      emerald: "border-l-emerald-500 text-emerald-600 bg-emerald-50",
-      amber: "border-l-amber-500 text-amber-600 bg-amber-50",
-      rose: "border-l-rose-500 text-rose-600 bg-rose-50",
-    };
-    return map[color];
-  };
-
+export default function Dashboard() {
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Busca os dados da API Django
   useEffect(() => {
     fetch("http://localhost:8000/api/pacientes/")
       .then((response) => response.json())
@@ -41,7 +32,64 @@ function Dashboard() {
       });
   }, []);
 
-  if (loading) return <p>Carregando os dados...</p>;
+  const getColorClasses = (color) => {
+    const map = {
+      blue: "border-l-blue-500 text-blue-600 bg-blue-50",
+      emerald: "border-l-emerald-500 text-emerald-600 bg-emerald-50",
+      amber: "border-l-amber-500 text-amber-600 bg-amber-50",
+      rose: "border-l-rose-500 text-rose-600 bg-rose-50",
+    };
+    return map[color] || map.blue;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-50">
+        <p className="text-lg font-medium text-slate-600">
+          Carregando dados epidemiológicos...
+        </p>
+      </div>
+    );
+  }
+
+  // 1. Montando o KPI dinamicamente com os dados da API
+  const kpis = [
+    {
+      title: "Total de Notificações",
+      value: pacientes.length, // <- Dado real da API!
+      icon: Users,
+      color: "blue",
+      subtext: "Registros importados do SINAN",
+    },
+    {
+      title: "Casos em Alerta",
+      value: "14", // Placeholder
+      icon: AlertTriangle,
+      color: "amber",
+      subtext: "Requerem atenção",
+    },
+  ];
+
+  // 2. Montando a lista de casos recentes com os dados da API
+  const casosRecentes = pacientes.slice(0, 5).map((paciente) => ({
+    name: paciente.nome_paciente || "Paciente não identificado",
+    condition: `Notificação: ${paciente.numero_notificacao}`,
+    ubs: paciente.endereco || "Endereço não informado",
+    status: "rose",
+  }));
+
+  // Arrays temporários para não quebrar o restante do layout
+  const distribuicaoUbs = [
+    { name: "UBS Alto da Cruz", value: 45, max: 100, color: "bg-blue-500" },
+    { name: "UBS Campo Velho", value: 30, max: 100, color: "bg-emerald-500" },
+  ];
+  const proximasAcoes = [
+    {
+      title: "Mutirão de Limpeza",
+      location: "Bairro Manguinha",
+      date: "Amanhã, 08:00",
+    },
+  ];
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -49,7 +97,7 @@ function Dashboard() {
       <Sidebar />
 
       {/* Área de Conteúdo Principal */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto ml-62.5">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto ml-64">
         {/* Header Superior */}
         <header className="px-8 py-4 border-b bg-white flex items-center justify-between sticky top-0 z-20">
           <h2 className="text-xl font-bold text-slate-800">Visão Geral</h2>
@@ -74,21 +122,24 @@ function Dashboard() {
                 Dashboard
               </h1>
               <p className="text-slate-500 mt-1">
-                Acompanhamento epidemiológico de Floriano, PI
+                Acompanhamento epidemiológico dos casos de Dengue
               </p>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-sm text-slate-400">
                 Última atualização: Agora
               </span>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm text-sm font-medium hover:bg-slate-50 transition-all active:scale-95">
+              <button
+                onClick={() => window.location.reload()}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg shadow-sm text-sm font-medium hover:bg-slate-50 transition-all active:scale-95"
+              >
                 <RefreshCw className="size-4 text-slate-500" />
                 Atualizar
               </button>
             </div>
           </div>
 
-          {/* Grid de KPIs (4 Cards no topo) */}
+          {/* Grid de KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {kpis.map((kpi, idx) => {
               const colors = getColorClasses(kpi.color);
@@ -111,27 +162,16 @@ function Dashboard() {
                     </div>
                   </div>
                   <p className="text-xs font-medium mt-4 text-slate-400">
-                    <span
-                      className={
-                        kpi.color === "rose"
-                          ? "text-rose-500"
-                          : kpi.color === "emerald"
-                            ? "text-emerald-500"
-                            : ""
-                      }
-                    >
-                      {kpi.subtext.split(" ")[0]}
-                    </span>
-                    {" " + kpi.subtext.split(" ").slice(1).join(" ")}
+                    {kpi.subtext}
                   </p>
                 </div>
               );
             })}
           </div>
 
-          {/* Layout de 3 Colunas (Distribuição, Recentes, Próximas Ações) */}
+          {/* Layout de 3 Colunas */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Coluna 1: Distribuição por Setor */}
+            {/* Coluna 1: Distribuição */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">
@@ -164,13 +204,9 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-6 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors">
-                <Map className="size-4" />
-                Ver mapa completo
-              </button>
             </div>
 
-            {/* Coluna 2: Casos Recentes */}
+            {/* Coluna 2: Casos Recentes (Agora com DADOS REAIS da API) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">
@@ -187,14 +223,12 @@ function Dashboard() {
                     className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-slate-100"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`size-2 rounded-full bg-${caso.status}-500 shadow-sm shadow-${caso.status}-200`}
-                      ></div>
-                      <div>
-                        <p className="text-sm font-bold text-slate-800">
+                      <div className="size-2 rounded-full bg-rose-500 shadow-sm shadow-rose-200"></div>
+                      <div className="truncate w-40">
+                        <p className="text-sm font-bold text-slate-800 truncate">
                           {caso.name}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-500 truncate">
                           {caso.condition} • {caso.ubs}
                         </p>
                       </div>
@@ -203,10 +237,6 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors">
-                <Users className="size-4" />
-                Ver todos os casos
-              </button>
             </div>
 
             {/* Coluna 3: Próximas Ações */}
@@ -240,10 +270,6 @@ function Dashboard() {
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-2 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2 transition-colors">
-                <Calendar className="size-4" />
-                Ver calendário
-              </button>
             </div>
           </div>
         </main>
@@ -251,5 +277,3 @@ function Dashboard() {
     </div>
   );
 }
-
-export default Dashboard;
