@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar.jsx";
 import {
   Users,
@@ -14,92 +14,6 @@ import {
   UserCircle,
 } from "lucide-react";
 
-const kpis = [
-  {
-    title: "Total de Casos",
-    value: "142",
-    subtext: "+12 novos casos esta semana",
-    icon: Users,
-    color: "blue",
-  },
-  {
-    title: "Casos Ativos",
-    value: "38",
-    subtext: "26% do total de casos",
-    icon: Activity,
-    color: "emerald",
-  },
-  {
-    title: "Focos Identificados",
-    value: "15",
-    subtext: "Últimos 7 dias",
-    icon: Bug,
-    color: "amber",
-  },
-  {
-    title: "Áreas de Alerta",
-    value: "3",
-    subtext: "Requer atenção imediata",
-    icon: AlertTriangle,
-    color: "rose",
-  },
-];
-
-const distribuicaoUbs = [
-  { name: "UBS Alto da Cruz", value: 45, max: 50, color: "bg-blue-500" },
-  { name: "UBS Viazul", value: 32, max: 50, color: "bg-emerald-500" },
-  { name: "UBS Campo Velho", value: 28, max: 50, color: "bg-amber-500" },
-  { name: "UBS Manguinha", value: 20, max: 50, color: "bg-rose-500" },
-  { name: "UBS Centro", value: 17, max: 50, color: "bg-purple-500" },
-];
-
-const casosRecentes = [
-  {
-    ubs: "Alto da Cruz",
-    condition: "Dengue Clássica",
-    status: "emerald",
-  },
-  {
-    ubs: "Campo Velho",
-    condition: "Suspeita de Zika",
-    status: "amber",
-  },
-  { ubs: "Viazul", condition: "Chikungunya", status: "rose" },
-  {
-    ubs: "Manguinha",
-    condition: "Dengue com Sinais de Alarme",
-    status: "rose",
-  },
-  {
-    ubs: "Centro",
-    condition: "Dengue Clássica",
-    status: "emerald",
-  },
-];
-
-const proximasAcoes = [
-  {
-    title: "Mutirão de Limpeza",
-    location: "Quadrante Alto da Cruz",
-    date: "22/08/2026 às 08:00",
-  },
-  {
-    title: "Aplicação de Larvicida",
-    location: "Quadrante Viazul",
-    date: "24/08/2026 às 09:30",
-  },
-  {
-    title: "Visita Domiciliar",
-    location: "Rua Defala Attem",
-    date: "25/08/2026 às 14:00",
-  },
-  {
-    title: "Ação Educativa",
-    location: "Escola Municipal",
-    date: "28/08/2026 às 10:00",
-  },
-];
-
 function Dashboard() {
   const getColorClasses = (color) => {
     const map = {
@@ -110,6 +24,24 @@ function Dashboard() {
     };
     return map[color];
   };
+
+  const [pacientes, setPacientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/api/pacientes/")
+      .then((response) => response.json())
+      .then((data) => {
+        setPacientes(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar dados:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) return <p>Carregando os dados...</p>;
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
