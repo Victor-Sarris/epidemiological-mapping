@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Sidebar from "@/components/Sidebar";
+import EndemiasFilter from "@/components/EndemiasFilter";
+import ButtonTheme from "@/components/ButtonTheme";
 import { Map, MapGeoJSON } from "@/components/ui/map";
 import { Activity, Map as MapIcon } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import EndemiasFilter from "@/components/EndemiasFilter";
-import ButtonTheme from "@/components/ButtonTheme";
-import MapLegend from "@/components/MapLegend"; // <- Adicione esta linha!
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -106,7 +105,6 @@ export default function MapDengue() {
     setActiveStyle((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // 1. EFEITO DE CARREGAMENTO (Executa apenas 1 vez quando a tela abre)
   useEffect(() => {
     setLoading(true);
     fetch("http://localhost:8000/api/pacientes/")
@@ -121,7 +119,6 @@ export default function MapDengue() {
       });
   }, []);
 
-  // 2. EFEITO DE FILTRAGEM (Executa sempre que a 'endemiaSelecionada' muda)
   useEffect(() => {
     if (todosPacientes.length === 0) return;
 
@@ -130,7 +127,7 @@ export default function MapDengue() {
       const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
 
       if (endemiaSelecionada === "dengue") {
-        return agravo.includes("A90") || agravo === ""; // Considerando vazios como dengue devido à base inicial
+        return agravo.includes("A90") || agravo === "";
       }
       if (endemiaSelecionada === "sifilis") {
         return (
@@ -143,7 +140,7 @@ export default function MapDengue() {
         return agravo.includes("A15") || agravo.includes("A16");
       }
       if (endemiaSelecionada === "gerais") {
-        return true; // Retorna todos os casos
+        return true;
       }
 
       return true;
@@ -163,17 +160,14 @@ export default function MapDengue() {
       }
     });
 
-    // Atualiza as cores dos polígonos
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const nomeBairro = feature.properties.name;
       const totalCasos = contagemPorBairro[nomeBairro] || 0;
 
-      let corPoligono = "#3b82f6"; // Azul (Nenhum caso)
-      if (totalCasos > 15)
-        corPoligono = "#e11d48"; // Vermelho (Crítico)
-      else if (totalCasos > 5)
-        corPoligono = "#f59e0b"; // Laranja (Alerta)
-      else if (totalCasos > 0) corPoligono = "#eab308"; // Amarelo (Atenção)
+      let corPoligono = "#3b82f6";
+      if (totalCasos > 15) corPoligono = "#e11d48";
+      else if (totalCasos > 5) corPoligono = "#f59e0b";
+      else if (totalCasos > 0) corPoligono = "#eab308";
 
       return {
         ...feature,
@@ -206,7 +200,6 @@ export default function MapDengue() {
 
         <main className="flex-1 p-4 md:p-6 relative">
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200">
-            {/* COMPONENTE DE FILTRO (Agora interativo!) */}
             <EndemiasFilter
               selected={endemiaSelecionada}
               onChange={setEndemiaSelecionada}
@@ -240,10 +233,8 @@ export default function MapDengue() {
               </Map>
             )}
 
-            {/* COMPONENTE DE LEGENDA */}
             <MapLegend />
 
-            {/* COMPONENTE DE TEMA */}
             <ButtonTheme
               activeStyle={activeStyle}
               setActiveStyle={setActiveStyle}

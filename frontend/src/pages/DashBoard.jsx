@@ -115,7 +115,6 @@ export default function Dashboard() {
         </header>
 
         <main className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto w-full">
-          {/* Título e Botão de Atualizar */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
@@ -206,7 +205,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Coluna 2: Casos Recentes (Agora com DADOS REAIS da API) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">

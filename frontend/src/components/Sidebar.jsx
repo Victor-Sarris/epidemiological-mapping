@@ -21,7 +21,6 @@ const Sidebar = () => {
 
       {/* Navegação principal */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-        {/* Itens já existentes (Exemplos baseados na estrutura do seu projeto) */}
         <a
           href="/"
           className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"

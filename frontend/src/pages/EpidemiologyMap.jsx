@@ -165,7 +165,6 @@ function EpidemiologicMap() {
               ))}
             </Map>
 
-            {/* CORREÇÃO AQUI: Passando as props para os componentes funcionarem */}
             <ButtonTheme
               activeStyle={activeStyle}
               setActiveStyle={setActiveStyle}

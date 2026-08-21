@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Bug, Activity, ShieldAlert, Menu, ChevronDown } from "lucide-react";
 
 export default function EndemiasFilter({ selected, onChange }) {
-  // Estado para controlar se o menu está expandido ou recolhido
   const [isOpen, setIsOpen] = useState(false);
 
   const endemias = [
@@ -41,7 +40,6 @@ export default function EndemiasFilter({ selected, onChange }) {
 
   return (
     <div className="absolute top-4 left-6 z-20 flex flex-col items-start">
-      {/* Botão em forma de hamburguer */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-slate-200/60 hover:bg-white transition-all active:scale-95"
@@ -67,7 +65,7 @@ export default function EndemiasFilter({ selected, onChange }) {
                 key={item.id}
                 onClick={() => {
                   onChange(item.id);
-                  setIsOpen(false); // Fecha o menu ao selecionar
+                  setIsOpen(false);
                 }}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selected === item.id
