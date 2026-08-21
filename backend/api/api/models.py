@@ -7,6 +7,7 @@ class PacienteEndemia(models.Model):
     data_notificacao = models.DateField(null=True, blank=True)
     data_pri_sintoma = models.DateField(null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
+    id_agravo = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.numero_notificacao} - {self.nome_paciente}"
