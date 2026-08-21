@@ -117,7 +117,7 @@ function Dashboard() {
       <Sidebar />
 
       {/* Área de Conteúdo Principal */}
-      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto ml-62.5">
         {/* Header Superior */}
         <header className="px-8 py-4 border-b bg-white flex items-center justify-between sticky top-0 z-20">
           <h2 className="text-xl font-bold text-slate-800">Visão Geral</h2>
