@@ -45,49 +45,6 @@ const Sidebar = () => {
         </a>
 
         <hr className="my-2 border-gray-200" />
-
-        {/* Novo Item Expansível: Monitoramento de Endemias */}
-        <div>
-          <button
-            onClick={() => setIsEndemiasOpen(!isEndemiasOpen)}
-            className="w-full flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 transition-colors focus:outline-none"
-          >
-            <div className="flex items-center">
-              <Activity className="mr-3 h-5 w-5" />
-              <span>Monitoramento de Endemias</span>
-            </div>
-            {/* Ícone muda dependendo se está aberto ou fechado */}
-            {isEndemiasOpen ? (
-              <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
-          </button>
-
-          {/* Sub-itens que aparecem ao clicar */}
-          {isEndemiasOpen && (
-            <div className="mt-1 space-y-1 pl-11">
-              <a
-                href="/endemias/dengue"
-                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
-              >
-                Monitoramento de Dengue
-              </a>
-              <a
-                href="/endemias/sifilis"
-                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
-              >
-                Sífilis
-              </a>
-              <a
-                href="/endemias/tuberculose"
-                className="block px-3 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
-              >
-                Tuberculose
-              </a>
-            </div>
-          )}
-        </div>
       </nav>
     </aside>
   );

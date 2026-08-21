@@ -49,7 +49,13 @@ const locations = [
 
 function EpidemiologicMap() {
   const mapRef = useRef(null);
+
+  // Estados do Mapa
   const [activeStyle, setActiveStyle] = useState("light");
+
+  // NOVO: Estado para controlar o filtro de endemias
+  const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
+
   const is3D = activeStyle === "openstreetmap3d";
 
   useEffect(() => {
@@ -66,8 +72,7 @@ function EpidemiologicMap() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar />
 
-      {/* Removido o ml-62.5 inválido para o Flexbox cuidar do layout lateral */}
-      <div className="flex-1 flex flex-col h-full relative ml-62.5">
+      <div className="flex-1 flex flex-col h-full relative ml-64">
         <header className="px-8 py-5 border-b bg-white/80 backdrop-blur-md z-10 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-extrabold text-slate-800 tracking-tight">
@@ -90,14 +95,12 @@ function EpidemiologicMap() {
                 dark: MAP_STYLES[activeStyle],
               }}
             >
-              {/* Mapeando o array de locais para criar múltiplos marcadores */}
               {locations.map((location) => (
                 <MapMarker
                   key={location.id}
                   longitude={location.lng}
                   latitude={location.lat}
                 >
-                  {/* O "Ponto" no mapa */}
                   <MarkerContent>
                     <div
                       className={`size-3.5 rounded-full border-2 border-white shadow-lg cursor-pointer transition-transform hover:scale-125 ${
@@ -108,12 +111,10 @@ function EpidemiologicMap() {
                     />
                   </MarkerContent>
 
-                  {/* Nome flutuante ao passar o mouse */}
                   <MarkerTooltip className="font-semibold text-xs rounded-md px-2 py-1">
                     {location.name}
                   </MarkerTooltip>
 
-                  {/* Card que abre ao clicar no marcador */}
                   <MarkerPopup className="shadow-2xl rounded-2xl overflow-hidden p-0 border-0">
                     <div className="p-4 w-64 bg-white">
                       <div className="flex items-center gap-2 mb-2">
@@ -163,8 +164,18 @@ function EpidemiologicMap() {
                 </MapMarker>
               ))}
             </Map>
-            <ButtonTheme />
-            <EndemiaFilter />
+
+            {/* CORREÇÃO AQUI: Passando as props para os componentes funcionarem */}
+            <ButtonTheme
+              activeStyle={activeStyle}
+              setActiveStyle={setActiveStyle}
+              toggleTheme={toggleTheme}
+            />
+
+            <EndemiaFilter
+              selected={endemiaSelecionada}
+              onChange={setEndemiaSelecionada}
+            />
           </div>
         </main>
       </div>

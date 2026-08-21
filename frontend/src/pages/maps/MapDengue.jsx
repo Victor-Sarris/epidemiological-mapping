@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
-import Sidebar from "../../components/Sidebar.jsx";
-import EndemiaFilter from "../../components/EndemiasFilter.jsx";
+import Sidebar from "@/components/Sidebar";
 import { Map, MapGeoJSON } from "@/components/ui/map";
 import { Activity, Map as MapIcon } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
+import EndemiasFilter from "@/components/EndemiasFilter";
+import ButtonTheme from "@/components/ButtonTheme";
+import MapLegend from "@/components/MapLegend"; // <- Adicione esta linha!
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+  openstreetmap: "https://tiles.openfreemap.org/styles/bright",
+  openstreetmap3d: "https://tiles.openfreemap.org/styles/liberty",
 };
 
-// Base GeoJSON (Mantida igual)
 const bairrosFlorianoGeoJSON = {
   type: "FeatureCollection",
   features: [
@@ -87,66 +90,103 @@ export default function MapDengue() {
   const [geoData, setGeoData] = useState(bairrosFlorianoGeoJSON);
   const [loading, setLoading] = useState(true);
 
-  // Novo estado para controlar qual endemia está selecionada
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("dengue");
+  // Estados para gerenciar a lista completa e a seleção atual
+  const [todosPacientes, setTodosPacientes] = useState([]);
+  const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
 
+  const is3D = activeStyle === "openstreetmap3d";
+
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.easeTo({ pitch: is3D ? 60 : 0, duration: 500 });
+    }
+  }, [is3D]);
+
+  const toggleTheme = () => {
+    setActiveStyle((prev) => (prev === "dark" ? "light" : "dark"));
+  };
+
+  // 1. EFEITO DE CARREGAMENTO (Executa apenas 1 vez quando a tela abre)
   useEffect(() => {
     setLoading(true);
     fetch("http://localhost:8000/api/pacientes/")
       .then((res) => res.json())
-      .then((pacientes) => {
-        // Exemplo prático de como o filtro que criamos vai atuar nos dados:
-        const pacientesFiltrados = pacientes.filter((p) => {
-          // 'A90' é o ID_AGRAVO de Dengue no SINAN
-          if (endemiaSelecionada === "dengue")
-            return p.id_agravo === "A90" || p.id_agravo === null;
-          // Adicione a lógica para sífilis, tuberculose, etc, depois
-          return true;
-        });
-
-        const contagemPorBairro = {};
-
-        pacientesFiltrados.forEach((paciente) => {
-          if (paciente.endereco) {
-            const partes = paciente.endereco.split(",");
-            const bairroStr = partes[partes.length - 1].trim().toUpperCase();
-            const bairroNormalizado = bairroStr
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "");
-            contagemPorBairro[bairroNormalizado] =
-              (contagemPorBairro[bairroNormalizado] || 0) + 1;
-          }
-        });
-
-        const updatedFeatures = bairrosFlorianoGeoJSON.features.map(
-          (feature) => {
-            const nomeBairro = feature.properties.name;
-            const totalCasos = contagemPorBairro[nomeBairro] || 0;
-
-            let corPoligono = "#3b82f6";
-            if (totalCasos > 15) corPoligono = "#e11d48";
-            else if (totalCasos > 5) corPoligono = "#f59e0b";
-            else if (totalCasos > 0) corPoligono = "#eab308";
-
-            return {
-              ...feature,
-              properties: {
-                ...feature.properties,
-                total: totalCasos,
-                color: corPoligono,
-              },
-            };
-          },
-        );
-
-        setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
+      .then((data) => {
+        setTodosPacientes(data);
         setLoading(false);
       })
       .catch((err) => {
         console.error("Erro ao buscar mapa:", err);
         setLoading(false);
       });
-  }, [endemiaSelecionada]); // <- O Hook agora recarrega a contagem do mapa sempre que você troca a endemia!
+  }, []);
+
+  // 2. EFEITO DE FILTRAGEM (Executa sempre que a 'endemiaSelecionada' muda)
+  useEffect(() => {
+    if (todosPacientes.length === 0) return;
+
+    // Filtra os pacientes baseados no código CID-10 (id_agravo)
+    const pacientesFiltrados = todosPacientes.filter((p) => {
+      const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
+
+      if (endemiaSelecionada === "dengue") {
+        return agravo.includes("A90") || agravo === ""; // Considerando vazios como dengue devido à base inicial
+      }
+      if (endemiaSelecionada === "sifilis") {
+        return (
+          agravo.includes("A51") ||
+          agravo.includes("A52") ||
+          agravo.includes("A53")
+        );
+      }
+      if (endemiaSelecionada === "tuberculose") {
+        return agravo.includes("A15") || agravo.includes("A16");
+      }
+      if (endemiaSelecionada === "gerais") {
+        return true; // Retorna todos os casos
+      }
+
+      return true;
+    });
+
+    // Contagem de casos por bairro
+    const contagemPorBairro = {};
+    pacientesFiltrados.forEach((paciente) => {
+      if (paciente.endereco) {
+        const partes = paciente.endereco.split(",");
+        const bairroStr = partes[partes.length - 1].trim().toUpperCase();
+        const bairroNormalizado = bairroStr
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        contagemPorBairro[bairroNormalizado] =
+          (contagemPorBairro[bairroNormalizado] || 0) + 1;
+      }
+    });
+
+    // Atualiza as cores dos polígonos
+    const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
+      const nomeBairro = feature.properties.name;
+      const totalCasos = contagemPorBairro[nomeBairro] || 0;
+
+      let corPoligono = "#3b82f6"; // Azul (Nenhum caso)
+      if (totalCasos > 15)
+        corPoligono = "#e11d48"; // Vermelho (Crítico)
+      else if (totalCasos > 5)
+        corPoligono = "#f59e0b"; // Laranja (Alerta)
+      else if (totalCasos > 0) corPoligono = "#eab308"; // Amarelo (Atenção)
+
+      return {
+        ...feature,
+        properties: {
+          ...feature.properties,
+          total: totalCasos,
+          color: corPoligono,
+        },
+      };
+    });
+
+    setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
+  }, [endemiaSelecionada, todosPacientes]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -166,8 +206,8 @@ export default function MapDengue() {
 
         <main className="flex-1 p-4 md:p-6 relative">
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200">
-            {/* INJEÇÃO DO NOVO COMPONENTE DE FILTRO */}
-            <EndemiaFilter
+            {/* COMPONENTE DE FILTRO (Agora interativo!) */}
+            <EndemiasFilter
               selected={endemiaSelecionada}
               onChange={setEndemiaSelecionada}
             />
@@ -181,7 +221,10 @@ export default function MapDengue() {
                 ref={mapRef}
                 center={[-43.0225, -6.7672]}
                 zoom={13.5}
-                styles={{ light: MAP_STYLES.light, dark: MAP_STYLES.dark }}
+                styles={{
+                  light: MAP_STYLES[activeStyle] || MAP_STYLES.light,
+                  dark: MAP_STYLES[activeStyle] || MAP_STYLES.dark,
+                }}
               >
                 <MapGeoJSON
                   data={geoData}
@@ -197,19 +240,15 @@ export default function MapDengue() {
               </Map>
             )}
 
-            {/* INJEÇÃO DO NOVO COMPONENTE DE LEGENDA */}
+            {/* COMPONENTE DE LEGENDA */}
             <MapLegend />
 
-            <div className="absolute top-4 right-4 z-10">
-              <select
-                value={activeStyle}
-                onChange={(e) => setActiveStyle(e.target.value)}
-                className="bg-white/90 backdrop-blur-md text-slate-700 rounded-lg px-4 py-2 text-sm focus:outline-none shadow-lg border border-slate-200/60 cursor-pointer font-semibold"
-              >
-                <option value="light">Mapa Claro</option>
-                <option value="dark">Mapa Escuro</option>
-              </select>
-            </div>
+            {/* COMPONENTE DE TEMA */}
+            <ButtonTheme
+              activeStyle={activeStyle}
+              setActiveStyle={setActiveStyle}
+              toggleTheme={toggleTheme}
+            />
           </div>
         </main>
       </div>
