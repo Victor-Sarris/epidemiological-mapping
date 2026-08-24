@@ -12,6 +12,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/sidebar.jsx";
 import EndemiaFilter from "../components/EndemiasFilter.jsx";
 import ButtonTheme from "../components/ButtonTheme.jsx";
+import MapDengue from "./maps/MapDengue.jsx";
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -49,13 +50,8 @@ const locations = [
 
 function EpidemiologicMap() {
   const mapRef = useRef(null);
-
-  // Estados do Mapa
   const [activeStyle, setActiveStyle] = useState("light");
-
-  // NOVO: Estado para controlar o filtro de endemias
   const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
-
   const is3D = activeStyle === "openstreetmap3d";
 
   useEffect(() => {

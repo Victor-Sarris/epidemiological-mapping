@@ -63,7 +63,7 @@ function Home() {
 
         <div className="pt-8 flex flex-col items-center gap-6">
           <button
-            onClick={() => navigate("/mapa-epidemiologico")}
+            onClick={() => navigate("/dados-gerais")}
             className="group flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-lg py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-rose-600/30 active:scale-95"
           >
             Acessar Painel do Mapa

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Bug, Activity, ShieldAlert, Menu, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function EndemiasFilter({ selected, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const endemias = [
     {
@@ -35,6 +37,17 @@ export default function EndemiasFilter({ selected, onChange }) {
     },
   ];
 
+  const handleSelection = (id) => {
+    onChange(id);
+    setIsOpen(false);
+
+    if (id === "dengue") {
+      navigate("/mapa-epidemiologico/endemias/dengue");
+    } else if (id === "gerais") {
+      navigate("/mapa-epidemiologico");
+    }
+  };
+
   const selectedItem =
     endemias.find((item) => item.id === selected) || endemias[0];
 
@@ -63,10 +76,7 @@ export default function EndemiasFilter({ selected, onChange }) {
             {endemias.map((item) => (
               <button
                 key={item.id}
-                onClick={() => {
-                  onChange(item.id);
-                  setIsOpen(false);
-                }}
+                onClick={() => handleSelection(item.id)} // <- Atualizado aqui!
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   selected === item.id
                     ? "bg-slate-100 ring-1 ring-slate-300 shadow-sm"

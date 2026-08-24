@@ -6,7 +6,7 @@ from .models import PacienteEndemia, UploadDBF
 @admin.register(PacienteEndemia)
 class PacienteEndemiaAdmin(admin.ModelAdmin):
     # mostra essas colunas na listagem do admin
-    list_display = ("numero_notificacao", "nome_paciente", "data_notificacao", "endereco", "data_nascimento", "data_pri_sintoma", "id_agravo")
+    list_display = ("numero_notificacao", "nome_paciente", "data_notificacao", "endereco", "data_nascimento", "data_pri_sintoma", "id_agravo", "id_unidade", "hospital", "cs_sexo")
     search_fields = ("numero_notificacao", "nome_paciente")
 
 @admin.register(UploadDBF)
@@ -20,6 +20,7 @@ class UploadDBFAdmin(admin.ModelAdmin):
                 record.get('NM_NUMERO'),
                 record.get('NM_COMPLEM'),
                 record.get('NM_BAIRRO'),
+                record.get('NU_CEP'),
             ]
 
             partes_validadas = [str(p).strip() for p in partes_endereco if p and str(p).strip()]
@@ -33,4 +34,8 @@ class UploadDBFAdmin(admin.ModelAdmin):
                 data_nascimento=record.get('DT_NASC'),
                 endereco=endereco_formatado,
                 id_agravo=record.get('ID_AGRAVO'),
+                id_unidade=record.get('ID_UNIDADE'),
+                hospital=record.get('HOSPITAL'),
+                cs_sexo=record.get('CS_SEXO'),
+
             )

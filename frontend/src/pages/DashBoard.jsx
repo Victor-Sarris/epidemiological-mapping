@@ -13,10 +13,15 @@ import {
   Bell,
   UserCircle,
 } from "lucide-react";
+import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
+import PatientModal from "../components/Modal/PatientModal.jsx";
 
 export default function Dashboard() {
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
+  const [modalAberto, setModalAberto] = useState(false);
 
   // Busca os dados da API Django
   useEffect(() => {
@@ -52,11 +57,11 @@ export default function Dashboard() {
     );
   }
 
-  // 1. Montando o KPI dinamicamente com os dados da API
+  // Dados reais da API
   const kpis = [
     {
       title: "Total de Notificações",
-      value: pacientes.length, // <- Dado real da API!
+      value: pacientes.length,
       icon: Users,
       color: "blue",
       subtext: "Registros importados do SINAN",
@@ -70,19 +75,26 @@ export default function Dashboard() {
     },
   ];
 
-  // 2. Montando a lista de casos recentes com os dados da API
-  const casosRecentes = pacientes.slice(0, 5).map((paciente) => ({
-    name: paciente.nome_paciente || "Paciente não identificado",
-    condition: `Notificação: ${paciente.numero_notificacao}`,
-    ubs: paciente.endereco || "Endereço não informado",
-    status: "rose",
-  }));
+  const casosRecentes = pacientes.slice(0, 5).map((paciente) => {
+    let bairro = "Bairro não informado";
+    if (paciente.endereco) {
+      const partes = paciente.endereco.split(",");
+      bairro =
+        partes.length > 1
+          ? partes[partes.length - 1].trim()
+          : "Endereço incompleto";
+      bairro = bairro.charAt(0).toUpperCase() + bairro.slice(1).toLowerCase();
+    }
 
-  // Arrays temporários para não quebrar o restante do layout
-  const distribuicaoUbs = [
-    { name: "UBS Alto da Cruz", value: 45, max: 100, color: "bg-blue-500" },
-    { name: "UBS Campo Velho", value: 30, max: 100, color: "bg-emerald-500" },
-  ];
+    return {
+      name: `Caso #${paciente.numero_notificacao || "S/N"}`,
+      condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} • Sexo: ${paciente.cs_sexo || "N/I"}`,
+      ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
+      status: "rose",
+      dadosOriginais: paciente,
+    };
+  });
+
   const proximasAcoes = [
     {
       title: "Mutirão de Limpeza",
@@ -90,6 +102,43 @@ export default function Dashboard() {
       date: "Amanhã, 08:00",
     },
   ];
+
+  const contagemBairros = pacientes.reduce((acc, paciente) => {
+    if (paciente.endereco) {
+      const partes = paciente.endereco.split(",");
+      let bairro =
+        partes.length > 1
+          ? partes[partes.length - 1].trim()
+          : "Endereço incompleto";
+      bairro = bairro.charAt(0).toUpperCase() + bairro.slice(1).toLowerCase();
+
+      acc[bairro] = (acc[bairro] || 0) + 1;
+    } else {
+      acc["Não informado"] = (acc["Não informado"] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const coresDistribuicao = [
+    "bg-blue-500",
+    "bg-emerald-500",
+    "bg-amber-500",
+    "bg-rose-500",
+    "bg-purple-500",
+  ];
+
+  // Encontra o bairro com o maior número de casos para ser a barra de 100%
+  const maxCasos = Math.max(...Object.values(contagemBairros), 1);
+
+  const distribuicaoUbs = Object.entries(contagemBairros)
+    .sort((a, b) => b[1] - a[1]) // Ordena do bairro com mais casos para o menor
+    .slice(0, 5) // Pega apenas os 5 maiores para não quebrar o layout
+    .map(([nome, valor], index) => ({
+      name: nome,
+      value: valor,
+      max: maxCasos,
+      color: coresDistribuicao[index % coresDistribuicao.length],
+    }));
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -99,17 +148,19 @@ export default function Dashboard() {
       {/* Área de Conteúdo Principal */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto ml-64">
         {/* Header Superior */}
-        <header className="px-8 py-4 border-b bg-white flex items-center justify-between sticky top-0 z-20">
-          <h2 className="text-xl font-bold text-slate-800">Visão Geral</h2>
+        <header className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060]">
+          <h2 className="text-xl font-bold text-slate-8 text-white">
+            Visão Geral
+          </h2>
           <div className="flex items-center gap-4">
             <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
               <Bell className="size-5" />
               <span className="absolute top-1.5 right-1.5 size-2 bg-rose-500 rounded-full border-2 border-white"></span>
             </button>
             <div className="h-8 w-px bg-slate-200"></div>
-            <button className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900">
-              <UserCircle className="size-6 text-slate-400" />
-              <span>Gestor Saúde</span>
+            <button className="flex items-center gap-2 text-sm font-medium text-white hover:text-slate-900">
+              <UserCircle className="size-6 text-white" />
+              <span className="text-white">Gestão Epidemiológica</span>
             </button>
           </div>
         </header>
@@ -219,6 +270,10 @@ export default function Dashboard() {
                   <div
                     key={idx}
                     className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-slate-100"
+                    onClick={() => {
+                      setPacienteSelecionado(caso.dadosOriginais);
+                      setModalAberto(true);
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <div className="size-2 rounded-full bg-rose-500 shadow-sm shadow-rose-200"></div>
@@ -271,7 +326,18 @@ export default function Dashboard() {
             </div>
           </div>
         </main>
+        <footer className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060]">
+          <img
+            src={AssinaturaGovernamental}
+            alt="<Logo da Secretaria de Saúde"
+          />
+        </footer>
       </div>
+      <PatientModal
+        isOpen={modalAberto}
+        paciente={pacienteSelecionado}
+        onClose={() => setModalAberto(false)}
+      />
     </div>
   );
 }
