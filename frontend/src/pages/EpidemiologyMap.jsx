@@ -5,7 +5,7 @@ import {
   MarkerContent,
   MarkerPopup,
   MarkerTooltip,
-} from "@/components/ui/map";
+} from "../components/ui/map.jsx";
 import { Button } from "@/components/ui/button";
 import { Layers, Sun, Moon, AlertTriangle, Activity } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -68,6 +68,12 @@ function EpidemiologicMap() {
     setActiveStyle((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  const locationsFiltradas = locations.filter((loc) => {
+    if (endemiaSelecionada === "gerais") return true;
+    // compara o tipo de ponto
+    return loc.type.toLowerCase() == endemiaSelecionada.toLowerCase();
+  });
+
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar />
@@ -95,7 +101,7 @@ function EpidemiologicMap() {
                 dark: MAP_STYLES[activeStyle],
               }}
             >
-              {locations.map((location) => (
+              {locationsFiltradas.map((location) => (
                 <MapMarker
                   key={location.id}
                   longitude={location.lng}

@@ -1,10 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import Sidebar from "@/components/Sidebar";
-import EndemiasFilter from "@/components/EndemiasFilter";
-import ButtonTheme from "@/components/ButtonTheme";
-import { Map, MapGeoJSON } from "@/components/ui/map";
+import { useNavigate } from "react-router-dom";
+import Sidebar from "../../components/Sidebar.jsx";
+import EndemiasFilter from "../../components/EndemiasFilter.jsx";
+import ButtonTheme from "../../components/ButtonTheme.jsx";
+import { Map, MapGeoJSON } from "../../components/ui/map.jsx";
 import { Activity, Map as MapIcon } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+const handleMudancaEndemia = (id_agravo) => {
+  setEndemiaSelecionada(id_agravo);
+
+  if (id_agravo === "dengue") {
+    navigate("/mapa-epidemiologico/endemias/dengue");
+  } else if (id_agravo === "gerais") {
+    navigate("/mapa-epidemiologico");
+  }
+};
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -94,6 +105,7 @@ export default function MapDengue() {
   const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
 
   const is3D = activeStyle === "openstreetmap3d";
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (mapRef.current) {
@@ -202,7 +214,7 @@ export default function MapDengue() {
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200">
             <EndemiasFilter
               selected={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
+              onChange={handleMudancaEndemia}
             />
 
             {loading ? (
@@ -232,8 +244,6 @@ export default function MapDengue() {
                 />
               </Map>
             )}
-
-            <MapLegend />
 
             <ButtonTheme
               activeStyle={activeStyle}

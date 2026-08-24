@@ -15,7 +15,10 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/dados-gerais" element={<Dashboard />} />
           <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
-          <Route path="/endemias/dengue" element={<MapDengue />} />
+          <Route
+            path="/mapa-epidemiologico/endemias/dengue"
+            element={<MapDengue />}
+          />
         </Routes>
       </BrowserRouter>
     </>
