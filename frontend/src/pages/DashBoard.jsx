@@ -24,6 +24,19 @@ export default function Dashboard() {
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
 
+  const extrairBairro = (endereco) => {
+    if (!endereco) return "Não informado";
+
+    const partes = endereco.split(",");
+    if (partes.length === 1) return "Endereço incompleto";
+
+    let bairroStr = partes[partes.length - 1].trim();
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length > 2) {
+      bairroStr = partes[partes.length - 2].trim();
+    }
+    return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
+  };
+
   // Busca os dados da API Django
   useEffect(() => {
     fetch("http://localhost:8000/api/pacientes/")
@@ -60,19 +73,11 @@ export default function Dashboard() {
   }
 
   const casosRecentes = pacientes.slice(0, 5).map((paciente) => {
-    let bairro = "Bairro não informado";
-    if (paciente.endereco) {
-      const partes = paciente.endereco.split(",");
-      bairro =
-        partes.length > 1
-          ? partes[partes.length - 1].trim()
-          : "Endereço incompleto";
-      bairro = bairro.charAt(0).toUpperCase() + bairro.slice(1).toLowerCase();
-    }
+    const bairro = extrairBairro(paciente.endereco);
 
     return {
       name: `Caso #${paciente.numero_notificacao || "S/N"}`,
-      condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} • Sexo: ${paciente.cs_sexo || "N/I"}`,
+      condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
       ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
       status: "rose",
       dadosOriginais: paciente,
@@ -88,18 +93,8 @@ export default function Dashboard() {
   ];
 
   const contagemBairros = pacientes.reduce((acc, paciente) => {
-    if (paciente.endereco) {
-      const partes = paciente.endereco.split(",");
-      let bairro =
-        partes.length > 1
-          ? partes[partes.length - 1].trim()
-          : "Endereço incompleto";
-      bairro = bairro.charAt(0).toUpperCase() + bairro.slice(1).toLowerCase();
-
-      acc[bairro] = (acc[bairro] || 0) + 1;
-    } else {
-      acc["Não informado"] = (acc["Não informado"] || 0) + 1;
-    }
+    const bairro = extrairBairro(paciente.endereco);
+    acc[bairro] = (acc[bairro] || 0) + 1;
     return acc;
   }, {});
 

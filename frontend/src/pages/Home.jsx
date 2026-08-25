@@ -6,32 +6,52 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ParticlesBg from "particles-bg";
+import EpiDataLogo from "../assets/EPI-DATA.png";
+
+// Configurações de Particulas
+// Para ativar a configParticulas, definir o "type" como "custom"
+// Para desativar, definir o "type" como "square"
+const configParticulas = {
+  num: [5, 10], // Quantidade de partículas
+  rps: 0.1,
+  radius: [5, 40], // Tamanho
+  life: [1.5, 3], // Tempo de vida na tela
+  v: [2, 3], // Velocidade
+  tha: [-40, 40], // Ângulo
+  alpha: [0.6, 0], // Transparência
+  scale: [0.1, 0.4], // Escala
+  position: "all",
+  color: ["#054060", "#e11d48", "#f59e0b", "#3b82f6"], // Coloque sua paleta de cores aqui!
+  cross: "dead",
+  random: 15,
+};
 
 function Home() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      <ParticlesBg type="square" bg={true} className="z-10" />
+      {/* Particulas de fundo */}
+      <ParticlesBg
+        type="square"
+        bg={true}
+        className="z-10"
+        config={configParticulas}
+      />
       {/* Background Decorativo Suave */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rose-200/40 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/40 rounded-full blur-3xl" />
 
       <div className="max-w-3xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 md:p-14 text-center space-y-10 border border-white/50 relative z-10">
         <div className="flex justify-center">
-          <div className="bg-linear-to-br from-rose-100 to-rose-50 p-5 rounded-2xl shadow-inner border border-rose-100">
-            <Activity className="size-14 text-rose-600" />
-          </div>
+          <img src={EpiDataLogo} alt="" className="w-75 -mt-25" />
         </div>
 
         <div className="space-y-5">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight bg-clip-text bg-linear-to-r from-slate-900 to-slate-600">
-            Sistema de Mapeamento Epidemiológico
-          </h1>
-          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-            Plataforma de inteligência em saúde pública para Floriano, PI.
-            Acompanhe a evolução de casos, identifique zonas de calor e gerencie
-            a cobertura territorial das UBSs.
+          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed -mt-25">
+            Sistema de Mapeamento Epidemiológico inteligente de Floriano, PI.
+            Acompanhe as evoluções de casos, dados gerais, e zonas cubrindo a
+            extensão territorial das UBSs.
           </p>
         </div>
 
@@ -66,7 +86,7 @@ function Home() {
         <div className="pt-8 flex flex-col items-center gap-6">
           <button
             onClick={() => navigate("/dados-gerais")}
-            className="group flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-lg py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-rose-600/30 active:scale-95"
+            className="group flex items-center gap-2 bg-[#054060] hover:bg-[#085883] text-white font-semibold text-lg py-4 px-10 rounded-xl transition-all shadow-lg hover:shadow-blue-600/30 active:scale-95"
           >
             Acessar Painel do Mapa
             <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />

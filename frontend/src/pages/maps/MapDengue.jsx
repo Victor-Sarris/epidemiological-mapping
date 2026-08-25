@@ -198,13 +198,13 @@ export default function MapDengue() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col h-full relative ml-64">
-        <header className="px-8 py-5 border-b bg-white/80 backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-8 py-5 border-b bg-[#054060] backdrop-blur-md z-10 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-extrabold text-slate-800 flex items-center gap-2">
-              <MapIcon className="text-rose-600 size-6" />
+            <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
+              <MapIcon className="text-white-600 size-6" />
               Mapa Epidemiológico Setorial
             </h1>
-            <p className="text-sm text-slate-500 font-medium mt-0.5">
+            <p className="text-sm text-white font-medium mt-0.5">
               Densidade de Casos por Bairro - Floriano, PI
             </p>
           </div>
