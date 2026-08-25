@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// 1. Importamos o useLocation e o Link do react-router-dom
+import { useLocation, Link } from "react-router-dom";
 import {
   Home,
   LayoutDashboard,
@@ -9,8 +11,28 @@ import {
 } from "lucide-react";
 
 const Sidebar = () => {
-  // Estado para controlar se o menu de endemias está aberto ou fechado
   const [isEndemiasOpen, setIsEndemiasOpen] = useState(false);
+
+  // 2. Pegamos a rota atual da URL
+  const location = useLocation();
+
+  // 3. Função auxiliar para checar se a rota está ativa
+  const isActive = (path) => {
+    // Se for a Home, a rota tem que ser exatamente "/"
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    // Para as outras, checamos se a URL começa com aquele caminho
+    // (assim o mapa de dengue também deixa o "Mapa Epidemiológico" ativo)
+    return location.pathname.startsWith(path);
+  };
+
+  // 4. Classes padrão para evitar repetição
+  const baseClasses =
+    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors";
+  const activeClasses = "bg-[#054060] text-white"; // Estilo quando está selecionado
+  const inactiveClasses =
+    "text-gray-700 hover:bg-gray-100 hover:text-[#054060]"; // Estilo inativo
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col z-50">
@@ -21,27 +43,29 @@ const Sidebar = () => {
 
       {/* Navegação principal */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-        <a
-          href="/"
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        <Link
+          to="/"
+          className={`${baseClasses} ${isActive("/") ? activeClasses : inactiveClasses}`}
         >
           <Home className="mr-3 h-5 w-5" />
           Home
-        </a>
-        <a
-          href="/dados-gerais"
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        </Link>
+
+        <Link
+          to="/dados-gerais"
+          className={`${baseClasses} ${isActive("/dados-gerais") ? activeClasses : inactiveClasses}`}
         >
           <LayoutDashboard className="mr-3 h-5 w-5" />
           Dashboard
-        </a>
-        <a
-          href="/mapa-epidemiologico"
-          className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100 hover:text-blue-600 transition-colors"
+        </Link>
+
+        <Link
+          to="/mapa-epidemiologico"
+          className={`${baseClasses} ${isActive("/mapa-epidemiologico") ? activeClasses : inactiveClasses}`}
         >
           <Map className="mr-3 h-5 w-5" />
           Mapa Epidemiológico
-        </a>
+        </Link>
 
         <hr className="my-2 border-gray-200" />
       </nav>

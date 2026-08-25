@@ -7,16 +7,6 @@ import { Map, MapGeoJSON } from "../../components/ui/map.jsx";
 import { Activity, Map as MapIcon } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-const handleMudancaEndemia = (id_agravo) => {
-  setEndemiaSelecionada(id_agravo);
-
-  if (id_agravo === "dengue") {
-    navigate("/mapa-epidemiologico/endemias/dengue");
-  } else if (id_agravo === "gerais") {
-    navigate("/mapa-epidemiologico");
-  }
-};
-
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
@@ -45,7 +35,7 @@ const bairrosFlorianoGeoJSON = {
     },
     {
       type: "Feature",
-      properties: { name: "SAO CRISTOVAO", total: 0, color: "#3b82f6" },
+      properties: { name: "SAO CRISTOVAO", total: 34, color: "#3b82f6" },
       geometry: {
         type: "Polygon",
         coordinates: [
@@ -61,7 +51,7 @@ const bairrosFlorianoGeoJSON = {
     },
     {
       type: "Feature",
-      properties: { name: "MANGUINHA", total: 0, color: "#3b82f6" },
+      properties: { name: "MANGUINHA", total: 5, color: "#3b82f6" },
       geometry: {
         type: "Polygon",
         coordinates: [
@@ -77,7 +67,7 @@ const bairrosFlorianoGeoJSON = {
     },
     {
       type: "Feature",
-      properties: { name: "MELADAO", total: 0, color: "#3b82f6" },
+      properties: { name: "MELADAO", total: 10, color: "#3b82f6" },
       geometry: {
         type: "Polygon",
         coordinates: [
@@ -102,7 +92,7 @@ export default function MapDengue() {
 
   // Estados para gerenciar a lista completa e a seleção atual
   const [todosPacientes, setTodosPacientes] = useState([]);
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
+  const [endemiaSelecionada, setEndemiaSelecionada] = useState("dengue");
 
   const is3D = activeStyle === "openstreetmap3d";
   const navigate = useNavigate();
@@ -179,7 +169,7 @@ export default function MapDengue() {
       let corPoligono = "#3b82f6";
       if (totalCasos > 15) corPoligono = "#e11d48";
       else if (totalCasos > 5) corPoligono = "#f59e0b";
-      else if (totalCasos > 0) corPoligono = "#eab308";
+      else if (totalCasos > 0) corPoligono = "#2A7293";
 
       return {
         ...feature,
@@ -214,7 +204,7 @@ export default function MapDengue() {
           <div className="relative w-full h-full rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200">
             <EndemiasFilter
               selected={endemiaSelecionada}
-              onChange={handleMudancaEndemia}
+              onChange={setEndemiaSelecionada}
             />
 
             {loading ? (

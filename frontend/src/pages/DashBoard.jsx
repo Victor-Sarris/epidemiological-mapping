@@ -167,10 +167,10 @@ export default function Dashboard() {
       value: bairroMaisAfetadoNome,
       icon: MapPin,
       color: "rose",
-      subtext: `${bairroMaisAfetadoValor} casos.`,
+      subtext: `${bairroMaisAfetadoValor} casos no último mês.`,
     },
     {
-      title: "Novos Casos (7 dias)",
+      title: "Últimos Casos (7 dias)",
       value: `${taxaNovosCasos}%`,
       icon: Activity,
       color: "emerald",
@@ -364,7 +364,7 @@ export default function Dashboard() {
             </div>
           </div>
         </main>
-        <footer className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060]">
+        <footer className="px-8 py-4 border-b flex justify-between sticky top-0 z-20 bg-[#054060]">
           <img
             src={AssinaturaGovernamental}
             alt="<Logo da Secretaria de Saúde"
