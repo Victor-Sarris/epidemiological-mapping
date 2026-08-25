@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Bell,
   UserCircle,
+  MapPin,
 } from "lucide-react";
 import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
 import PatientModal from "../components/Modal/PatientModal.jsx";
@@ -43,6 +44,7 @@ export default function Dashboard() {
       emerald: "border-l-emerald-500 text-emerald-600 bg-emerald-50",
       amber: "border-l-amber-500 text-amber-600 bg-amber-50",
       rose: "border-l-rose-500 text-rose-600 bg-rose-50",
+      green: "border-1-green-500 text-green-600 bg-green-50",
     };
     return map[color] || map.blue;
   };
@@ -56,24 +58,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  // Dados reais da API
-  const kpis = [
-    {
-      title: "Total de Notificações",
-      value: pacientes.length,
-      icon: Users,
-      color: "blue",
-      subtext: "Registros importados do SINAN",
-    },
-    {
-      title: "Casos em Alerta",
-      value: "14", // Placeholder
-      icon: AlertTriangle,
-      color: "amber",
-      subtext: "Requerem atenção",
-    },
-  ];
 
   const casosRecentes = pacientes.slice(0, 5).map((paciente) => {
     let bairro = "Bairro não informado";
@@ -127,18 +111,77 @@ export default function Dashboard() {
     "bg-purple-500",
   ];
 
-  // Encontra o bairro com o maior número de casos para ser a barra de 100%
   const maxCasos = Math.max(...Object.values(contagemBairros), 1);
 
   const distribuicaoUbs = Object.entries(contagemBairros)
-    .sort((a, b) => b[1] - a[1]) // Ordena do bairro com mais casos para o menor
-    .slice(0, 5) // Pega apenas os 5 maiores para não quebrar o layout
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
     .map(([nome, valor], index) => ({
       name: nome,
       value: valor,
       max: maxCasos,
       color: coresDistribuicao[index % coresDistribuicao.length],
     }));
+
+  let bairroMaisAfetadoNome = "Nenhum";
+  let bairroMaisAfetadoValor = 0;
+  if (Object.keys(contagemBairros).length > 0) {
+    bairroMaisAfetadoNome = Object.keys(contagemBairros).reduce((a, b) =>
+      contagemBairros[a] > contagemBairros[b] ? a : b,
+    );
+    bairroMaisAfetadoValor = contagemBairros[bairroMaisAfetadoNome];
+  }
+
+  const totalCasos = pacientes.length;
+
+  const hoje = new Date();
+  const seteDiasAtras = new Date();
+  seteDiasAtras.setDate(hoje.getDate() - 7);
+
+  const casosUltimos7Dias = pacientes.filter((p) => {
+    if (!p.data_notificacao) return false;
+
+    const [ano, mes, dia] = p.data_notificacao.split("-");
+    const dataNotificacao = new Date(ano, mes - 1, dia);
+
+    return dataNotificacao >= seteDiasAtras && dataNotificacao <= hoje;
+  }).length;
+
+  let taxaNovosCasos = 0;
+  if (totalCasos > 0) {
+    taxaNovosCasos = Math.round((casosUltimos7Dias / totalCasos) * 100);
+  }
+
+  const kpis = [
+    {
+      title: "Total de Notificações",
+      value: pacientes.length,
+      icon: Users,
+      color: "blue",
+      subtext: "Registros importados do SINAN.",
+    },
+    {
+      title: "Casos em Alerta",
+      value: "14",
+      icon: AlertTriangle,
+      color: "amber",
+      subtext: "Requerem atenção.",
+    },
+    {
+      title: "Bairro mais Afetado",
+      value: bairroMaisAfetadoNome,
+      icon: MapPin,
+      color: "rose",
+      subtext: `${bairroMaisAfetadoValor} casos.`,
+    },
+    {
+      title: "Novos Casos (7 dias)",
+      value: `${taxaNovosCasos}%`,
+      icon: Activity,
+      color: "emerald",
+      subtext: `${casosUltimos7Dias} casos recentes`,
+    },
+  ];
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -330,7 +373,9 @@ export default function Dashboard() {
           <img
             src={AssinaturaGovernamental}
             alt="<Logo da Secretaria de Saúde"
+            className=""
           />
+          <p className="text-gray-300">&copy; Secretaria de Saúde 2026</p>
         </footer>
       </div>
       <PatientModal

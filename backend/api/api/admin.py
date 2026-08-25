@@ -26,6 +26,7 @@ class UploadDBFAdmin(admin.ModelAdmin):
             partes_validadas = [str(p).strip() for p in partes_endereco if p and str(p).strip()]
             endereco_formatado = ", ".join(partes_validadas)
 
+            # padrao maisculo, mesmo que ta tabela esteja em minusculo
             PacienteEndemia.objects.create(
                 numero_notificacao=record.get('NU_NOTIFIC'),
                 nome_paciente=record.get('NM_PACIENT'),
