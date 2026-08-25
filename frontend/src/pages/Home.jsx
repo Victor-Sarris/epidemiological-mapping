@@ -5,12 +5,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ParticlesBg from "particles-bg";
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <ParticlesBg type="square" bg={true} className="z-10" />
       {/* Background Decorativo Suave */}
       <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rose-200/40 rounded-full blur-3xl" />
       <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/40 rounded-full blur-3xl" />
@@ -23,7 +25,7 @@ function Home() {
         </div>
 
         <div className="space-y-5">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight bg-clip-text bg-linear-to-r from-slate-900 to-slate-600">
             Sistema de Mapeamento Epidemiológico
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
@@ -71,7 +73,7 @@ function Home() {
           </button>
 
           <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
-            Apoio Institucional: Prefeitura Municipal de São Francisco do Piauí
+            &copy; Secretaria de Saúde 2026
           </p>
         </div>
       </div>

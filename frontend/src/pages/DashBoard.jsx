@@ -375,7 +375,6 @@ export default function Dashboard() {
             alt="<Logo da Secretaria de Saúde"
             className=""
           />
-          <p className="text-gray-300">&copy; Secretaria de Saúde 2026</p>
         </footer>
       </div>
       <PatientModal
