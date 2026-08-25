@@ -167,7 +167,7 @@ export default function Dashboard() {
       value: bairroMaisAfetadoNome,
       icon: MapPin,
       color: "rose",
-      subtext: `${bairroMaisAfetadoValor} casos no último mês.`,
+      subtext: `${bairroMaisAfetadoValor} casos no último mês .`,
     },
     {
       title: "Últimos Casos (7 dias)",

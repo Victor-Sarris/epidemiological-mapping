@@ -69,6 +69,9 @@ const Sidebar = () => {
 
         <hr className="my-2 border-gray-200" />
       </nav>
+      <p className="text-gray-500 text-center">
+        &copy; Secretaria de Saúde 2026
+      </p>
     </aside>
   );
 };

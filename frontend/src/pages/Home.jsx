@@ -38,10 +38,6 @@ function Home() {
         className="z-10"
         config={configParticulas}
       />
-      {/* Background Decorativo Suave */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-rose-200/40 rounded-full blur-3xl" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-200/40 rounded-full blur-3xl" />
-
       <div className="max-w-3xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-10 md:p-14 text-center space-y-10 border border-white/50 relative z-10">
         <div className="flex justify-center">
           <img src={EpiDataLogo} alt="" className="w-75 -mt-25" />
