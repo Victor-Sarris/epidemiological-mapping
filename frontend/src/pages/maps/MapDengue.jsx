@@ -109,6 +109,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
     image:
       "https://www.google.com/maps/place/UBS+Floriano/@-6.7702735,-43.0268445,3a,75y,5.24h,90t/data=!3m7!1e1!3m5!1sRbwxwipAOtVPNbfg-07_Cw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DRbwxwipAOtVPNbfg-07_Cw%26yaw%3D5.237432!7i16384!8i8192!4m11!1m2!2m1!1subs+floriano!3m7!1s0x7837d2fcd5895ef:0xe8aac5903f3ecae2!8m2!3d-6.7701165!4d-43.0268286!10e5!15sCgx1YnMgZmxvcmlhbm8iA_ABAZIBF2NvbW11bml0eV9oZWFsdGhfY2VudGVy4AEA!16s%2Fg%2F11fxb3m4jw?authuser=0&entry=ttu&g_ep=EgoyMDI2MDgxOS4wIKXMDSoASAFQAw%3D%3D#",
     lng: -43.02682240512934,

@@ -38,5 +38,4 @@ class UploadDBFAdmin(admin.ModelAdmin):
                 id_unidade=record.get('ID_UNIDADE'),
                 hospital=record.get('HOSPITAL'),
                 cs_sexo=record.get('CS_SEXO'),
-
             )

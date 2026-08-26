@@ -1,5 +1,6 @@
 from django.db import models
 
+# Classe do Paciente
 class PacienteEndemia(models.Model):
     numero_notificacao = models.CharField(max_length=50, null=True, blank=True)
     nome_paciente = models.CharField(max_length=100, null=True, blank=True)
