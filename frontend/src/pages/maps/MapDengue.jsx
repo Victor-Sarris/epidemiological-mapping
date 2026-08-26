@@ -21,7 +21,20 @@ import {
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
-// Removido: import Image from "next/image";
+
+// importação de imagens para o maps ----------
+import postodeSaudeTaboca from "../../assets/ubs/PostodeSaúdedaTaboca.jpg";
+import JasminaBucar from "../../assets/ubs/jasminabucar.jpg";
+import VianaCarvalho from "../../assets/ubs/vianacarvalho.jpg";
+import santaCruz from "../../assets/ubs/santacruz.png";
+import ubsFloriano from "../../assets/ubs/ubsfloriano.jpg";
+import dirceuArcoverde from "../../assets/ubs/dirceuarcoverde.png";
+import joseParaguassu from "../../assets/ubs/joseparaguassu.jpg";
+import theodoroSobral from "../../assets/ubs/theodoroSobral.jpg";
+import pedroSimplicio from "../../assets/ubs/pedroSimplicio.jpg";
+import alfedroCarvalho from "../../assets/ubs/alfredoCarvalho.jpg";
+import defaultImage from "../../assets/ubs/defaultImage.png";
+import RaimundoFilho from "../../assets/ubs/ubsRaimundoFilho.png";
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -102,7 +115,7 @@ const bairrosFlorianoGeoJSON = {
 
 const marcadores = [
   {
-    id: 1,
+    id: "ubsfloriano",
     name: "UBS Floriano",
     label: "UBS Floriano",
     category: "UBS",
@@ -110,10 +123,166 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image:
-      "https://www.google.com/maps/place/UBS+Floriano/@-6.7702735,-43.0268445,3a,75y,5.24h,90t/data=!3m7!1e1!3m5!1sRbwxwipAOtVPNbfg-07_Cw!2e0!6shttps:%2F%2Fstreetviewpixels-pa.googleapis.com%2Fv1%2Fthumbnail%3Fcb_client%3Dmaps_sv.tactile%26w%3D900%26h%3D600%26pitch%3D0%26panoid%3DRbwxwipAOtVPNbfg-07_Cw%26yaw%3D5.237432!7i16384!8i8192!4m11!1m2!2m1!1subs+floriano!3m7!1s0x7837d2fcd5895ef:0xe8aac5903f3ecae2!8m2!3d-6.7701165!4d-43.0268286!10e5!15sCgx1YnMgZmxvcmlhbm8iA_ABAZIBF2NvbW11bml0eV9oZWFsdGhfY2VudGVy4AEA!16s%2Fg%2F11fxb3m4jw?authuser=0&entry=ttu&g_ep=EgoyMDI2MDgxOS4wIKXMDSoASAFQAw%3D%3D#",
+    image: ubsFloriano,
     lng: -43.02682240512934,
     lat: -6.770093782739466,
+  },
+  {
+    id: "dirceuarcoverde",
+    name: "UBS - Dirceu Arcoverde",
+    label: "UBS Dirceu Arcoverde",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: dirceuArcoverde,
+    lng: -43.035177909954896,
+    lat: -6.765799779484518,
+  },
+  {
+    id: "joseparaguassu",
+    name: "UBS - José Paraguassú",
+    label: "UBS - José Paraguassú",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: joseParaguassu,
+    lng: -43.00770775101921,
+    lat: -6.773752245581162,
+  },
+  {
+    id: "santacruz",
+    name: "UBS - Santa Cruz",
+    label: "UBS - Santa Cruz",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: santaCruz,
+    lng: -43.00218329805059,
+    lat: -6.761697944954173,
+  },
+  {
+    id: "teodorosobral",
+    name: "UBS - Theodoro Sobral",
+    label: "UBS - Theodoro Sobral",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: theodoroSobral,
+    lng: -43.020540939559325,
+    lat: -6.778873054851179,
+  },
+  {
+    id: "pedrosimplicio",
+    name: "UBS Pedro Simplicio",
+    label: "UBS Pedro Simplicio",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: pedroSimplicio,
+    lng: -43.03129938856098,
+    lat: -6.780671072283543,
+  },
+  {
+    id: "alfedrocarvalho",
+    name: "UBS - Alfredo de Carvalho",
+    label: "UBS - Alfredo de Carvalho",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: alfedroCarvalho,
+    lng: -43.03492649035711,
+    lat: -6.787711988762435,
+  },
+  {
+    id: "helvidioholanda",
+    name: "UBS Helvidio de Holanda Barros",
+    label: "UBS Helvidio de Holanda Barros",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -43.02848164082034,
+    lat: -6.786913028924275,
+  },
+  {
+    id: "paulomartins",
+    name: "UBS Paulo Martins",
+    label: "UBS Paulo Martins",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -43.018652030194644,
+    lat: -6.78669340844439,
+  },
+  {
+    id: "raimundofilho",
+    name: "UBS Raimundo Filho",
+    label: "UBS Raimundo Filho",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: RaimundoFilho,
+    lng: -43.012394698425496,
+    lat: -6.776288849546959,
+  },
+  // verificar se esse realmente existe ⬇️
+  {
+    id: "jasminabucar",
+    name: "Clínica Integrada e UBS Jasmina Bucar",
+    label: "Clínica Integrada e UBS Jasmina Bucar",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: JasminaBucar,
+    lng: -43.040365240768104,
+    lat: -6.7808203604476915,
+  },
+  {
+    id: "postosaudetaboca",
+    name: "Posto de Saúde da Taboca",
+    label: "Posto de Saúde da Taboca",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: postodeSaudeTaboca,
+    lng: -43.042174574073606,
+    lat: -6.770507792362777,
+  },
+  {
+    id: "vianacarvalho",
+    name: "Posto de Saúde Viana de Carvalho",
+    label: "Posto de Saúde Viana de Carvalho",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: VianaCarvalho,
+    lng: -43.01058274720951,
+    lat: -6.764758882936275,
   },
 ];
 
