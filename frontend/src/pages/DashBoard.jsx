@@ -16,6 +16,11 @@ import {
 } from "lucide-react";
 import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
 import PatientModal from "../components/Modal/PatientModal.jsx";
+import {
+  CurvaEpidemica,
+  StatusDonut,
+  PerfilDemografico,
+} from "../components/DashboardCharts.jsx";
 
 export default function Dashboard() {
   const [pacientes, setPacientes] = useState([]);
@@ -72,17 +77,38 @@ export default function Dashboard() {
     );
   }
 
-  const casosRecentes = pacientes.slice(0, 5).map((paciente) => {
-    const bairro = extrairBairro(paciente.endereco);
+  const casosRecentes = [...pacientes]
+    .sort((a, b) => {
+      // 1. Tenta ordenar pela data de notificação (string em formato YYYY-MM-DD ordena perfeitamente)
+      const dateA = a.data_notificacao || "0000-00-00";
+      const dateB = b.data_notificacao || "0000-00-00";
 
-    return {
-      name: `Caso #${paciente.numero_notificacao || "S/N"}`,
-      condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
-      ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
-      status: "rose",
-      dadosOriginais: paciente,
-    };
-  });
+      if (dateA !== dateB) {
+        return dateB.localeCompare(dateA); // Ordem decrescente (mais recente primeiro)
+      }
+
+      // 2. Critério de desempate: se as datas forem iguais, o maior ID (mais recém inserido no banco) vence
+      return (b.id || 0) - (a.id || 0);
+    })
+    .slice(0, 5)
+    .map((paciente) => {
+      const bairro = extrairBairro(paciente.endereco);
+
+      // Lógica para colorir a bolinha de acordo com o status
+      const classFinal = String(paciente.classi_fin || "").trim();
+      let statusCor = "bg-amber-500"; // Amarelo por padrão (suspeito)
+      if (classFinal === "10" || classFinal === "11") statusCor = "bg-rose-600";
+      else if (classFinal === "5") statusCor = "bg-emerald-500";
+      else if (classFinal === "8") statusCor = "bg-slate-400";
+
+      return {
+        name: `Caso #${paciente.numero_notificacao || "S/N"}`,
+        condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
+        ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
+        corClassificacao: statusCor, // Passando a cor para o layout
+        dadosOriginais: paciente,
+      };
+    });
 
   const proximasAcoes = [
     {
@@ -186,7 +212,7 @@ export default function Dashboard() {
       {/* Área de Conteúdo Principal */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto ml-64">
         {/* Header Superior */}
-        <header className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060]">
+        <header className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060] shadow">
           <h2 className="text-xl font-bold text-slate-8 text-white">
             Visão Geral
           </h2>
@@ -207,7 +233,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-                Dashboard
+                Dashboard - Dengue
               </h1>
               <p className="text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de Dengue
@@ -258,8 +284,26 @@ export default function Dashboard() {
           </div>
 
           {/* Layout de 3 Colunas */}
+          {/* ----- NOVA SEÇÃO DE GRÁFICOS ----- */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Coluna 1: Distribuição */}
+            {/* Gráfico de Linha ocupa 2 colunas em telas grandes */}
+            <div className="lg:col-span-2">
+              <CurvaEpidemica pacientes={pacientes} />
+            </div>
+            {/* Gráfico de Rosca ocupa 1 coluna */}
+            <div className="lg:col-span-1">
+              <StatusDonut pacientes={pacientes} />
+            </div>
+          </div>
+
+          {/* ----- LAYOUT INFERIOR (Distribuição, Demografia, Recentes) ----- */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Coluna 1: Perfil Demográfico */}
+            <div className="lg:col-span-1">
+              <PerfilDemografico pacientes={pacientes} />
+            </div>
+
+            {/* Coluna 2: Distribuição por Quadrante (Seu componente original) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">
@@ -294,6 +338,7 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Coluna 3: Casos Recentes (Seu componente original) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">
@@ -303,7 +348,7 @@ export default function Dashboard() {
                   Últimos registros inseridos
                 </p>
               </div>
-              <div className="flex-1 flex flex-col gap-1">
+              <div className="flex-1 flex flex-col gap-1 overflow-y-auto">
                 {casosRecentes.map((caso, idx) => (
                   <div
                     key={idx}
@@ -325,39 +370,6 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <ArrowRight className="size-4 text-slate-300 group-hover:text-slate-600 transition-colors" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Coluna 3: Próximas Ações */}
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
-              <div className="mb-6">
-                <h3 className="text-lg font-bold text-slate-800">
-                  Próximas Ações
-                </h3>
-                <p className="text-sm text-slate-500">
-                  Agendamentos e intervenções
-                </p>
-              </div>
-              <div className="flex-1 flex flex-col gap-4">
-                {proximasAcoes.map((acao, idx) => (
-                  <div key={idx} className="flex gap-4 items-start">
-                    <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100">
-                      <Calendar className="size-5" />
-                    </div>
-                    <div className="flex-1 border-b border-slate-50 pb-4">
-                      <p className="text-sm font-bold text-slate-800 mb-0.5">
-                        {acao.title}
-                      </p>
-                      <p className="text-xs text-slate-500 mb-1">
-                        {acao.location}
-                      </p>
-                      <p className="text-xs font-medium text-slate-400 flex items-center gap-1">
-                        <Clock className="size-3" />
-                        {acao.date}
-                      </p>
-                    </div>
                   </div>
                 ))}
               </div>
