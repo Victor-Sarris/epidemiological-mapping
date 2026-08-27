@@ -48,64 +48,54 @@ const bairrosFlorianoGeoJSON = {
   features: [
     {
       type: "Feature",
-      properties: { name: "CENTRO", total: 0, color: "#3b82f6" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-43.028, -6.762],
-            [-43.018, -6.762],
-            [-43.018, -6.772],
-            [-43.028, -6.772],
-            [-43.028, -6.762],
-          ],
-        ],
+      properties: {
+        name: "PERIMETRO_URBANO_FLORIANO",
+        color: "#808080",
       },
-    },
-    {
-      type: "Feature",
-      properties: { name: "SAO CRISTOVAO", total: 34, color: "#3b82f6" },
       geometry: {
         type: "Polygon",
         coordinates: [
           [
-            [-43.038, -6.765],
-            [-43.028, -6.765],
-            [-43.028, -6.775],
-            [-43.038, -6.775],
-            [-43.038, -6.765],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "MANGUINHA", total: 5, color: "#3b82f6" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-43.018, -6.758],
-            [-43.008, -6.758],
-            [-43.008, -6.765],
-            [-43.018, -6.765],
-            [-43.018, -6.758],
-          ],
-        ],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { name: "MELADAO", total: 10, color: "#3b82f6" },
-      geometry: {
-        type: "Polygon",
-        coordinates: [
-          [
-            [-43.025, -6.772],
-            [-43.015, -6.772],
-            [-43.015, -6.78],
-            [-43.025, -6.78],
-            [-43.025, -6.772],
+            // Contorno detalhado tentando espelhar os recortes da imagem
+
+            // NORTE (Beirando o rio Parnaíba, da Taboca até Santa Cruz)
+            [-43.048, -6.763],
+            [-43.042, -6.758],
+            [-43.03, -6.759],
+            [-43.015, -6.756],
+            [-43.003, -6.751],
+            [-42.995, -6.75],
+
+            // LESTE (Descendo em ziguezague por Santa Cruz, Protasio e Rodoviária)
+            [-42.988, -6.755],
+            [-42.998, -6.757], // Recuo interno
+            [-42.996, -6.762],
+            [-42.99, -6.764],
+            [-43.0, -6.775],
+            [-42.985, -6.78], // Ponta perto da Rodoviária
+            [-42.995, -6.788],
+
+            // SUL (Ponta de Nossa Sra. da Guia e subida do Tamboril)
+            [-43.0, -6.795],
+            [-42.995, -6.808], // Extremo sul pontiagudo
+            [-43.012, -6.808],
+            [-43.005, -6.792], // Subindo de volta
+            [-43.018, -6.792],
+            [-43.025, -6.8],
+
+            // SUDOESTE (Recortes retos do Filadelfo e Rede Nova)
+            [-43.035, -6.802],
+            [-43.035, -6.812], // Descida reta
+            [-43.042, -6.81],
+            [-43.04, -6.795], // Subida reta
+            [-43.048, -6.792], // Entrada à esquerda
+            [-43.046, -6.782],
+
+            // OESTE (Contornando o Meladão e a Pista de Motocross)
+            [-43.055, -6.78],
+            [-43.052, -6.772], // Ponta oeste
+            [-43.045, -6.772], // Recuo interno
+            [-43.048, -6.763], // Fechando o polígono
           ],
         ],
       },
@@ -284,6 +274,99 @@ const marcadores = [
     lng: -43.01058274720951,
     lat: -6.764758882936275,
   },
+  // =========== UBSs da zona rural ===========
+  {
+    id: "margarida",
+    name: "UBS Margarida",
+    label: "UBS Margarida",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -42.99622811510465,
+    lat: -7.071558304760834,
+  },
+  // essas duas ubs tem o mesmo nome ⬇️
+  {
+    id: "amolar",
+    name: "UBS Retiro Amolar",
+    label: "UBS Retiro Amolar",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -42.907166149826985,
+    lat: -7.321264212578072,
+  },
+  {
+    id: "retiro",
+    name: "UBS Retiro Amolar",
+    label: "UBS Retiro Amolar",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -42.90072202285687,
+    lat: -7.267051325394482,
+  },
+  {
+    id: "morrinhos",
+    name: "UBS Morrinhos",
+    label: "UBS Morrinhos",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -43.02380440567498,
+    lat: -6.8600533934180365,
+  },
+  {
+    id: "l3",
+    name: "UBS L3",
+    label: "UBS L3",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -42.92196772000125,
+    lat: -6.785588080100101,
+  },
+  {
+    id: "protasiodemoraes",
+    name: "UBS Protásio de Moraes",
+    label: "UBS Protásio de Moraes",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -42.802106472732234,
+    lat: -6.913968407079276,
+  },
+  {
+    id: "leonardodudima",
+    name: "UBS Leonardo Dudima",
+    label: "UBS Leonardo Dudima",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: defaultImage,
+    lng: -43.262039544583175,
+    lat: -6.786737604151918,
+  },
 ];
 
 export default function MapDengue() {
@@ -362,20 +445,13 @@ export default function MapDengue() {
     });
 
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
-      const nomeBairro = feature.properties.name;
-      const totalCasos = contagemPorBairro[nomeBairro] || 0;
-
-      let corPoligono = "#3b82f6";
-      if (totalCasos > 15) corPoligono = "#e11d48";
-      else if (totalCasos > 5) corPoligono = "#f59e0b";
-      else if (totalCasos > 0) corPoligono = "#2A7293";
-
+      // Como é apenas a linha de fronteira, ignoramos a contagem por bairros
+      // e mantemos a cor vermelha base do polígono.
       return {
         ...feature,
         properties: {
           ...feature.properties,
-          total: totalCasos,
-          color: corPoligono,
+          color: feature.properties.color,
         },
       };
     });
@@ -424,11 +500,12 @@ export default function MapDengue() {
                   data={geoData}
                   fillPaint={{
                     "fill-color": ["get", "color"],
-                    "fill-opacity": 0.4,
+                    "fill-opacity": 0.05, // Quase transparente, para focar apenas na borda
                   }}
                   linePaint={{
                     "line-color": ["get", "color"],
-                    "line-width": 2,
+                    "line-width": 3,
+                    "line-dasharray": [2, 2], // Cria o efeito tracejado da sua imagem
                   }}
                 />
 

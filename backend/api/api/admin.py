@@ -8,7 +8,7 @@ class PacienteEndemiaAdmin(admin.ModelAdmin):
     # mostra essas colunas na listagem do admin
     list_display = ("numero_notificacao", "nome_paciente", "data_notificacao", "endereco", "data_nascimento", "data_pri_sintoma", "id_agravo", "id_unidade", "hospital", "cs_sexo", "classi_fin")
     # essas colunas podem ser usadas como mecanismo de pesquisa
-    search_fields = ("numero_notificacao", "nome_paciente", "classi_fin")
+    search_fields = ("numero_notificacao", "nome_paciente", "classi_fin", "endereco", "id_unidade")
 
 @admin.register(UploadDBF)
 class UploadDBFAdmin(admin.ModelAdmin):
