@@ -129,7 +129,7 @@ export function StatusDonut({ pacientes }) {
           Proporção da classificação final
         </p>
       </div>
-      <div className="flex-1 min-h-[250px] relative">
+      <div className="flex-1 min-h-62.5 relative -mt-20">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -157,7 +157,7 @@ export function StatusDonut({ pacientes }) {
           </PieChart>
         </ResponsiveContainer>
         {/* Legenda Customizada */}
-        <div className="flex flex-wrap justify-center gap-3 mt-2">
+        <div className="flex flex-wrap justify-center gap-3 -mt-18.75 ">
           {data.map((item, idx) => (
             <div
               key={idx}
@@ -176,7 +176,7 @@ export function StatusDonut({ pacientes }) {
   );
 }
 
-// 3. PERFIL DEMOGRÁFICO (Gráfico de Barras)
+// ========= PERFIL DEMOGRÁFICO (Gráfico de Barras) =========
 export function PerfilDemografico({ pacientes }) {
   const data = useMemo(() => {
     const grupos = {

@@ -1,77 +1,107 @@
 import React, { useState } from "react";
-// 1. Importamos o useLocation e o Link do react-router-dom
 import { useLocation, Link } from "react-router-dom";
 import {
   Home,
   LayoutDashboard,
   Map,
   Activity,
-  ChevronDown,
-  ChevronRight,
+  ShieldAlert,
 } from "lucide-react";
 
 const Sidebar = () => {
   const [isEndemiasOpen, setIsEndemiasOpen] = useState(false);
-
-  // 2. Pegamos a rota atual da URL
   const location = useLocation();
 
-  // 3. Função auxiliar para checar se a rota está ativa
   const isActive = (path) => {
-    // Se for a Home, a rota tem que ser exatamente "/"
     if (path === "/") {
       return location.pathname === "/";
     }
-    // Para as outras, checamos se a URL começa com aquele caminho
-    // (assim o mapa de dengue também deixa o "Mapa Epidemiológico" ativo)
     return location.pathname.startsWith(path);
   };
 
-  // 4. Classes padrão para evitar repetição
+  // Classes aprimoradas para um visual mais moderno e "clicável"
   const baseClasses =
-    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors";
-  const activeClasses = "bg-[#054060] text-white"; // Estilo quando está selecionado
+    "flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 group";
+
+  // Destaque elegante com sombra sutil e fundo na cor principal
+  const activeClasses = "bg-[#054060] text-white shadow-md shadow-[#054060]/20";
+
+  // Efeito hover mais limpo com movimento suave
   const inactiveClasses =
-    "text-gray-700 hover:bg-gray-100 hover:text-[#054060]"; // Estilo inativo
+    "text-slate-500 hover:bg-slate-100 hover:text-[#054060] hover:translate-x-1";
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col z-50">
-      {/* Cabeçalho da Sidebar */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200 text-xl font-bold text-gray-800">
-        Logo do Projeto
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-200 shadow-sm flex flex-col z-50">
+      {/* Cabeçalho da Sidebar / Logo */}
+      <div className="h-16 flex items-center px-6 border-b border-slate-100 bg-white">
+        <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+          <div className="bg-rose-50 p-1.5 rounded-lg group-hover:scale-105 transition-transform">
+            <Activity className="size-6 text-rose-600" />
+          </div>
+          <span className="text-xl font-black tracking-tight text-[#054060]">
+            Epi<span className="text-rose-600">Data</span>
+          </span>
+        </Link>
       </div>
 
       {/* Navegação principal */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
-        <Link
-          to="/"
-          className={`${baseClasses} ${isActive("/") ? activeClasses : inactiveClasses}`}
-        >
-          <Home className="mr-3 h-5 w-5" />
-          Home
-        </Link>
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1.5">
+        <div className="mb-6">
+          <p className="px-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-3">
+            Menu Principal
+          </p>
 
-        <Link
-          to="/dados-gerais"
-          className={`${baseClasses} ${isActive("/dados-gerais") ? activeClasses : inactiveClasses}`}
-        >
-          <LayoutDashboard className="mr-3 h-5 w-5" />
-          Dashboard
-        </Link>
+          <div className="space-y-1.5">
+            <Link
+              to="/"
+              className={`${baseClasses} ${isActive("/") ? activeClasses : inactiveClasses}`}
+            >
+              <Home
+                className={`size-5 ${isActive("/") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+              />
+              Home
+            </Link>
 
-        <Link
-          to="/mapa-epidemiologico"
-          className={`${baseClasses} ${isActive("/mapa-epidemiologico") ? activeClasses : inactiveClasses}`}
-        >
-          <Map className="mr-3 h-5 w-5" />
-          Mapa Epidemiológico
-        </Link>
+            <Link
+              to="/dados-gerais"
+              className={`${baseClasses} ${isActive("/dados-gerais") ? activeClasses : inactiveClasses}`}
+            >
+              <LayoutDashboard
+                className={`size-5 ${isActive("/dados-gerais") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+              />
+              Dashboard
+            </Link>
 
-        <hr className="my-2 border-gray-200" />
+            <Link
+              to="/mapa-epidemiologico"
+              className={`${baseClasses} ${isActive("/mapa-epidemiologico") ? activeClasses : inactiveClasses}`}
+            >
+              <Map
+                className={`size-5 ${isActive("/mapa-epidemiologico") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+              />
+              Mapa Epidemiológico
+            </Link>
+          </div>
+        </div>
       </nav>
-      <p className="text-gray-500 text-center">
-        &copy; Secretaria de Saúde 2026
-      </p>
+
+      {/* Rodapé da Sidebar (Status do Sistema) */}
+      <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+        <div className="flex items-center gap-3 px-3 py-2 bg-white border border-slate-200 rounded-lg shadow-sm">
+          <div className="relative flex size-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full size-2.5 bg-emerald-500"></span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xs font-bold text-slate-700 leading-none">
+              Sistema Online
+            </span>
+            <span className="text-[10px] font-medium text-slate-400 mt-0.5">
+              Sincronizado
+            </span>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 };

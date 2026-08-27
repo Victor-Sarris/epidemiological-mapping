@@ -212,19 +212,39 @@ export default function Dashboard() {
       {/* Área de Conteúdo Principal */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto ml-64">
         {/* Header Superior */}
-        <header className="px-8 py-4 border-b flex items-center justify-between sticky top-0 z-20 bg-[#054060] shadow">
-          <h2 className="text-xl font-bold text-slate-8 text-white">
-            Visão Geral
-          </h2>
+        <header className="px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#054060] shadow-md border-b border-[#043048]">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-white tracking-wide">
+              Visão Geral
+            </h2>
+          </div>
+
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-slate-400 hover:text-slate-600 transition-colors">
+            {/* Botão de Notificação */}
+            <button
+              className="relative p-2 text-slate-200 hover:text-white hover:bg-white/10 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label="Notificações"
+            >
               <Bell className="size-5" />
-              <span className="absolute top-1.5 right-1.5 size-2 bg-rose-500 rounded-full border-2 border-white"></span>
+              <span className="absolute top-1.5 right-1.5 size-2.5 bg-rose-500 rounded-full border-2 border-[#054060]"></span>
             </button>
-            <div className="h-8 w-px bg-slate-200"></div>
-            <button className="flex items-center gap-2 text-sm font-medium text-white hover:text-slate-900">
-              <UserCircle className="size-6 text-white" />
-              <span className="text-white">Gestão Epidemiológica</span>
+
+            {/* Divisor */}
+            <div className="h-6 w-px bg-white/20"></div>
+
+            {/* Perfil do Usuário */}
+            <button className="flex items-center gap-3 p-1.5 pr-4 rounded-full hover:bg-white/10 transition-all duration-200 text-left focus:outline-none focus:ring-2 focus:ring-white/50">
+              <div className="bg-white/20 p-1.5 rounded-full">
+                <UserCircle className="size-5 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <p className="text-sm font-semibold text-white leading-none">
+                  Gestão Epidemiológica
+                </p>
+                <p className="text-[11px] text-slate-300 mt-1 leading-none uppercase tracking-wider font-medium">
+                  Administrador
+                </p>
+              </div>
             </button>
           </div>
         </header>
@@ -283,27 +303,20 @@ export default function Dashboard() {
             })}
           </div>
 
-          {/* Layout de 3 Colunas */}
-          {/* ----- NOVA SEÇÃO DE GRÁFICOS ----- */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Gráfico de Linha ocupa 2 colunas em telas grandes */}
             <div className="lg:col-span-2">
               <CurvaEpidemica pacientes={pacientes} />
             </div>
-            {/* Gráfico de Rosca ocupa 1 coluna */}
             <div className="lg:col-span-1">
               <StatusDonut pacientes={pacientes} />
             </div>
           </div>
 
-          {/* ----- LAYOUT INFERIOR (Distribuição, Demografia, Recentes) ----- */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Coluna 1: Perfil Demográfico */}
             <div className="lg:col-span-1">
               <PerfilDemografico pacientes={pacientes} />
             </div>
 
-            {/* Coluna 2: Distribuição por Quadrante (Seu componente original) */}
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 flex flex-col">
               <div className="mb-6">
                 <h3 className="text-lg font-bold text-slate-800">
@@ -376,12 +389,19 @@ export default function Dashboard() {
             </div>
           </div>
         </main>
-        <footer className="px-8 py-4 border-b flex justify-between sticky top-0 z-20 bg-[#054060]">
-          <img
-            src={AssinaturaGovernamental}
-            alt="<Logo da Secretaria de Saúde"
-            className=""
-          />
+        <footer className="mt-auto px-8 py-5 border-t border-slate-200 bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center">
+            <img
+              src={AssinaturaGovernamental}
+              alt="Assinatura do Governo Federal e Secretaria de Saúde"
+              className="h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default"
+            />
+          </div>
+
+          <div className="text-xs text-slate-400 font-medium">
+            &copy; {new Date().getFullYear()} Controle Epidemiológico. Todos os
+            direitos reservados.
+          </div>
         </footer>
       </div>
       <PatientModal

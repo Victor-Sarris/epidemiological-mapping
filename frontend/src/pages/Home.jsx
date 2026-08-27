@@ -33,7 +33,7 @@ function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Particulas de fundo */}
       <ParticlesBg
-        type="custom"
+        type="square"
         bg={true}
         className="z-10"
         config={configParticulas}
