@@ -792,7 +792,7 @@ export default function MapDengue() {
 
   useEffect(() => {
     if (mapRef.current) {
-      mapRef.current.easeTo({ pitch: is3D ? 60 : 0, duration: 500 });
+      mapRef.current.easeTo({ pitch: is3D ? 60 : 0, duration: 1000 });
     }
   }, [is3D]);
 
@@ -854,19 +854,21 @@ export default function MapDengue() {
     });
 
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
-      // Como é apenas a linha de fronteira, ignoramos a contagem por bairros
-      // e mantemos a cor vermelha base do polígono.
+      const isDarkMode =
+        activeStyle === "dark" || activeStyle === "openstreetmap3d";
+      const corTema = isDarkMode ? "#ffffff" : feature.properties.color;
+
       return {
         ...feature,
         properties: {
           ...feature.properties,
-          color: feature.properties.color,
+          color: corTema,
         },
       };
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [endemiaSelecionada, todosPacientes]);
+  }, [endemiaSelecionada, todosPacientes, activeStyle]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -930,7 +932,6 @@ export default function MapDengue() {
                     </MarkerContent>
                     <MarkerPopup className="w-62 p-0">
                       <div className="relative h-32 overflow-hidden rounded-t-md">
-                        {/* AQUI FOI FEITA A ALTERAÇÃO: Tag img padrão ao invés de Image do Next */}
                         <img
                           src={place.image}
                           alt={place.name}

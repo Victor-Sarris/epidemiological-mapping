@@ -1045,7 +1045,7 @@ function MapRoute({
 // `fillPaint` / `linePaint`.
 const GEOJSON_DEFAULT_COLORS = {
   light: { fill: "#d4d4d4", line: "#ffffff" },
-  dark: { fill: "#404040", line: "#171717" },
+  dark: { fill: "#ffffff", line: "#ffffff" },
 };
 
 /**
