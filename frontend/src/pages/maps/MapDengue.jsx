@@ -930,7 +930,6 @@ export default function MapDengue() {
                     </MarkerContent>
                     <MarkerPopup className="w-62 p-0">
                       <div className="relative h-32 overflow-hidden rounded-t-md">
-                        {/* AQUI FOI FEITA A ALTERAÇÃO: Tag img padrão ao invés de Image do Next */}
                         <img
                           src={place.image}
                           alt={place.name}
