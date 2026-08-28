@@ -36,6 +36,7 @@ local_settings.py
 # =========================
 # Dependências
 node_modules/
+.node_modules/
 .pnp
 .pnp.js
 
