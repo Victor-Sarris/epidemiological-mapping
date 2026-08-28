@@ -23,6 +23,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 
 // importação de imagens para o maps ----------
+// imagens das ubs do perimetro urbano
 import postodeSaudeTaboca from "../../assets/ubs/PostodeSaúdedaTaboca.jpg";
 import JasminaBucar from "../../assets/ubs/jasminabucar.jpg";
 import VianaCarvalho from "../../assets/ubs/vianacarvalho.jpg";
@@ -35,6 +36,12 @@ import pedroSimplicio from "../../assets/ubs/pedroSimplicio.jpg";
 import alfedroCarvalho from "../../assets/ubs/alfredoCarvalho.jpg";
 import defaultImage from "../../assets/ubs/defaultImage.png";
 import RaimundoFilho from "../../assets/ubs/ubsRaimundoFilho.png";
+// imagens das ubs do perimetro rural
+import MargaridaAlvez from "../../assets/ubs/MargaridaAlvez.jpeg";
+import RaimundoBenvindoLima from "../../assets/ubs/RaimundoBenvindoLima.jpeg";
+import Morrinhos from "../../assets/ubs/Morrinhos.jpeg";
+import RosaRodriguesCamelo from "../../assets/ubs/RosaRodriguesCamelo.jpeg";
+import ProtasioMoraes from "../../assets/ubs/ProtasioMoraes.png";
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -281,6 +288,7 @@ const bairrosFlorianoGeoJSON = {
         ],
       },
     },
+    // ==================== localização das UBSs da zona urbanda ====================
     {
       type: "Feature",
       properties: {},
@@ -684,21 +692,21 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: MargaridaAlvez,
     lng: -42.99622811510465,
     lat: -7.071558304760834,
   },
-  // essas duas ubs tem o mesmo nome ⬇️
+  // essas duas ubs tem o mesmo nome ⬇️ (porque atendem a mesma comunidadade)
   {
     id: "amolar",
-    name: "UBS Retiro Amolar",
-    label: "UBS Retiro Amolar",
+    name: "UBS Raimundo Benvindo Lima",
+    label: "UBS Raimundo Benvindo Lima",
     category: "UBS",
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: RaimundoBenvindoLima,
     lng: -42.907166149826985,
     lat: -7.321264212578072,
   },
@@ -711,10 +719,11 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: RosaRodriguesCamelo,
     lng: -42.90072202285687,
     lat: -7.267051325394482,
   },
+  // ========================================
   {
     id: "morrinhos",
     name: "UBS Morrinhos",
@@ -724,7 +733,7 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: Morrinhos,
     lng: -43.02380440567498,
     lat: -6.8600533934180365,
   },
@@ -750,7 +759,7 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: ProtasioMoraes,
     lng: -42.802106472732234,
     lat: -6.913968407079276,
   },
