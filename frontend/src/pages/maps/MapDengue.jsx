@@ -927,7 +927,9 @@ export default function MapDengue() {
                     latitude={place.lat}
                   >
                     <MarkerContent>
-                      <div className="size-5 cursor-pointer rounded-full border-2 border-white bg-rose-500 shadow-lg transition-transform hover:scale-110" />
+                      <div className="size-5 cursor-pointer rounded-full border-2 border-white bg-red-500 shadow-lg transition-transform h-6 w-6 hover:scale-110">
+                        <p className="text-center text-white font-bold">U</p>
+                      </div>
                       <MarkerLabel position="bottom">{place.label}</MarkerLabel>
                     </MarkerContent>
                     <MarkerPopup className="w-62 p-0">
