@@ -3,12 +3,73 @@ import Sidebar from "../components/Sidebar.jsx";
 import { IoChatbubbles, IoEllipse, IoClose, IoWarning } from "react-icons/io5";
 
 function Support() {
-  // 1. Estado para controlar o chat
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
-  // 2. Função para alternar o chat
+  // 1. Estado para armazenar o histórico de mensagens
+  const [messages, setMessages] = useState([
+    {
+      sender: "bot",
+      text: "Olá! Sou o assistente virtual. Como posso ajudar você hoje?",
+    },
+  ]);
+
+  // 2. Estado para controlar o texto digitado
+  const [inputValue, setInputValue] = useState("");
+
   const toggleChatbot = () => {
     setIsChatbotOpen(!isChatbotOpen);
+  };
+
+  // 3. Função para enviar a mensagem
+  const handleSendMessage = (e) => {
+    if (e.key === "Enter" && inputValue.trim() !== "") {
+      // Adiciona a mensagem do usuário
+      const newMessages = [...messages, { sender: "user", text: inputValue }];
+      setMessages(newMessages);
+      setInputValue("");
+
+      // Simula uma resposta do bot (substitua por sua API real futuramente)
+      const handleSendMessage = async (e) => {
+        if (e.key === "Enter" && inputValue.trim() !== "") {
+          const userText = inputValue;
+          // Adiciona a mensagem do usuário
+          const newMessages = [...messages, { sender: "user", text: userText }];
+          setMessages(newMessages);
+          setInputValue("");
+
+          try {
+            // Faz a requisição POST para o backend Flask
+            const response = await fetch("http://localhost:5000/chat", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ message: userText }),
+            });
+
+            const data = await response.json();
+
+            if (data.status === "success") {
+              setMessages((prev) => [
+                ...prev,
+                { sender: "bot", text: data.response },
+              ]);
+            } else {
+              throw new Error("Erro na resposta da API");
+            }
+          } catch (error) {
+            console.error("Erro de comunicação com o chatbot:", error);
+            setMessages((prev) => [
+              ...prev,
+              {
+                sender: "bot",
+                text: "Desculpe, ocorreu um erro de conexão. Tente novamente mais tarde.",
+              },
+            ]);
+          }
+        }
+      };
+    }
   };
 
   return (
@@ -16,8 +77,7 @@ function Support() {
       <Sidebar />
 
       <main className="flex-1 p-6 md:p-10 transition-all duration-300 ml-62.5">
-        {/* Hero com fundo colorido fixo — texto permanece branco nos dois temas */}
-        <section className="bg-linear-to-r from-blue-900 to-purple-700 text-white py-16 sm:py-20 px-6 lg:px-10 relative overflow-hidden rounded-3xl shadow-2xl">
+        <section className="bg-linear-to-r from-blue-900 to-[#054060] text-white py-16 sm:py-20 px-6 lg:px-10 relative overflow-hidden rounded-3xl shadow-2xl">
           <div className="absolute inset-0 opacity-25 pointer-events-none">
             <div className="absolute top-10 left-10 w-40 h-40 bg-purple-400 rounded-full blur-3xl"></div>
             <div className="absolute bottom-10 right-10 w-60 h-60 bg-indigo-500 rounded-full blur-3xl"></div>
@@ -55,7 +115,6 @@ function Support() {
           </div>
         </section>
 
-        {/* Card de aviso */}
         <div className="glass w-full text-fg border border-amber-500/30 p-6 flex flex-col gap-3 rounded-3xl mt-6 shadow-2xl">
           <h2 className="flex items-center gap-2 text-xl text-amber-500 font-bold">
             <IoWarning size={24} /> Atenção
@@ -77,16 +136,15 @@ function Support() {
           <button
             onClick={toggleChatbot}
             aria-label="Abrir suporte por chat"
-            className="fixed bottom-8 right-8 w-16 h-16 bg-linear-to-r from-purple-600 to-indigo-600 text-white rounded-full flex items-center justify-center cursor-pointer shadow-2xl hover:shadow-purple-500/50 transform hover:scale-110 transition-all duration-300 z-50 group"
+            className="fixed bottom-8 right-8 w-16 h-16 bg-linear-to-r from-[#054060] to-indigo-600 text-white rounded-full flex items-center justify-center cursor-pointer shadow-2xl hover:shadow-purple-500/50 transform hover:scale-110 transition-all duration-300 z-50 group"
           >
             <IoChatbubbles className="text-2xl group-hover:rotate-12 transition-transform" />
-            <div className="absolute top-3 right-3 w-3 h-3 bg-green-400 rounded-full border-2 border-purple-600"></div>
+            <div className="absolute top-3 right-3 w-3 h-3 bg-green-400 rounded-full border-2 border-[#054060]"></div>
           </button>
         )}
 
         {isChatbotOpen && (
           <div className="fixed bottom-24 right-8 w-80 md:w-96 bg-surface border border-line rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-fade-in-up">
-            {/* Header do Chat (gradiente fixo) */}
             <div className="bg-[#054060] p-4 flex justify-between items-center">
               <h3 className="text-white font-bold flex items-center gap-2">
                 <IoChatbubbles /> Suporte Automatizado
@@ -98,16 +156,32 @@ function Support() {
                 <IoClose size={20} />
               </button>
             </div>
-            <div className="h-64 p-4 bg-surface text-muted text-sm flex flex-col gap-3 overflow-y-auto">
-              <div className="self-start bg-elevated p-3 rounded-2xl rounded-tl-none max-w-[85%]">
-                Olá! Sou o assistente virtual. Como posso ajudar você hoje?
-              </div>
+
+            {/* 4. Renderiza dinamicamente as mensagens do estado */}
+            <div className="h-64 p-4 bg-surface text-muted text-sm flex flex-col gap-3 overflow-y-auto bg-white">
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`p-3 rounded-2xl max-w-[85%] ${
+                    msg.sender === "user"
+                      ? "self-end bg-[#054060] text-white rounded-tr-none"
+                      : "self-start bg-slate-100 text-slate-800 rounded-tl-none"
+                  }`}
+                >
+                  {msg.text}
+                </div>
+              ))}
             </div>
+
+            {/* 5. Lida com o input do usuário */}
             <div className="p-3 bg-field border-t border-line">
               <input
                 type="text"
-                placeholder="Digite sua mensagem..."
-                className="w-full bg-surface text-fg px-4 py-2 rounded-full border border-line focus:outline-none focus:border-purple-500 text-sm placeholder-faint"
+                placeholder="Digite sua mensagem e aperte Enter..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleSendMessage}
+                className="w-full bg-surface text-fg px-4 py-2 rounded-full border border-line focus:outline-none focus:border-[#054060] text-sm placeholder-faint"
               />
             </div>
           </div>

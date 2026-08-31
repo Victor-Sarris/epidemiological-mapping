@@ -42,6 +42,7 @@ import RaimundoBenvindoLima from "../../assets/ubs/RaimundoBenvindoLima.jpeg";
 import Morrinhos from "../../assets/ubs/Morrinhos.jpeg";
 import RosaRodriguesCamelo from "../../assets/ubs/RosaRodriguesCamelo.jpeg";
 import ProtasioMoraes from "../../assets/ubs/ProtasioMoraes.png";
+import UbsL3 from "../../assets/ubs/UbsL3.jpeg";
 
 const MAP_STYLES = {
   light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
@@ -746,7 +747,7 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#8b5cf6",
-    image: defaultImage,
+    image: UbsL3,
     lng: -42.92196772000125,
     lat: -6.785588080100101,
   },
@@ -874,7 +875,7 @@ export default function MapDengue() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col h-full relative ml-64">
-        <header className="px-8 py-5 border-b bg-[#054060] backdrop-blur-md z-10 flex items-center justify-betweend">
+        <header className="px-8 py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-betweend">
           <div>
             <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
               <MapIcon className="text-white-600 size-6" />

@@ -75,7 +75,7 @@ function EpidemiologicMap() {
       <Sidebar />
 
       <div className="flex-1 flex flex-col h-full relative ml-64">
-        <header className="px-8 py-5 border-b bg-[#054060] backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-8 py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-extrabold text-white tracking-tight">
               Visão Geoespacial
