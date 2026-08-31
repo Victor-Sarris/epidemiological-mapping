@@ -82,11 +82,11 @@ const Sidebar = () => {
               Mapa Epidemiológico
             </Link>
             <Link
-              to="/mapa-epidemiologico"
-              className={`${baseClasses} ${isActive("/mapa-epidemiologico") ? activeClasses : inactiveClasses}`}
+              to="/suporte"
+              className={`${baseClasses} ${isActive("/suporte") ? activeClasses : inactiveClasses}`}
             >
-              <Map
-                className={`size-5 ${isActive("/mapa-epidemiologico") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+              <LayoutDashboard
+                className={`size-5 ${isActive("/suporte") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
               />
               Dúvidas Frequentes
             </Link>

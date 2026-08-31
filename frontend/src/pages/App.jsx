@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "maplibre-gl/dist/maplibre-gl.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
-import "maplibre-gl/dist/maplibre-gl.css";
-import "mapbox-gl/dist/mapbox-gl.css";
+import Support from "./Support.jsx";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             path="/mapa-epidemiologico/endemias/dengue"
             element={<MapDengue />}
           />
+          <Route path="/suporte" element={<Support />} />
         </Routes>
       </BrowserRouter>
     </>
