@@ -7,7 +7,7 @@ class EmbeddingManager:
     def __init__(self, api_key):
         self.api_key = api_key
         genai.configure(api_key=self.api_key)
-        self.model = "models/text-embedding-004"
+        self.model = "models/gemini-embedding-001"
         self.documents_df = None
         self._initialize_knowledge_base()
         

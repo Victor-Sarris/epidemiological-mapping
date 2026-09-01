@@ -5,7 +5,6 @@ import { IoChatbubbles, IoEllipse, IoClose, IoWarning } from "react-icons/io5";
 function Support() {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
-  // 1. Estado para armazenar o histórico de mensagens
   const [messages, setMessages] = useState([
     {
       sender: "bot",
@@ -13,62 +12,49 @@ function Support() {
     },
   ]);
 
-  // 2. Estado para controlar o texto digitado
   const [inputValue, setInputValue] = useState("");
 
   const toggleChatbot = () => {
     setIsChatbotOpen(!isChatbotOpen);
   };
 
-  // 3. Função para enviar a mensagem
-  const handleSendMessage = (e) => {
+  const handleSendMessage = async (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
-      // Adiciona a mensagem do usuário
-      const newMessages = [...messages, { sender: "user", text: inputValue }];
-      setMessages(newMessages);
+      const userText = inputValue;
+
+      // Adiciona a mensagem do usuário na tela
+      setMessages((prev) => [...prev, { sender: "user", text: userText }]);
       setInputValue("");
 
-      // Simula uma resposta do bot (substitua por sua API real futuramente)
-      const handleSendMessage = async (e) => {
-        if (e.key === "Enter" && inputValue.trim() !== "") {
-          const userText = inputValue;
-          // Adiciona a mensagem do usuário
-          const newMessages = [...messages, { sender: "user", text: userText }];
-          setMessages(newMessages);
-          setInputValue("");
+      try {
+        const response = await fetch("http://localhost:5000/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: userText }),
+        });
 
-          try {
-            // Faz a requisição POST para o backend Flask
-            const response = await fetch("http://localhost:5000/chat", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ message: userText }),
-            });
+        const data = await response.json();
 
-            const data = await response.json();
-
-            if (data.status === "success") {
-              setMessages((prev) => [
-                ...prev,
-                { sender: "bot", text: data.response },
-              ]);
-            } else {
-              throw new Error("Erro na resposta da API");
-            }
-          } catch (error) {
-            console.error("Erro de comunicação com o chatbot:", error);
-            setMessages((prev) => [
-              ...prev,
-              {
-                sender: "bot",
-                text: "Desculpe, ocorreu um erro de conexão. Tente novamente mais tarde.",
-              },
-            ]);
-          }
+        if (data.status === "success") {
+          setMessages((prev) => [
+            ...prev,
+            { sender: "bot", text: data.response },
+          ]);
+        } else {
+          throw new Error("Erro na resposta da API");
         }
-      };
+      } catch (error) {
+        console.error("Erro de comunicação com o chatbot:", error);
+        setMessages((prev) => [
+          ...prev,
+          {
+            sender: "bot",
+            text: "Desculpe, ocorreu um erro de conexão com o servidor. Tente novamente mais tarde.",
+          },
+        ]);
+      }
     }
   };
 
@@ -145,8 +131,8 @@ function Support() {
 
         {isChatbotOpen && (
           <div className="fixed bottom-24 right-8 w-80 md:w-96 bg-surface border border-line rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-fade-in-up">
-            <div className="bg-[#054060] p-4 flex justify-between items-center">
-              <h3 className="text-white font-bold flex items-center gap-2">
+            <div className="bg-linear-to-r from-[#054060] to-indigo-600 p-4 flex justify-between items-center">
+              <h3 className="text-white font-bold flex items-center gap-2 ">
                 <IoChatbubbles /> Suporte Automatizado
               </h3>
               <button
