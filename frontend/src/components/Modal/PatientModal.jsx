@@ -25,7 +25,7 @@ export default function PatientModal({ paciente, isOpen, onClose }) {
           </h3>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-rose-500 rounded-md hover:bg-rose-50 transition-colors"
+            className="p-1 text-slate-400 hover:text-rose-500 rounded-md hover:bg-rose-50 transition-colors cursor-pointer"
           >
             <X className="size-5" />
           </button>
@@ -96,7 +96,7 @@ export default function PatientModal({ paciente, isOpen, onClose }) {
         <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
           >
             Fechar
           </button>

@@ -130,7 +130,7 @@ function Support() {
         )}
 
         {isChatbotOpen && (
-          <div className="fixed bottom-24 right-8 w-80 md:w-96 bg-surface border border-line rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-fade-in-up">
+          <div className="fixed bottom-24 right-8 w-80 md:w-96 bg-surface  rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden animate-fade-in-up">
             <div className="bg-linear-to-r from-[#054060] to-indigo-600 p-4 flex justify-between items-center">
               <h3 className="text-white font-bold flex items-center gap-2 ">
                 <IoChatbubbles /> Suporte Automatizado
@@ -160,14 +160,14 @@ function Support() {
             </div>
 
             {/* 5. Lida com o input do usuário */}
-            <div className="p-3 bg-field border-t border-line">
+            <div className="p-3 bg-field">
               <input
                 type="text"
                 placeholder="Digite sua mensagem e aperte Enter..."
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleSendMessage}
-                className="w-full bg-surface text-fg px-4 py-2 rounded-full border border-line focus:outline-none focus:border-[#054060] text-sm placeholder-faint"
+                className="w-full bg-surface text-fg px-4 py-2 rounded-full border border-[#054060] focus:outline-none focus:border-[#054060] text-sm placeholder-faint"
               />
             </div>
           </div>

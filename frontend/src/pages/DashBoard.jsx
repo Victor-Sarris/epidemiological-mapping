@@ -20,7 +20,7 @@ import {
   CurvaEpidemica,
   StatusDonut,
   PerfilDemografico,
-} from "../components/DashboardCharts.jsx";
+} from "../components/Modal/DashboardCharts.jsx";
 
 export default function Dashboard() {
   const [pacientes, setPacientes] = useState([]);
@@ -394,7 +394,7 @@ export default function Dashboard() {
             <img
               src={AssinaturaGovernamental}
               alt="Assinatura do Governo Federal e Secretaria de Saúde"
-              className="h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default"
+              className="h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default rounded-xs"
             />
           </div>
 
