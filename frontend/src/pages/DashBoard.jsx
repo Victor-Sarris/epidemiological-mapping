@@ -20,7 +20,7 @@ import {
   CurvaEpidemica,
   StatusDonut,
   PerfilDemografico,
-} from "../components/DashboardCharts.jsx";
+} from "../components/Modal/DashboardCharts.jsx";
 
 export default function Dashboard() {
   const [pacientes, setPacientes] = useState([]);
@@ -212,7 +212,7 @@ export default function Dashboard() {
       {/* Área de Conteúdo Principal */}
       <div className="flex-1 flex flex-col h-full overflow-y-auto ml-64">
         {/* Header Superior */}
-        <header className="px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#054060] shadow-md border-b border-[#043048]">
+        <header className="px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-r from-[#054060] to-indigo-600 shadow-md border-b border-[#043048]">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-white tracking-wide">
               Visão Geral
@@ -394,7 +394,7 @@ export default function Dashboard() {
             <img
               src={AssinaturaGovernamental}
               alt="Assinatura do Governo Federal e Secretaria de Saúde"
-              className="h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default"
+              className="h-10 w-auto object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-500 cursor-default rounded-xs"
             />
           </div>
 

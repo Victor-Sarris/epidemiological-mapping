@@ -6,6 +6,7 @@ import {
   Map,
   Activity,
   ShieldAlert,
+  CircleQuestionMark,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -80,6 +81,15 @@ const Sidebar = () => {
                 className={`size-5 ${isActive("/mapa-epidemiologico") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
               />
               Mapa Epidemiológico
+            </Link>
+            <Link
+              to="/suporte"
+              className={`${baseClasses} ${isActive("/suporte") ? activeClasses : inactiveClasses}`}
+            >
+              <CircleQuestionMark
+                className={`size-5 ${isActive("/suporte") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+              />
+              Dúvidas Frequentes
             </Link>
           </div>
         </div>
