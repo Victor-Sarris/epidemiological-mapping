@@ -124,10 +124,10 @@ function Support() {
             geral da plataforma. Caso queira uma resposta mais específica, entre
             em contato com:{" "}
             <a
-              href="mailto:devvictorsarris@gmail.com"
+              href="mailto:vigilanciafloriano@gmail.com"
               className="text-blue-500 hover:text-blue-400 hover:underline font-medium"
             >
-              devvictorsarris@gmail.com
+              vigilanciafloriano@gmail.com
             </a>
           </p>
         </div>
