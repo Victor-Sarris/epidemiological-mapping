@@ -14,7 +14,7 @@ const configParticulas = {
   alpha: [0.6, 0], // Transparência
   scale: [0.1, 0.4], // Escala
   position: "all",
-  color: ["#054060", "#e11d48", "#f59e0b", "#3b82f6"], // Paleta de cores do projeto
+  color: ["#054060", "#e11d48", "#f59e0b", "#3b82f6"],
   cross: "dead",
   random: 15,
 };
@@ -24,14 +24,9 @@ function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Camada 1: Fundo Gradiente (Atrás das partículas) */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#eef4f8] via-[#f7f9fb] to-[#eef4f8] -z-20"></div>
+      <div className="absolute inset-0 bg-linear-to-b from-[#eef4f8] via-[#f7f9fb] to-[#eef4f8] -z-20"></div>
 
-      {/* Camada 2: Partículas (O bg={true} joga automaticamente para z-index: -1) */}
       <ParticlesBg type="custom" bg={true} config={configParticulas} />
-
-      {/* Camada 3: Conteúdo (z-10 garante que fique acima de tudo) */}
-      {/* Reduzimos o padding no mobile (p-6) e deixamos maior no desktop (md:p-14) */}
       <div className="max-w-3xl w-full bg-white/75 backdrop-blur-2xl rounded-2xl md:rounded-3xl shadow-2xl p-6 sm:p-10 md:p-14 text-center space-y-6 sm:space-y-8 border border-white/60 relative z-10 animate-in fade-in zoom-in-95 duration-700">
         <div className="flex flex-col items-center gap-4 sm:gap-6">
           <img
@@ -49,7 +44,7 @@ function Home() {
         {/* Garantimos 1 coluna no mobile (grid-cols-1) e 2 no desktop (sm:grid-cols-2) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-2 text-left">
           {/* Card 1 */}
-          <div className="p-5 sm:p-7 rounded-2xl bg-gradient-to-br from-[#054060]/5 to-transparent border border-[#054060]/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#054060]/30 group cursor-default">
+          <div className="p-5 sm:p-7 rounded-2xl bg-linear-to-br from-[#054060]/5 to-transparent border border-[#054060]/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#054060]/30 group cursor-default">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#054060] flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
               <MapIcon
                 className="size-5 sm:size-6 text-white"
@@ -66,7 +61,7 @@ function Home() {
           </div>
 
           {/* Card 2 */}
-          <div className="p-5 sm:p-7 rounded-2xl bg-gradient-to-br from-amber-500/5 to-transparent border border-amber-500/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-amber-500/30 group cursor-default">
+          <div className="p-5 sm:p-7 rounded-2xl bg-linear-to-br from-amber-500/5 to-transparent border border-amber-500/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-amber-500/30 group cursor-default">
             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-600 flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
               <ShieldAlert
                 className="size-5 sm:size-6 text-white"
@@ -84,7 +79,6 @@ function Home() {
         </div>
 
         <div className="pt-6 sm:pt-8 flex flex-col items-center gap-4 sm:gap-6">
-          {/* Botão com w-full no mobile para virar um "bloco" fácil de clicar, e w-auto no desktop */}
           <button
             onClick={() => navigate("/dados-gerais")}
             className="group w-full sm:w-auto justify-center flex items-center gap-3 bg-[#054060] hover:bg-[#085883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#054060] text-white font-semibold text-sm sm:text-base md:text-lg py-3.5 px-6 sm:py-4 sm:px-10 rounded-xl transition-all duration-300 shadow-xl hover:shadow-blue-900/30 active:scale-95 hover:-translate-y-0.5"
