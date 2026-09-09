@@ -663,7 +663,7 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS PAULO KALUME",
         styleUrl: "#poly-F9A825-1200-204-nodesc",
-        "fill-opacity": 0.4,
+        "fill-opacity": 0.2,
         fill: "#f9a825",
         "stroke-opacity": 1,
         stroke: "#f9a825",
@@ -1266,6 +1266,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS L3",
         color: "#EAEAE9",
+        fill: "#9c27b0",
+        stroke: "#9c27b0",
       },
       geometry: {
         type: "Polygon",
@@ -1297,6 +1299,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS LEONARDO DUDIMA",
         color: "#EAEAE9",
+        fill: "#0f9d58",
+        stroke: "#0f9d58",
       },
       geometry: {
         type: "Polygon",
@@ -1332,6 +1336,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS MORRINHOS",
         color: "#EAEAE9",
+        fill: "#c2185b",
+        stroke: "#c2185b",
       },
       geometry: {
         type: "Polygon",
@@ -1371,6 +1377,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS MARGARIDA ALVES",
         color: "#EAEAE9",
+        fill: "#f9a825",
+        stroke: "#f9a825",
       },
       geometry: {
         type: "Polygon",
@@ -1397,6 +1405,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS PROTÁSIO DE MORAES",
         color: "#EAEAE9",
+        fill: "#0288d1",
+        stroke: "#0288d1",
       },
       geometry: {
         type: "Polygon",
@@ -1434,6 +1444,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS RAIMUNDO BENVINDO LIMA",
         color: "#EAEAE9",
+        fill: "#e6ee9c",
+        stroke: "#e6ee9c",
       },
       geometry: {
         type: "Polygon",
@@ -1464,6 +1476,8 @@ const bairrosFlorianoGeoJSON = {
       properties: {
         name: "ÁREA UBS RETIRO AMOLAR",
         color: "#EAEAE9",
+        fill: "#e6ee9c",
+        stroke: "#e6ee9c",
       },
       geometry: {
         type: "Polygon",
