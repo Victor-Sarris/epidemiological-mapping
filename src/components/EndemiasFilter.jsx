@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Bug, Activity, ShieldAlert, ChevronDown, MapPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export default function EndemiasFilter({ selected, onChange }) {
+export default function EndemiasFilter({ selected, onChange, className }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -63,10 +63,12 @@ export default function EndemiasFilter({ selected, onChange }) {
     endemias.find((item) => item.id === selected) || endemias[0];
 
   return (
-    <div className="absolute top-4 left-6 z-20 flex flex-col items-start">
+    <div
+      className={`absolute top-4 left-6 z-20 flex flex-col items-start ${className || ""}`}
+    >
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-slate-200/60 hover:bg-white transition-all active:scale-95"
+        className="flex items-center gap-3 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-slate-200/60 w-37.5 -ml-5 md:w-full md:ml-0 hover:bg-white transition-all active:scale-95 "
       >
         <div
           className={`p-1.5 rounded-md ${selectedItem.bg} ${selectedItem.color}`}
@@ -74,7 +76,7 @@ export default function EndemiasFilter({ selected, onChange }) {
           <selectedItem.icon className="size-4" />
         </div>
 
-        <span className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+        <span className="text-[8px] font-bold text-slate-800 uppercase tracking-wider whitespace-nowrap md:text-xs">
           {selectedItem.name}
         </span>
 
@@ -85,8 +87,8 @@ export default function EndemiasFilter({ selected, onChange }) {
 
       {/* Lista Expandível */}
       {isOpen && (
-        <div className="mt-2 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-slate-200/60 w-full animate-in fade-in slide-in-from-top-2 duration-200">
-          <h4 className="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider">
+        <div className="mt-2 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-slate-200/60 min-w-max animate-in fade-in slide-in-from-top-2 duration-200 w-37.5 -ml-5 md:w-full md:ml-0">
+          <h4 className="text-xs font-bold text-slate-800 mb-3 uppercase tracking-wider whitespace-nowrap">
             Selecione o Agravo
           </h4>
           <div className="flex flex-col gap-2">
@@ -103,7 +105,9 @@ export default function EndemiasFilter({ selected, onChange }) {
                 <div className={`p-1.5 rounded-md ${item.bg} ${item.color}`}>
                   <item.icon className="size-4" />
                 </div>
-                <span className="text-slate-700">{item.name}</span>
+                <span className="text-slate-700 whitespace-nowrap">
+                  {item.name}
+                </span>
               </button>
             ))}
           </div>

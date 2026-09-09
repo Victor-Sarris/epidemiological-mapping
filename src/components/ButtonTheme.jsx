@@ -5,9 +5,12 @@ export default function ButtonTheme({
   activeStyle,
   setActiveStyle,
   toggleTheme,
+  className,
 }) {
   return (
-    <div className="absolute top-4 right-4 z-10 flex items-center gap-3">
+    <div
+      className={`absolute top-4 right-4 z-10 flex items-center gap-3 mr-[-10px] ${className || ""}`}
+    >
       <div className="bg-white/90 backdrop-blur-md p-1.5 rounded-xl shadow-lg border border-slate-200/60 flex items-center gap-2 transition-all hover:bg-white">
         <div className="pl-2 text-slate-400">
           <Layers className="size-4" />
