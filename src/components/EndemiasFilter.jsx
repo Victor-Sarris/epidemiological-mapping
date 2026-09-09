@@ -52,10 +52,8 @@ export default function EndemiasFilter({ selected, onChange }) {
       }
     }
 
-    // 3. Fecha o menu dropdown
     setIsOpen(false);
 
-    // 4. Faz a navegação automaticamente a partir da rota definida no objeto!
     if (item.rota) {
       navigate(item.rota);
     }

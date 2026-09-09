@@ -39,6 +39,7 @@ import RaimundoFilho from "../assets/ubs/ubsRaimundoFilho.png";
 import TheodoroSobral from "../assets/ubs/theodoroSobral.png";
 import pauloKalume from "../assets/ubs/pauloKalume.png";
 import camiloFilho from "../assets/ubs/camiloFilho.png";
+import joaoEliasOka from "../assets/ubs/joaoEliasOka.jpg";
 // imagens das ubs do perimetro rural
 import MargaridaAlvez from "../assets/ubs/MargaridaAlvez.jpeg";
 import RaimundoBenvindoLima from "../assets/ubs/RaimundoBenvindoLima.jpeg";
@@ -1795,6 +1796,19 @@ const marcadores = [
     lng: -43.009957159718944,
     lat: -6.801771476889063,
   },
+  {
+    id: "joãoeliasoka",
+    name: "UBS João Elias Oka",
+    label: "UBS João Elias Oka",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#8b5cf6",
+    image: joaoEliasOka,
+    lng: -43.01737203229874,
+    lat: -6.763413487734799,
+  },
 
   // =========== UBSs da zona rural ===========
   {
@@ -2226,14 +2240,6 @@ function EpidemiologicMap() {
                     <h4 className="font-bold text-slate-800 text-sm">
                       {hoverInfo.nome}
                     </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-slate-600 text-xs font-medium">
-                        Casos registrados:
-                      </span>
-                      <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-full text-xs font-bold">
-                        {hoverInfo.casos}
-                      </span>
-                    </div>
                   </div>
                 )}
               </div>
