@@ -45,6 +45,11 @@ export default function Dashboard() {
     return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
   };
 
+  const casosAlerta = pacientes.filter((p) => {
+    const classFinal = String(p.classi_fin || "").trim();
+    return classFinal === "10" || classFinal === "11";
+  }).length;
+
   // Busca os dados da API Django
   useEffect(() => {
     const baseUrl = import.meta.env.VITE_API_URL;
@@ -81,7 +86,7 @@ export default function Dashboard() {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
         <p className="text-lg font-medium text-slate-600">
-          Carregando dados epidemiológicos...
+          Carregando dados...
         </p>
       </div>
     );
@@ -89,15 +94,12 @@ export default function Dashboard() {
 
   const casosRecentes = [...pacientes]
     .sort((a, b) => {
-      // 1. Tenta ordenar pela data de notificação (string em formato YYYY-MM-DD ordena perfeitamente)
       const dateA = a.data_notificacao || "0000-00-00";
       const dateB = b.data_notificacao || "0000-00-00";
 
       if (dateA !== dateB) {
-        return dateB.localeCompare(dateA); // Ordem decrescente (mais recente primeiro)
+        return dateB.localeCompare(dateA);
       }
-
-      // 2. Critério de desempate: se as datas forem iguais, o maior ID (mais recém inserido no banco) vence
       return (b.id || 0) - (a.id || 0);
     })
     .slice(0, 5)
@@ -192,11 +194,11 @@ export default function Dashboard() {
       subtext: "Registros importados do SINAN.",
     },
     {
-      title: "Casos em Alerta",
-      value: "14",
+      title: "Casos em Alerta (Graves)",
+      value: casosAlerta,
       icon: AlertTriangle,
       color: "amber",
-      subtext: "Requerem atenção.",
+      subtext: "Dengue grave ou com sinais de alarme.",
     },
     {
       title: "Bairro mais Afetado",
