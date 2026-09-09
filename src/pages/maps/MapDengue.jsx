@@ -2229,12 +2229,16 @@ export default function MapDengue() {
                             <span>{place.hours}</span>
                           </div>
                           <div className="flex gap-2 pt-1">
-                            <Button size="sm" className="flex-1">
+                            <Button
+                              size="sm"
+                              className="flex-1 hover:cursor-pointer hover:bg-gray-100"
+                              onClick={() => {
+                                const url = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
+                                window.open(url, "_blank");
+                              }}
+                            >
                               <Navigation className="size-3.5" />
-                              Directions
-                            </Button>
-                            <Button size="icon-sm" variant="outline">
-                              <ExternalLink className="size-3.5" />
+                              Rota mais rápida
                             </Button>
                           </div>
                         </div>
