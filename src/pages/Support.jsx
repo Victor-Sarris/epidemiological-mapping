@@ -65,13 +65,9 @@ function Support() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
-      {/* 1. SIDEBAR RESPONSIVA */}
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      {/* 2. CONTAINER PRINCIPAL RESPONSIVO */}
-      {/* Usando ml-0 no mobile e md:ml-64 no desktop */}
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto ml-0 md:ml-64 relative">
-        {/* HEADER RESPONSIVO COM BOTÃO HAMBURGUER (Aparece só no Mobile) */}
         <header className="md:hidden px-4 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-r from-[#054060] to-indigo-600 shadow-md border-b border-[#043048]">
           <div className="flex items-center gap-3">
             <button
