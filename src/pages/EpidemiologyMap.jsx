@@ -1952,7 +1952,7 @@ function EpidemiologicMap() {
     setLoading(true);
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    fetch(`${apiUrl}/api/pacientes/`)
+    fetch(`${apiUrl}/api/dengue/`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro na requisição da API do Mapa");
         return res.json();

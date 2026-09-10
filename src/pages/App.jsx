@@ -4,9 +4,10 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
+import Support from "./Support.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
-import Support from "./Support.jsx";
+import MapTubercu from "./maps/MapTubercu.jsx";
 
 function App() {
   return (
@@ -19,6 +20,10 @@ function App() {
           <Route
             path="/mapa-epidemiologico/endemias/dengue"
             element={<MapDengue />}
+          />
+          <Route
+            path="/mapa-epidemiologico/endemias/tuberculose"
+            element={<MapTubercu />}
           />
           <Route path="/suporte" element={<Support />} />
         </Routes>
