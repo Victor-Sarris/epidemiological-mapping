@@ -25,8 +25,9 @@ import CasosRecentes from "../components/Dashboard/CasosRecentes.jsx";
 
 // Dicionário de endemias para o filtro (Aqui você adiciona as futuras)
 const ENDEMIAS = [
-  { id: "dengue", nome: "Dengue", endpoint: "/api/pacientes/" },
+  { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
   { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" }, // Exemplo para o futuro
+  { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
 ];
 
 export default function Dashboard() {
