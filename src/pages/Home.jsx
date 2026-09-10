@@ -81,7 +81,7 @@ function Home() {
         <div className="pt-6 sm:pt-8 flex flex-col items-center gap-4 sm:gap-6">
           <button
             onClick={() => navigate("/dados-gerais")}
-            className="group w-full sm:w-auto justify-center flex items-center gap-3 bg-[#054060] hover:bg-[#085883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#054060] text-white font-semibold text-sm sm:text-base md:text-lg py-3.5 px-6 sm:py-4 sm:px-10 rounded-xl transition-all duration-300 shadow-xl hover:shadow-blue-900/30 active:scale-95 hover:-translate-y-0.5"
+            className="group w-full sm:w-auto justify-center flex items-center gap-3 bg-[#054060] hover:bg-[#085883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#054060] text-white font-semibold text-sm sm:text-base md:text-lg py-3.5 px-6 sm:py-4 sm:px-10 rounded-xl transition-all duration-300 shadow-xl hover:shadow-blue-900/30 active:scale-95 hover:-translate-y-0.5 hover:cursor-pointer"
           >
             Acessar painel do mapa
             <ArrowRight
