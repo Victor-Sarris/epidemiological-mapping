@@ -153,10 +153,15 @@ export default function Dashboard() {
       ? Math.round((casosUltimos7Dias / pacientes.length) * 100)
       : 0;
 
+  const totalNotificacoes =
+    endemiaSelecionada.id === "tuberculose"
+      ? pacientes.reduce((acc, p) => acc + Number(p.nu_notific || 0), 0)
+      : pacientes.length;
+
   const kpis = [
     {
       title: "Total de Notificações",
-      value: pacientes.length,
+      value: totalNotificacoes,
       icon: Users,
       color: "blue",
       subtext: "Registros importados.",
