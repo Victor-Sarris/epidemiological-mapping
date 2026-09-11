@@ -11,17 +11,17 @@ import {
   Menu,
 } from "lucide-react";
 import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
-import PatientModal from "../components/Modal/PatientModal.jsx";
+import PatientModal from "../components/Dashboard/Dengue/Modal/PatientModal.jsx";
 import {
   CurvaEpidemica,
   StatusDonut,
   PerfilDemografico,
-} from "../components/Modal/DashboardCharts.jsx";
+} from "../components/Dashboard/Dengue/Modal/DashboardCharts.jsx";
 
 // Importando os novos subcomponentes modularizados
-import KpisGrid from "../components/Dashboard/KpisGrid.jsx";
-import DistribuicaoQuadrante from "../components/Dashboard/DistribuicaoQuadrante.jsx";
-import CasosRecentes from "../components/Dashboard/CasosRecentes.jsx";
+import KpisGrid from "../components/Dashboard/Dengue/KpisGrid.jsx";
+import DistribuicaoQuadrante from "../components/Dashboard/Dengue/DistribuicaoQuadrante.jsx";
+import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
 
 // Dicionário de endemias para o filtro (Aqui você adiciona as futuras)
 const ENDEMIAS = [
