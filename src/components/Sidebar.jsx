@@ -88,12 +88,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </Link> */}
 
               <Link
-                to="/dados-gerais"
+                to="/dashboard"
                 onClick={onClose}
-                className={`${baseClasses} ${isActive("/dados-gerais") ? activeClasses : inactiveClasses}`}
+                className={`${baseClasses} ${isActive("/dashboard") ? activeClasses : inactiveClasses}`}
               >
                 <LayoutDashboard
-                  className={`size-5 ${isActive("/dados-gerais") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+                  className={`size-5 ${isActive("/dashboard") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
                 />
                 Dashboard
               </Link>
