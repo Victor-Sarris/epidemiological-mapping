@@ -6,11 +6,8 @@ import {
   AlertTriangle,
   MapPin,
   RefreshCw,
-  Bell,
-  UserCircle,
   Menu,
 } from "lucide-react";
-import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
 import PatientModal from "../components/Dashboard/Dengue/Modal/PatientModal.jsx";
 import {
   CurvaEpidemica,
@@ -29,7 +26,7 @@ import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 // Dicionário de endemias para o filtro (Aqui você adiciona as futuras)
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
-  { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" }, // Exemplo para o futuro
+  { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
 ];
 
@@ -90,7 +87,7 @@ export default function Dashboard() {
       });
   }, [endemiaSelecionada]);
 
-  // Lógica de Processamento de Dados (Mantida igual a original)
+  // Lógica de Processamento de Dados
   const extrairBairro = (endereco) => {
     if (!endereco) return "Não informado";
     const partes = endereco.split(",");
@@ -104,8 +101,6 @@ export default function Dashboard() {
 
   const casosAlerta = pacientes.filter((p) => {
     const classFinal = String(p.classi_fin || "").trim();
-    // ATENÇÃO: Os códigos 10 e 11 são específicos da Dengue.
-    // Futuramente, você pode precisar ajustar isso dependendo da endemia.
     return classFinal === "10" || classFinal === "11";
   }).length;
 
@@ -135,8 +130,11 @@ export default function Dashboard() {
       };
     });
 
+  // --- NOVA LÓGICA DE DISTRIBUIÇÃO GLOBAL (Serve para Dengue e Sifilis) ---
   const contagemUbs = pacientes.reduce((acc, paciente) => {
-    const codigo = paciente.id_unidade;
+    // A API de Sífilis usa "un_saude" e a de Dengue "id_unidade"
+    const codigo = paciente.id_unidade || paciente.un_saude;
+
     let ubs = "UBS Não Informada";
     if (codigo) {
       ubs = ALIAS_UBS[codigo] || `UBS ${codigo}`;
@@ -155,7 +153,6 @@ export default function Dashboard() {
     "bg-purple-500",
   ];
 
-  // Gera o array final para o componente
   const distribuicaoUbs = Object.entries(contagemUbs)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
@@ -178,8 +175,11 @@ export default function Dashboard() {
   const seteDiasAtras = new Date();
   seteDiasAtras.setDate(hoje.getDate() - 7);
   const casosUltimos7Dias = pacientes.filter((p) => {
-    if (!p.data_notificacao) return false;
-    const [ano, mes, dia] = p.data_notificacao.split("-");
+    // Aceita data_notificacao (Dengue) ou dt_notific (Sifilis)
+    const dt = p.data_notificacao || p.dt_notific;
+    if (!dt) return false;
+
+    const [ano, mes, dia] = dt.split("-");
     const dataNotificacao = new Date(ano, mes - 1, dia);
     return dataNotificacao >= seteDiasAtras && dataNotificacao <= hoje;
   }).length;
@@ -230,7 +230,6 @@ export default function Dashboard() {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
-        {/* Header Superior Omitido para não estender muito o código (Mantenha o seu original aqui) */}
         <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-r from-[#054060] to-indigo-600 shadow-md border-b border-[#043048]">
           <div className="flex items-center gap-3">
             <button
@@ -246,7 +245,6 @@ export default function Dashboard() {
         </header>
 
         <main className="p-4 md:p-8 space-y-6 w-full max-w-7xl mx-auto overflow-x-hidden">
-          {/* Título e Filtro de Endemias */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -282,13 +280,14 @@ export default function Dashboard() {
           ) : (
             <>
               {endemiaSelecionada.id === "sifilis" ? (
-                // Renderiza o dashboard específico de Sífilis
-                <DashboardSifilis pacientes={pacientes} />
+                // Passando a distribuicaoUbs calculada no pai para o filho
+                <DashboardSifilis
+                  pacientes={pacientes}
+                  distribuicaoUbs={distribuicaoUbs}
+                />
               ) : endemiaSelecionada.id === "tuberculose" ? (
-                // Renderiza o dashboard específico de Tuberculose
                 <DashboardTuberculose pacientes={pacientes} />
               ) : (
-                // Renderiza o layout padrão (Dengue)
                 <>
                   <KpisGrid kpis={kpis} />
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
