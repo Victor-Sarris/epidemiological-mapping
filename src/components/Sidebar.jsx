@@ -110,7 +110,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 Mapa Epidemiológico
               </Link>
 
-              <Link
+              {/* <Link
                 to="/suporte"
                 onClick={onClose}
                 className={`${baseClasses} ${isActive("/suporte") ? activeClasses : inactiveClasses}`}
@@ -119,7 +119,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   className={`size-5 ${isActive("/suporte") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
                 />
                 Casos de Violência
-              </Link>
+              </Link> */}
 
               {/* <Link
                 to="/suporte"

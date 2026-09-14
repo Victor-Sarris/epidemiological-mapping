@@ -29,7 +29,7 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
   const casosCongenita = pacientes.filter((p) =>
     p.id_agravo?.toUpperCase().includes("A50"),
   ).length;
-  // Na Sífilis o nome do campo de UBS as vezes é nm_ubs ou un_saude dependendo da sua base
+
   const bairrosAfetados = new Set(pacientes.map((p) => p.nm_ubs || p.un_saude))
     .size;
 
@@ -199,7 +199,7 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
             <AlertCircle className="size-5 text-purple-600" /> Classificação
             Clínica
           </h3>
-          <div className="flex-1 min-h-50 sm:min-h-62.5">
+          <div className="flex-1 min-h-[200px] sm:min-h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -248,7 +248,7 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
   );
 }
 
-// Subcomponente de KPI para manter o código limpo
+// Subcomponente de KPI
 function KpiCard({ title, value, icon: Icon, color, bgLight, subtitle }) {
   return (
     <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-1 duration-300">

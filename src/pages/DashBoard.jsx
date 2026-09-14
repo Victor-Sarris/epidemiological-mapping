@@ -15,7 +15,6 @@ import {
   PerfilDemografico,
 } from "../components/Dashboard/Dengue/Modal/DashboardCharts.jsx";
 
-// Importando os novos subcomponentes modularizados
 import KpisGrid from "../components/Dashboard/Dengue/KpisGrid.jsx";
 import DistribuicaoQuadrante from "../components/Dashboard/Dengue/DistribuicaoQuadrante.jsx";
 import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
@@ -23,38 +22,46 @@ import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 
-// Dicionário de endemias para o filtro (Aqui você adiciona as futuras)
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
   { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
 ];
 
-const ALIAS_UBS = {
-  6137504: "UBS Viana de Carvalho",
-  2364611: "UBS Alto da Cruz",
-  2364654: "UBS Meladão",
-  2364670: "UBS Nossa Senhora da Guia",
-  2364689: "UBS Centro (Dr. Pedro Martins)",
-  2364697: "UBS Catumbi",
-  2365146: "Hospital Regional Tibério Nunes (HRTN)",
-  2609630: "UBS Via Azul",
-  2694743: "Policlínica / Centro de Saúde Dr. Djalma Marques",
-  2777843: "UBS Amolar",
-  2777916: "UBS Campo Velho",
-  2778041: "UBS São Cristóvão",
-  2778092: "UBS Santa Rita / Alto da Cruz II",
-  2778157: "UBS Manguinha",
-  2778246: "UBS Tiberão",
-  2778254: "UBS Planalto Bela Vista",
-  2778319: "UBS Caixa D'Água",
-  2778335: "UBS Matadouro",
-  2778432: "UBS Taboca / Bom Lugar",
-  2989379: "UBS Vaquejador (Osvaldo da Silva Chaves)",
-  2995395: "UBS Redenção",
-  5459583: "UBS Sambaíba Nova",
-  5943817: "UBS Tamboril",
-  9101993: "UPA 24h Dr. Mauro César de Ribeiro",
+// Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
+const BAIRRO_PARA_UBS = {
+  CENTRO: "UBS Floriano (Centro)",
+  SAMBAIBA: "UBS Dirceu Arcoverde",
+  "SAMBAIBA VELHA": "UBS Dirceu Arcoverde",
+  MANGUINHA: "UBS José Paraguassú",
+  "ALTO DA CRUZ": "UBS Theodoro F. Sobral",
+  "CAMPO VELHO": "UBS Pedro Simplício",
+  "REDE NOVA": "UBS Alfredo de Carvalho",
+  TABOCA: "UBS Luiz Tavares",
+  "IRAPUA I": "UBS Camilo Filho",
+  "IRAPUA II": "UBS Camilo Filho",
+  "NOSSA SENHORA DA GUIA": "UBS N. Sra. da Guia",
+  TIBERAO: "UBS Raimundo Filho",
+  "BOM LUGAR": "UBS Paulo Kalume",
+  "BOSQUE SANTA TEREZINHA": "UBS João Elias Oka",
+  "CAIXA D AGUA": "UBS Theodoro F. Sobral",
+  CAJUEIRO: "UBS João Elias Oka",
+  "ALTO DA GUIA": "UBS N. Sra. da Guia",
+  CURADOR: "UBS Theodoro F. Sobral",
+  IBIAPABA: "UBS Viana de Carvalho",
+  "PAU FERRADO": "UBS Paulo Martins",
+  "SAO BORJA": "UBS Pedro Simplício",
+  "PLANALTO SAMBAIBA": "UBS Dirceu Arcoverde",
+  CATUMBI: "UBS Raimundo Filho",
+  "SAO CRISTOVAO": "UBS Floriano (Centro)",
+  TAMBORIL: "UBS Alfredo de Carvalho",
+  "CONJUNTO PARAISO": "UBS Jasmina Bucar",
+  CANCELA: "UBS Paulo Kalume",
+  CANOAS: "UBS José Paraguassú",
+  "PLANALTO BELA VISTA": "UBS Pedro Simplício",
+  MELADAO: "UBS Pedro Simplício",
+  VIAZUL: "UBS Raimundo Filho",
+  "PEDRO SIMPLICIO": "UBS Pedro Simplício",
 };
 
 export default function Dashboard() {
@@ -65,7 +72,6 @@ export default function Dashboard() {
   const [modalAberto, setModalAberto] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Busca os dados dinamicamente com base na endemia selecionada
   useEffect(() => {
     setLoading(true);
     const baseUrl = import.meta.env.VITE_API_URL;
@@ -87,14 +93,32 @@ export default function Dashboard() {
       });
   }, [endemiaSelecionada]);
 
-  // Lógica de Processamento de Dados
-  const extrairBairro = (endereco) => {
+  // Helpers de Bairro baseados no mapa
+  const obterBairroNormalizado = (endereco) => {
+    if (!endereco) return "";
+    const partes = endereco.split(",");
+    let bairroStr = partes[partes.length - 1].trim();
+
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
+      bairroStr = partes[partes.length - 2].trim();
+    } else if (/^[0-9-]+$/.test(bairroStr)) {
+      return "";
+    }
+    return bairroStr
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
+  const extrairBairroVisual = (endereco) => {
     if (!endereco) return "Não informado";
     const partes = endereco.split(",");
-    if (partes.length === 1) return "Endereço incompleto";
     let bairroStr = partes[partes.length - 1].trim();
-    if (/^[0-9-]+$/.test(bairroStr) && partes.length > 2) {
+
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
       bairroStr = partes[partes.length - 2].trim();
+    } else if (/^[0-9-]+$/.test(bairroStr)) {
+      return "CEP Genérico";
     }
     return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
   };
@@ -114,7 +138,17 @@ export default function Dashboard() {
     })
     .slice(0, 5)
     .map((paciente) => {
-      const bairro = extrairBairro(paciente.endereco);
+      const bairro = extrairBairroVisual(paciente.endereco);
+
+      let ubsTag = "";
+      if (endemiaSelecionada.id === "dengue") {
+        ubsTag =
+          BAIRRO_PARA_UBS[obterBairroNormalizado(paciente.endereco)] ||
+          "Não Mapeada";
+      } else {
+        ubsTag = paciente.nm_ubs || paciente.un_saude || "Não informada";
+      }
+
       const classFinal = String(paciente.classi_fin || "").trim();
       let statusCor = "bg-amber-500";
       if (classFinal === "10" || classFinal === "11") statusCor = "bg-rose-600";
@@ -124,20 +158,22 @@ export default function Dashboard() {
       return {
         name: `Caso #${paciente.numero_notificacao || "S/N"}`,
         condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
-        ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
+        ubs: `UBS: ${ubsTag} | ${bairro}`,
         corClassificacao: statusCor,
         dadosOriginais: paciente,
       };
     });
 
-  // --- NOVA LÓGICA DE DISTRIBUIÇÃO GLOBAL (Serve para Dengue e Sifilis) ---
+  // Distribuição Inteligente: Dengue por Mapa, Outras por API
   const contagemUbs = pacientes.reduce((acc, paciente) => {
-    // A API de Sífilis usa "un_saude" e a de Dengue "id_unidade"
-    const codigo = paciente.id_unidade || paciente.un_saude;
+    let ubs = "Não Informada";
 
-    let ubs = "UBS Não Informada";
-    if (codigo) {
-      ubs = ALIAS_UBS[codigo] || `UBS ${codigo}`;
+    if (endemiaSelecionada.id === "dengue") {
+      const bairroNormalizado = obterBairroNormalizado(paciente.endereco);
+      ubs = BAIRRO_PARA_UBS[bairroNormalizado] || "Outras Regiões";
+    } else {
+      const nomeAPI = paciente.nm_ubs || paciente.un_saude;
+      if (nomeAPI) ubs = nomeAPI;
     }
 
     acc[ubs] = (acc[ubs] || 0) + 1;
@@ -175,10 +211,8 @@ export default function Dashboard() {
   const seteDiasAtras = new Date();
   seteDiasAtras.setDate(hoje.getDate() - 7);
   const casosUltimos7Dias = pacientes.filter((p) => {
-    // Aceita data_notificacao (Dengue) ou dt_notific (Sifilis)
     const dt = p.data_notificacao || p.dt_notific;
     if (!dt) return false;
-
     const [ano, mes, dia] = dt.split("-");
     const dataNotificacao = new Date(ano, mes - 1, dia);
     return dataNotificacao >= seteDiasAtras && dataNotificacao <= hoje;
@@ -280,7 +314,6 @@ export default function Dashboard() {
           ) : (
             <>
               {endemiaSelecionada.id === "sifilis" ? (
-                // Passando a distribuicaoUbs calculada no pai para o filho
                 <DashboardSifilis
                   pacientes={pacientes}
                   distribuicaoUbs={distribuicaoUbs}
