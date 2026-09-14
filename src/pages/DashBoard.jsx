@@ -33,6 +33,33 @@ const ENDEMIAS = [
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
 ];
 
+const ALIAS_UBS = {
+  6137504: "UBS Viana de Carvalho",
+  2364611: "UBS Alto da Cruz",
+  2364654: "UBS Meladão",
+  2364670: "UBS Nossa Senhora da Guia",
+  2364689: "UBS Centro (Dr. Pedro Martins)",
+  2364697: "UBS Catumbi",
+  2365146: "Hospital Regional Tibério Nunes (HRTN)",
+  2609630: "UBS Via Azul",
+  2694743: "Policlínica / Centro de Saúde Dr. Djalma Marques",
+  2777843: "UBS Amolar",
+  2777916: "UBS Campo Velho",
+  2778041: "UBS São Cristóvão",
+  2778092: "UBS Santa Rita / Alto da Cruz II",
+  2778157: "UBS Manguinha",
+  2778246: "UBS Tiberão",
+  2778254: "UBS Planalto Bela Vista",
+  2778319: "UBS Caixa D'Água",
+  2778335: "UBS Matadouro",
+  2778432: "UBS Taboca / Bom Lugar",
+  2989379: "UBS Vaquejador (Osvaldo da Silva Chaves)",
+  2995395: "UBS Redenção",
+  5459583: "UBS Sambaíba Nova",
+  5943817: "UBS Tamboril",
+  9101993: "UPA 24h Dr. Mauro César de Ribeiro",
+};
+
 export default function Dashboard() {
   const [endemiaSelecionada, setEndemiaSelecionada] = useState(ENDEMIAS[0]);
   const [pacientes, setPacientes] = useState([]);
@@ -58,7 +85,7 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error("Erro ao buscar dados:", error);
-        setPacientes([]); // Limpa se der erro (ex: endpoint da sífilis ainda não existe)
+        setPacientes([]);
         setLoading(false);
       });
   }, [endemiaSelecionada]);
@@ -108,13 +135,18 @@ export default function Dashboard() {
       };
     });
 
-  const contagemBairros = pacientes.reduce((acc, paciente) => {
-    const bairro = extrairBairro(paciente.endereco);
-    acc[bairro] = (acc[bairro] || 0) + 1;
+  const contagemUbs = pacientes.reduce((acc, paciente) => {
+    const codigo = paciente.id_unidade;
+    let ubs = "UBS Não Informada";
+    if (codigo) {
+      ubs = ALIAS_UBS[codigo] || `UBS ${codigo}`;
+    }
+
+    acc[ubs] = (acc[ubs] || 0) + 1;
     return acc;
   }, {});
 
-  const maxCasos = Math.max(...Object.values(contagemBairros), 1);
+  const maxCasosUbs = Math.max(...Object.values(contagemUbs), 1);
   const coresDistribuicao = [
     "bg-blue-500",
     "bg-emerald-500",
@@ -123,23 +155,24 @@ export default function Dashboard() {
     "bg-purple-500",
   ];
 
-  const distribuicaoUbs = Object.entries(contagemBairros)
+  // Gera o array final para o componente
+  const distribuicaoUbs = Object.entries(contagemUbs)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([nome, valor], index) => ({
       name: nome,
       value: valor,
-      max: maxCasos,
+      max: maxCasosUbs,
       color: coresDistribuicao[index % coresDistribuicao.length],
     }));
 
-  const bairroMaisAfetadoNome =
-    Object.keys(contagemBairros).length > 0
-      ? Object.keys(contagemBairros).reduce((a, b) =>
-          contagemBairros[a] > contagemBairros[b] ? a : b,
+  const ubsMaisAfetadaNome =
+    Object.keys(contagemUbs).length > 0
+      ? Object.keys(contagemUbs).reduce((a, b) =>
+          contagemUbs[a] > contagemUbs[b] ? a : b,
         )
-      : "Nenhum";
-  const bairroMaisAfetadoValor = contagemBairros[bairroMaisAfetadoNome] || 0;
+      : "Nenhuma";
+  const ubsMaisAfetadaValor = contagemUbs[ubsMaisAfetadaNome] || 0;
 
   const hoje = new Date();
   const seteDiasAtras = new Date();
@@ -177,11 +210,11 @@ export default function Dashboard() {
       subtext: "Graves/Sinais de alarme.",
     },
     {
-      title: "Bairro mais Afetado",
-      value: bairroMaisAfetadoNome,
+      title: "UBS mais Afetada",
+      value: ubsMaisAfetadaNome,
       icon: MapPin,
       color: "rose",
-      subtext: `${bairroMaisAfetadoValor} casos registrados.`,
+      subtext: `${ubsMaisAfetadaValor} casos registrados.`,
     },
     {
       title: "Últimos Casos (7 dias)",

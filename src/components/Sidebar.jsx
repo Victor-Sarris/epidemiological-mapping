@@ -7,6 +7,7 @@ import {
   Activity,
   CircleQuestionMark,
   X,
+  UserShield,
 } from "lucide-react";
 
 // Adicionamos as props isOpen e onClose
@@ -107,6 +108,17 @@ const Sidebar = ({ isOpen, onClose }) => {
                   className={`size-5 ${isActive("/mapa-epidemiologico") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
                 />
                 Mapa Epidemiológico
+              </Link>
+
+              <Link
+                to="/suporte"
+                onClick={onClose}
+                className={`${baseClasses} ${isActive("/suporte") ? activeClasses : inactiveClasses}`}
+              >
+                <UserShield
+                  className={`size-5 ${isActive("/suporte") ? "text-white" : "text-slate-400 group-hover:text-[#054060]"}`}
+                />
+                Casos de Violência
               </Link>
 
               {/* <Link
