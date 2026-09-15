@@ -76,7 +76,6 @@ const Sidebar = ({ isOpen, onClose }) => {
             </p>
 
             <div className="space-y-1.5">
-              {/* Adicionamos onClick={onClose} nos links para fechar a sidebar ao clicar em um menu no celular */}
               {/* <Link
                   to="/"
                   onClick={onClose}

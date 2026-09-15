@@ -22,7 +22,7 @@ export default function EndemiaSelector({ options, value, onChange }) {
   };
 
   return (
-    <div className="relative z-50 w-full sm:w-64" ref={dropdownRef}>
+    <div className="relative w-full sm:w-64" ref={dropdownRef}>
       {/* Botão Principal do Dropdown */}
       <button
         onClick={() => setIsOpen(!isOpen)}
