@@ -17,11 +17,13 @@ import {
   Star,
   Navigation,
   Clock,
+  Menu,
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Button } from "@/components/ui/button";
 
-// Imagens das UBS (Perímetro Urbano e Rural)
+// importação de imagens para o maps ----------
+// imagens das ubs do perimetro urbano
 import defaultImage from "../../assets/ubs/defaultImage.png";
 import postodeSaudeTaboca from "../../assets/ubs/PostodeSaúdedaTaboca.jpg";
 import JasminaBucar from "../../assets/ubs/jasminabucar.jpg";
@@ -37,6 +39,7 @@ import TheodoroSobral from "../../assets/ubs/theodoroSobral.png";
 import pauloKalume from "../../assets/ubs/pauloKalume.png";
 import camiloFilho from "../../assets/ubs/camiloFilho.png";
 import joaoEliasOka from "../../assets/ubs/joaoEliasOka.jpg";
+// imagens das ubs do perimetro rural
 import MargaridaAlvez from "../../assets/ubs/MargaridaAlvez.jpeg";
 import RaimundoBenvindoLima from "../../assets/ubs/RaimundoBenvindoLima.jpeg";
 import Morrinhos from "../../assets/ubs/Morrinhos.jpeg";
@@ -50,6 +53,29 @@ const MAP_STYLES = {
   dark: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
   openstreetmap: "https://tiles.openfreemap.org/styles/bright",
   openstreetmap3d: "https://tiles.openfreemap.org/styles/liberty",
+
+  satellite: {
+    version: 8,
+    sources: {
+      "esri-satellite": {
+        type: "raster",
+        tiles: [
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        ],
+        tileSize: 256,
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri",
+      },
+    },
+    layers: [
+      {
+        id: "satellite-layer",
+        type: "raster",
+        source: "esri-satellite",
+        minzoom: 0,
+        maxzoom: 22,
+      },
+    ],
+  },
 };
 
 const bairrosFlorianoGeoJSON = {
@@ -2095,6 +2121,10 @@ export default function MapChagas() {
                   zoom={13.5}
                   onViewportChange={(viewport) => setZoomAtual(viewport.zoom)}
                   mapStyle={MAP_STYLES[activeStyle]}
+                  styles={{
+                    light: MAP_STYLES[activeStyle] || MAP_STYLES.light,
+                    dark: MAP_STYLES[activeStyle] || MAP_STYLES.dark,
+                  }}
                 >
                   <MapGeoJSON
                     data={geoData}

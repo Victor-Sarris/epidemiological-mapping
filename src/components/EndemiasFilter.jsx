@@ -47,7 +47,7 @@ export default function EndemiasFilter({ selected, onChange, className }) {
       rota: "/mapa-epidemiologico/endemias/tuberculose",
     },
     {
-      id: "chaga",
+      id: "chagas",
       name: "Chagas",
       icon: HeartPulse,
       color: "text-orange-500",
