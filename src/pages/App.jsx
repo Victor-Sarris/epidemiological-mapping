@@ -12,6 +12,8 @@ import MapDengue from "./maps/MapDengue.jsx";
 import MapTubercu from "./maps/MapTubercu.jsx";
 import MapSifi from "./maps/MapSifi.jsx";
 import MapChaga from "./maps/MapChagas.jsx";
+import MapHans from "./maps/MapHans.jsx";
+import MapHepa from "./maps/MapHepa.jsx";
 
 function App() {
   return (
@@ -35,6 +37,14 @@ function App() {
           <Route
             path="/mapa-epidemiologico/endemias/chagas"
             element={<MapChaga />}
+          />
+          <Route
+            path="/mapa-epidemiologico/endemias/hanseniase"
+            element={<MapHans />}
+          />
+          <Route
+            path="/mapa-epidemiologico/endemias/hepatite"
+            element={<MapHepa />}
           />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />

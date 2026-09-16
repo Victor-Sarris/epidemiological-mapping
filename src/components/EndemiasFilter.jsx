@@ -54,6 +54,22 @@ export default function EndemiasFilter({ selected, onChange, className }) {
       bg: "bg-orange-100",
       rota: "/mapa-epidemiologico/endemias/chagas",
     },
+    {
+      id: "hanseniase",
+      name: "Hanseníase",
+      icon: HeartPulse,
+      color: "text-purple-500",
+      bg: "bg-purple-100",
+      rota: "/mapa-epidemiologico/endemias/hanseniase",
+    },
+    {
+      id: "hepatite",
+      name: "Hepatite",
+      icon: HeartPulse,
+      color: "text-blue-500",
+      bg: "bg-blue-100",
+      rota: "/mapa-epidemiologico/endemias/hepatite",
+    },
   ];
 
   const handleSelection = (item) => {

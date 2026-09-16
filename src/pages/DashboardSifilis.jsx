@@ -33,7 +33,6 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
   const bairrosAfetados = new Set(pacientes.map((p) => p.nm_ubs || p.un_saude))
     .size;
 
-  // 2. Processamento para Gráfico de Rosca (Tipos de Sífilis por CID)
   const dadosTiposSifilis = useMemo(() => {
     const contagem = {
       "Congênita (A50)": 0,

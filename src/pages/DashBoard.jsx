@@ -20,6 +20,8 @@ import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import DashboardChagas from "./DashBoardChagas.jsx";
+import DashboardHanseniase from "./DashBoardHans.jsx";
+import DashboardHepatite from "./DashBoardHepa.jsx";
 
 // Importando o novo componente
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
@@ -29,6 +31,8 @@ const ENDEMIAS = [
   { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
   { id: "chagas", nome: "Chagas", endpoint: "/api/chagas/" },
+  { id: "hanseniase", nome: "Hanseníase", endpoint: "/api/hans/" },
+  { id: "hepatite", nome: "Hepatite", endpoint: "/api/hepatite/" },
 ];
 
 // Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
@@ -308,8 +312,12 @@ export default function Dashboard() {
                 />
               ) : endemiaSelecionada.id === "tuberculose" ? (
                 <DashboardTuberculose pacientes={pacientes} />
-              ) : endemiaSelecionada.id === "chagas" ? ( // <-- ACRESCENTAR DAQUI...
-                <DashboardChagas pacientes={pacientes} /> // <-- ...ATÉ AQUI!
+              ) : endemiaSelecionada.id === "chagas" ? (
+                <DashboardChagas pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "hanseniase" ? (
+                <DashboardHanseniase pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "hepatite" ? (
+                <DashboardHepatite pacientes={pacientes} />
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />
