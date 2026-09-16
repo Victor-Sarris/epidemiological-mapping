@@ -30,12 +30,14 @@ function Support() {
       setInputValue("");
 
       try {
-        const apiUrl = import.meta.env.VITE_API_URL;
+        const rawApiUrl = import.meta.env.VITE_API_URL || "";
+        const apiUrl = rawApiUrl.replace(/\/+$/, "");
 
-        const response = await fetch(`${apiUrl}/chat/`, {
+        const response = await fetch(`${apiUrl}/api/chat/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({ message: userText }),
         });
