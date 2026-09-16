@@ -6,6 +6,8 @@ import {
   ChevronDown,
   MapPlus,
   HeartPulse,
+  Hand,
+  Droplets,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -57,7 +59,7 @@ export default function EndemiasFilter({ selected, onChange, className }) {
     {
       id: "hanseniase",
       name: "Hanseníase",
-      icon: HeartPulse,
+      icon: Hand,
       color: "text-purple-500",
       bg: "bg-purple-100",
       rota: "/mapa-epidemiologico/endemias/hanseniase",
@@ -65,7 +67,7 @@ export default function EndemiasFilter({ selected, onChange, className }) {
     {
       id: "hepatite",
       name: "Hepatite",
-      icon: HeartPulse,
+      icon: Droplets,
       color: "text-blue-500",
       bg: "bg-blue-100",
       rota: "/mapa-epidemiologico/endemias/hepatite",
