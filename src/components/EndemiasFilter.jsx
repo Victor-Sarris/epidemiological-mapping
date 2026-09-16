@@ -1,12 +1,18 @@
 import React, { useState } from "react";
-import { Bug, Activity, ShieldAlert, ChevronDown, MapPlus } from "lucide-react";
+import {
+  Bug,
+  Activity,
+  ShieldAlert,
+  ChevronDown,
+  MapPlus,
+  HeartPulse,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function EndemiasFilter({ selected, onChange, className }) {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
-  // 1. Adicionamos a 'rota' direto em cada objeto
   const endemias = [
     {
       id: "gerais",
@@ -39,6 +45,14 @@ export default function EndemiasFilter({ selected, onChange, className }) {
       color: "text-emerald-500",
       bg: "bg-emerald-100",
       rota: "/mapa-epidemiologico/endemias/tuberculose",
+    },
+    {
+      id: "chaga",
+      name: "Chagas",
+      icon: HeartPulse,
+      color: "text-orange-500",
+      bg: "bg-orange-100",
+      rota: "/mapa-epidemiologico/endemias/chagas",
     },
   ];
 

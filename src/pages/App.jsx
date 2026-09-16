@@ -11,6 +11,7 @@ import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
 import MapTubercu from "./maps/MapTubercu.jsx";
 import MapSifi from "./maps/MapSifi.jsx";
+import MapChaga from "./maps/MapChagas.jsx";
 
 function App() {
   return (
@@ -20,22 +21,26 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
           <Route
-            path="/mapa-epidemiologico/endemias/dengue"
-            element={<MapDengue />}
-          />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />
-          <Route
-            path="/dashboard/tuberculose"
-            element={<DashboardTuberculose />}
-          />
-          <Route
             path="/mapa-epidemiologico/endemias/tuberculose"
             element={<MapTubercu />}
           />
           <Route
             path="/mapa-epidemiologico/endemias/sifi"
             element={<MapSifi />}
+          />
+          <Route
+            path="/mapa-epidemiologico/endemias/dengue"
+            element={<MapDengue />}
+          />
+          <Route
+            path="/mapa-epidemiologico/endemias/chagas"
+            element={<MapChaga />}
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />
+          <Route
+            path="/dashboard/tuberculose"
+            element={<DashboardTuberculose />}
           />
           <Route path="/suporte" element={<Support />} />
         </Routes>

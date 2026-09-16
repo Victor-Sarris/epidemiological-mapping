@@ -19,6 +19,7 @@ import DistribuicaoQuadrante from "../components/Dashboard/Dengue/DistribuicaoQu
 import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
+import DashboardChagas from "./DashBoardChagas.jsx";
 
 // Importando o novo componente
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
@@ -27,6 +28,7 @@ const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
   { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
+  { id: "chagas", nome: "Chagas", endpoint: "/api/chagas/" },
 ];
 
 // Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
@@ -306,6 +308,8 @@ export default function Dashboard() {
                 />
               ) : endemiaSelecionada.id === "tuberculose" ? (
                 <DashboardTuberculose pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "chagas" ? ( // <-- ACRESCENTAR DAQUI...
+                <DashboardChagas pacientes={pacientes} /> // <-- ...ATÉ AQUI!
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />
