@@ -1942,7 +1942,7 @@ function EpidemiologicMap() {
       setShowMobileHint(true);
       const timer = setTimeout(() => {
         setShowMobileHint(false);
-      }, 10000);
+      }, 8000);
       return () => clearTimeout(timer);
     }
   }, []);
@@ -2121,7 +2121,7 @@ function EpidemiologicMap() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
-        <header className="px-4 md:px-8 py-3 md:py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -2164,8 +2164,8 @@ function EpidemiologicMap() {
                         <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
                       </span>
                       <p className="text-sm font-medium leading-tight text-left">
-                        Toque na área para revelar o nome e o número de casos do
-                        território da UBS.
+                        Toque na área para revelar mais informações sobre a
+                        mesma.
                       </p>
                     </div>
                   </div>

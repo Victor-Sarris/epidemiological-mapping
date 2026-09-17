@@ -97,7 +97,7 @@ function Support() {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto ml-0 md:ml-64 relative">
-        <header className="md:hidden px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-r from-[#054060] to-indigo-700 shadow-lg border-b border-[#043048]">
+        <header className="md:hidden px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-lg border-b border-[#043048]">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -113,7 +113,7 @@ function Support() {
 
         <div className="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto space-y-8">
           {/* Hero Section */}
-          <section className="bg-gradient-to-br from-[#054060] via-blue-900 to-indigo-800 text-white py-12 md:py-16 px-6 lg:px-12 relative overflow-hidden rounded-3xl shadow-xl border border-white/10">
+          <section className="bg-[#4180ab] text-white py-12 md:py-16 px-6 lg:px-12 relative overflow-hidden rounded-3xl shadow-xl border border-white/10">
             <div className="absolute inset-0 opacity-30 pointer-events-none">
               <div className="absolute top-0 left-10 w-40 h-40 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
               <div className="absolute top-0 right-10 w-40 h-40 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
@@ -187,7 +187,7 @@ function Support() {
           <button
             onClick={toggleChatbot}
             aria-label="Abrir suporte por chat"
-            className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-16 h-16 bg-gradient-to-r from-[#054060] to-indigo-600 text-white rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.4)] transform hover:-translate-y-1 transition-all duration-300 z-50 group"
+            className="fixed bottom-6 right-6 md:bottom-8 md:right-8 w-16 h-16 bg-[#4180ab] text-white rounded-full flex items-center justify-center cursor-pointer shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:shadow-[0_8px_30px_rgb(79,70,229,0.4)] transform hover:-translate-y-1 transition-all duration-300 z-50 group"
           >
             <IoChatbubbles className="text-3xl group-hover:scale-110 transition-transform duration-300" />
             <div className="absolute top-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
@@ -196,9 +196,9 @@ function Support() {
 
         {/* Janela do Chatbot Modal */}
         {isChatbotOpen && (
-          <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full h-full md:h-[600px] md:w-[400px] bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full h-full md:h-150 md:w-100 bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
             {/* Header do Chat */}
-            <div className="bg-gradient-to-r from-[#054060] to-indigo-700 p-4 md:p-5 flex justify-between items-center shadow-md z-10">
+            <div className="bg-[#4180ab] p-4 md:p-5 flex justify-between items-center shadow-md z-10">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-sm">
                   <IoHardwareChip className="text-white text-xl" />

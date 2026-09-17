@@ -7,6 +7,8 @@ import {
   MapPin,
   RefreshCw,
   Menu,
+  Bell,
+  UserCircle,
 } from "lucide-react";
 import PatientModal from "../components/Dashboard/Dengue/Modal/PatientModal.jsx";
 import {
@@ -265,17 +267,25 @@ export default function Dashboard() {
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-r from-[#054060] to-indigo-600 shadow-md border-b border-[#043048]">
-          <div className="flex items-center gap-3">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-white bg-white/20 rounded-md hover:bg-white/30 transition-colors"
+              className="md:hidden group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
+              aria-label="Abrir menu"
             >
-              <Menu className="size-6" />
+              <Menu className="size-6 group-hover:scale-110 transition-transform duration-200" />
             </button>
-            <h2 className="text-lg md:text-xl font-bold text-white tracking-wide">
-              Visão Geral
-            </h2>
+          </div>
+
+          <div className="flex items-center gap-4 text-white/90">
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
+              <Bell className="size-5" />
+            </button>
+            <button className="flex items-center gap-2 p-1 pr-3 hover:bg-white/10 rounded-full transition-colors">
+              <UserCircle className="size-7" />
+              <span className="text-sm font-medium hidden sm:block">Admin</span>
+            </button>
           </div>
         </header>
 
@@ -283,7 +293,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                Dashboard - {endemiaSelecionada.nome}
+                Dados Gerais - {endemiaSelecionada.nome}
               </h1>
               <p className="text-sm md:text-base text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de{" "}

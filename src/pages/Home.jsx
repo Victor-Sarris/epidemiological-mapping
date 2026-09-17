@@ -1,98 +1,154 @@
-import { Map as MapIcon, ShieldAlert, ArrowRight } from "lucide-react";
+import {
+  Map as MapIcon,
+  ShieldAlert,
+  ArrowRight,
+  UserCircle2,
+  LockKeyhole,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import ParticlesBg from "particles-bg";
 import EpiDataLogo from "../assets/EPI-DATA.png";
-
-// Configurações de Particulas
-const configParticulas = {
-  num: [5, 10], // Quantidade de partículas
-  rps: 0.1,
-  radius: [5, 40], // Tamanho
-  life: [1.5, 3], // Tempo de vida na tela
-  v: [2, 3], // Velocidade
-  tha: [-40, 40], // Ângulo
-  alpha: [0.6, 0], // Transparência
-  scale: [0.1, 0.4], // Escala
-  position: "all",
-  color: ["#054060", "#e11d48", "#f59e0b", "#3b82f6"],
-  cross: "dead",
-  random: 15,
-};
 
 function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-linear-to-b from-[#eef4f8] via-[#f7f9fb] to-[#eef4f8] -z-20"></div>
-
-      <ParticlesBg type="custom" bg={true} config={configParticulas} />
-      <div className="max-w-3xl w-full bg-white/75 backdrop-blur-2xl rounded-2xl md:rounded-3xl shadow-2xl p-6 sm:p-10 md:p-14 text-center space-y-6 sm:space-y-8 border border-white/60 relative z-10 animate-in fade-in zoom-in-95 duration-700">
-        <div className="flex flex-col items-center gap-4 sm:gap-6">
+    <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white">
+      {/* Lado Esquerdo: Apresentação */}
+      {/* Ajustado: padding no desktop centralizado de forma simétrica (lg:p-16) */}
+      <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:p-16">
+        {/* Ajustado: Removido 'lg:mx-0'. Agora o 'mx-auto' centraliza o bloco em todas as telas, inclusive no desktop */}
+        <div className="max-w-xl mx-auto w-full">
           <img
             src={EpiDataLogo}
             alt="EPI-DATA"
-            className="w-48 sm:w-64 md:w-72 drop-shadow-sm transition-transform hover:scale-105 duration-500"
+            className="w-40 sm:w-48 lg:w-56 mb-8 sm:mb-10 mx-auto lg:mx-0"
           />
 
-          <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium">
-            Sistema de mapeamento epidemiológico de Floriano, PI. Acompanhe a
-            evolução de casos, dados gerais e as zonas de abrangência das UBSs.
-          </p>
-        </div>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight mb-4 text-center lg:text-left">
+            Mapeamento Epidemiológico
+            <span className="block text-[#054060] mt-1">Floriano, PI</span>
+          </h1>
 
-        {/* Garantimos 1 coluna no mobile (grid-cols-1) e 2 no desktop (sm:grid-cols-2) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 pt-2 text-left">
-          {/* Card 1 */}
-          <div className="p-5 sm:p-7 rounded-2xl bg-linear-to-br from-[#054060]/5 to-transparent border border-[#054060]/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[#054060]/30 group cursor-default">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#054060] flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
-              <MapIcon
-                className="size-5 sm:size-6 text-white"
-                aria-hidden="true"
-              />
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-medium mb-10 lg:mb-12 text-center lg:text-left">
+            Acompanhe a evolução de casos, dados gerais e as zonas de
+            abrangência das UBSs em tempo real para tomada rápida de decisões.
+          </p>
+
+          <div className="space-y-3 sm:space-y-4">
+            {/* Item 1 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-center sm:text-left">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#054060]/10 flex items-center justify-center shrink-0">
+                <MapIcon
+                  className="size-5 sm:size-6 text-[#054060]"
+                  aria-hidden="true"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm sm:text-base">
+                  Mapa de Calor
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1">
+                  Densidade de casos segmentada pelas áreas de quadrantes.
+                </p>
+              </div>
             </div>
-            <h3 className="font-bold text-base sm:text-lg text-slate-800">
-              Mapa de calor georreferenciado
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Densidade de casos segmentada pelas áreas de abrangência dos
-              quadrantes.
+
+            {/* Item 2 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4 text-center sm:text-left">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <ShieldAlert
+                  className="size-5 sm:size-6 text-amber-600"
+                  aria-hidden="true"
+                />
+              </div>
+              <div>
+                <h3 className="font-bold text-slate-800 text-sm sm:text-base">
+                  Controle de Surtos
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 leading-relaxed mt-1">
+                  Mapeamento de risco e suporte à decisão em tempo real.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Lado Direito: Ações (Botão Público + Área de Profissionais) */}
+      <div className="w-full lg:w-[480px] bg-slate-50/50 flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:px-16 lg:py-16 border-t lg:border-t-0 lg:border-l border-slate-200">
+        <div className="max-w-md mx-auto w-full space-y-10 lg:space-y-12">
+          {/* Acesso Público */}
+          <div>
+            <h2 className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 sm:mb-4 text-center lg:text-left">
+              Acesso Público
+            </h2>
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="group w-full flex items-center justify-between bg-[#054060] hover:bg-[#085883] focus:ring-4 focus:ring-[#054060]/20 text-white font-semibold text-sm sm:text-base py-3.5 sm:py-4 px-5 sm:px-6 rounded-xl transition-colors hover:cursor-pointer"
+            >
+              <span>Acessar Painel do Mapa</span>
+              <div className="bg-white/20 p-1 sm:p-1.5 rounded-lg group-hover:bg-white/30 transition-colors">
+                <ArrowRight className="size-4 sm:size-5" aria-hidden="true" />
+              </div>
+            </button>
+            <p className="text-xs sm:text-sm text-slate-500 mt-3 sm:mt-4 text-center lg:text-left">
+              Visão geral dos dados epidemiológicos da cidade.
             </p>
           </div>
 
-          {/* Card 2 */}
-          <div className="p-5 sm:p-7 rounded-2xl bg-linear-to-br from-amber-500/5 to-transparent border border-amber-500/10 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-amber-500/30 group cursor-default">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-600 flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300">
-              <ShieldAlert
-                className="size-5 sm:size-6 text-white"
-                aria-hidden="true"
-              />
+          {/* Área do Profissional */}
+          <div className="bg-white p-5 sm:p-8 rounded-2xl border border-slate-200 shadow-sm relative">
+            <div className="absolute top-0 left-0 w-1 sm:w-1.5 h-full bg-[#054060] rounded-l-2xl"></div>
+
+            <div className="flex items-center justify-center lg:justify-start gap-2 sm:gap-2.5 mb-2">
+              <UserCircle2 className="size-5 text-[#054060]" />
+              <h2 className="text-base sm:text-lg font-bold text-slate-800">
+                Área do Profissional
+              </h2>
             </div>
-            <h3 className="font-bold text-base sm:text-lg text-slate-800">
-              Controle de surtos e vetores
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              Mapeamento de risco e suporte à decisão para contenção em tempo
-              real.
+
+            <p className="text-xs sm:text-sm text-slate-500 mb-5 sm:mb-6 text-center lg:text-left">
+              Acesso restrito para agentes e gestores de saúde da UBS
+              previamente cadastrados.
+            </p>
+
+            <form
+              className="space-y-3 sm:space-y-4"
+              onSubmit={(e) => e.preventDefault()}
+            >
+              <div>
+                <input
+                  type="text"
+                  placeholder="Login"
+                  className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 sm:py-3 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-[#054060]/50 focus:border-[#054060] transition-colors"
+                />
+              </div>
+              <div>
+                <input
+                  type="password"
+                  placeholder="Senha"
+                  className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 sm:py-3 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-[#054060]/50 focus:border-[#054060] transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-[#054060] border border-slate-200 hover:border-slate-300 font-semibold text-sm py-2.5 sm:py-3 rounded-lg transition-colors mt-1 sm:mt-2 hover:cursor-pointer"
+              >
+                <LockKeyhole className="size-4" />
+                Fazer Login
+              </button>
+            </form>
+          </div>
+
+          {/* Footer */}
+          <div className="text-center lg:text-left pt-4 sm:pt-8">
+            <p className="text-[10px] sm:text-xs font-bold text-slate-400 tracking-wider uppercase mb-1">
+              Secretaria de Saúde
+            </p>
+            <p className="text-[10px] sm:text-xs text-slate-400">
+              Floriano, PI · {new Date().getFullYear()}
             </p>
           </div>
-        </div>
-
-        <div className="pt-6 sm:pt-8 flex flex-col items-center gap-4 sm:gap-6">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="group w-full sm:w-auto justify-center flex items-center gap-3 bg-[#054060] hover:bg-[#085883] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#054060] text-white font-semibold text-sm sm:text-base md:text-lg py-3.5 px-6 sm:py-4 sm:px-10 rounded-xl transition-all duration-300 shadow-xl hover:shadow-blue-900/30 active:scale-95 hover:-translate-y-0.5 hover:cursor-pointer"
-          >
-            Acessar painel do mapa
-            <ArrowRight
-              className="size-4 sm:size-5 transition-transform duration-300 group-hover:translate-x-1.5"
-              aria-hidden="true"
-            />
-          </button>
-
-          <p className="text-[10px] sm:text-xs font-medium text-slate-400 tracking-wide uppercase">
-            Secretaria de Saúde — Floriano, PI · {new Date().getFullYear()}
-          </p>
         </div>
       </div>
     </div>

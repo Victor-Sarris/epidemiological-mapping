@@ -2068,7 +2068,7 @@ export default function MapTubercu() {
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
-        <header className="px-4 md:px-8 py-3 md:py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
