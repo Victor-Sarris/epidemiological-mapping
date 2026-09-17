@@ -127,7 +127,7 @@ function Support() {
                 </h1>
                 <p className="text-blue-100 text-base md:text-lg mb-8 max-w-2xl mx-auto lg:mx-0 font-medium leading-relaxed">
                   Obtenha suporte instantâneo para suas necessidades na
-                  plataforma Resource Flow com nossa inteligência artificial.
+                  plataforma com nossa inteligência artificial.
                 </p>
                 <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center lg:justify-start">
                   <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-5 py-3 flex items-center justify-center gap-3 shadow-sm">
