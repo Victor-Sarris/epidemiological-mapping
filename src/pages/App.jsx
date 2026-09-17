@@ -7,6 +7,7 @@ import Dashboard from "./DashBoard.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import Support from "./Support.jsx";
+import { AuthProvider } from "../contexts/AuthContext.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
 import MapTubercu from "./maps/MapTubercu.jsx";
@@ -18,43 +19,51 @@ import MapHepa from "./maps/MapHepa.jsx";
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
-          <Route
-            path="/mapa-epidemiologico/endemias/tuberculose"
-            element={<MapTubercu />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/sifi"
-            element={<MapSifi />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/dengue"
-            element={<MapDengue />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/chagas"
-            element={<MapChaga />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/hanseniase"
-            element={<MapHans />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/hepatite"
-            element={<MapHepa />}
-          />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />
-          <Route
-            path="/dashboard/tuberculose"
-            element={<DashboardTuberculose />}
-          />
-          <Route path="/suporte" element={<Support />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Rotas Públicas */}
+            <Route path="/" element={<Home />} />
+            <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
+            <Route
+              path="/mapa-epidemiologico/endemias/tuberculose"
+              element={<MapTubercu />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/sifi"
+              element={<MapSifi />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/dengue"
+              element={<MapDengue />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/chagas"
+              element={<MapChaga />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/hanseniase"
+              element={<MapHans />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/hepatite"
+              element={<MapHepa />}
+            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />
+            <Route
+              path="/dashboard/tuberculose"
+              element={<DashboardTuberculose />}
+            />
+            <Route path="/suporte" element={<Support />} />
+            {/* Rotas Privadas Admin */}
+            <Route
+              path="/area-profissional/dashboard"
+              element={<Dashboard />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }

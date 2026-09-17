@@ -7,16 +7,31 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import EpiDataLogo from "../assets/EPI-DATA.png";
+import { useAuth } from "../contexts/AuthContext.jsx";
+import { useState } from "react";
 
 function Home() {
   const navigate = useNavigate();
+  const { login } = useAuth();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [erroLogin, setErroLogin] = useState("");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setErroLogin("");
+
+    const success = await login(username, password);
+    if (success) {
+      navigate("/area-profissional/dashboard");
+    } else {
+      setErroLogin("Credenciais inválidas. Tente novamente.");
+    }
+  };
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row bg-white">
-      {/* Lado Esquerdo: Apresentação */}
-      {/* Ajustado: padding no desktop centralizado de forma simétrica (lg:p-16) */}
       <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:p-16">
-        {/* Ajustado: Removido 'lg:mx-0'. Agora o 'mx-auto' centraliza o bloco em todas as telas, inclusive no desktop */}
         <div className="max-w-xl mx-auto w-full">
           <img
             src={EpiDataLogo}
@@ -112,28 +127,29 @@ function Home() {
               previamente cadastrados.
             </p>
 
-            <form
-              className="space-y-3 sm:space-y-4"
-              onSubmit={(e) => e.preventDefault()}
-            >
+            <form className="space-y-3 sm:space-y-4" onSubmit={handleLogin}>
               <div>
                 <input
                   type="text"
                   placeholder="Login"
-                  className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 sm:py-3 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-[#054060]/50 focus:border-[#054060] transition-colors"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="..."
                 />
               </div>
               <div>
                 <input
                   type="password"
                   placeholder="Senha"
-                  className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg py-2.5 sm:py-3 px-3 sm:px-4 focus:outline-none focus:ring-2 focus:ring-[#054060]/50 focus:border-[#054060] transition-colors"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="..."
                 />
               </div>
-              <button
-                type="submit"
-                className="w-full flex items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100 text-[#054060] border border-slate-200 hover:border-slate-300 font-semibold text-sm py-2.5 sm:py-3 rounded-lg transition-colors mt-1 sm:mt-2 hover:cursor-pointer"
-              >
+
+              {erroLogin && <p className="text-red-500 text-sm">{erroLogin}</p>}
+
+              <button type="submit" className="...">
                 <LockKeyhole className="size-4" />
                 Fazer Login
               </button>
