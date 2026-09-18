@@ -49,17 +49,15 @@ function App() {
               path="/mapa-epidemiologico/endemias/hepatite"
               element={<MapHepa />}
             />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/sifilis" element={<DashboardSifilis />} />
             <Route
-              path="/dashboard/tuberculose"
-              element={<DashboardTuberculose />}
+              path="/dashboard"
+              element={<Dashboard isPrivateView={false} />}
             />
             <Route path="/suporte" element={<Support />} />
             {/* Rotas Privadas Admin */}
             <Route
-              path="/area-profissional/dashboard"
-              element={<Dashboard />}
+              path="/profissional/dashboard"
+              element={<Dashboard isPrivateView={true} />}
             />
           </Routes>
         </BrowserRouter>

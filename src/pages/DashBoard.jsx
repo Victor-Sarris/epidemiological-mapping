@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   Users,
   Activity,
@@ -73,7 +74,7 @@ const BAIRRO_PARA_UBS = {
   "PEDRO SIMPLICIO": "UBS Pedro Simplício",
 };
 
-export default function Dashboard() {
+export default function Dashboard({ isPrivateView = false }) {
   const [endemiaSelecionada, setEndemiaSelecionada] = useState(ENDEMIAS[0]);
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -264,7 +265,17 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
         <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">

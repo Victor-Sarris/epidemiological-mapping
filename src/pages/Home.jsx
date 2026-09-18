@@ -23,7 +23,7 @@ function Home() {
 
     const success = await login(username, password);
     if (success) {
-      navigate("/area-profissional/dashboard");
+      navigate("/profissional/dashboard");
     } else {
       setErroLogin("Credenciais inválidas. Tente novamente.");
     }
