@@ -59,6 +59,31 @@ function App() {
               path="/profissional/dashboard"
               element={<Dashboard isPrivateView={true} />}
             />
+            <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/tuberculose"
+              element={<MapTubercu />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/sifi"
+              element={<MapSifi />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/dengue"
+              element={<MapDengue />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/chagas"
+              element={<MapChaga />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/hanseniase"
+              element={<MapHans />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/hepatite"
+              element={<MapHepa />}
+            />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

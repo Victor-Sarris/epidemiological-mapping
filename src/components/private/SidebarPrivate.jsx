@@ -6,6 +6,7 @@ import {
   Activity,
   CircleQuestionMark,
   X,
+  SquareLibrary,
 } from "lucide-react";
 
 // 1. Atualizamos os caminhos e o rótulo para refletir a área privada
@@ -25,14 +26,17 @@ const NAV_ITEMS = [
     icon: CircleQuestionMark,
     label: "Dúvidas Frequentes",
   },
+  {
+    path: "/mudar-depois",
+    icon: SquareLibrary,
+    label: "Informações Do Sistema",
+  },
 ];
 
 const SidebarPrivate = ({ isOpen, onClose }) => {
   const location = useLocation();
 
-  // 2. Lógica flexível: acende o botão se a URL atual contiver o caminho final do item
   const isActive = (itemPath) => {
-    // Extrai a última parte do caminho (ex: "dashboard")
     const rotaFinal = itemPath.split("/").pop();
     return location.pathname.includes(rotaFinal);
   };
@@ -51,7 +55,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0`}
       >
-        <div className="h-[72px] flex items-center justify-between px-6 border-b border-slate-100">
+        <div className="h-18 flex items-center justify-between px-6 border-b border-slate-100">
           <Link
             to="/profissional/dashboard"
             className="flex items-center gap-3 group cursor-pointer"
