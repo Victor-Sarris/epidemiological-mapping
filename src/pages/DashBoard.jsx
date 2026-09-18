@@ -25,6 +25,7 @@ import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import DashboardChagas from "./DashBoardChagas.jsx";
 import DashboardHanseniase from "./DashBoardHans.jsx";
 import DashboardHepatite from "./DashBoardHepa.jsx";
+import DashboardViolencia from "./private/DashBoardViolencia.jsx";
 
 // Importando o novo componente
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
@@ -36,6 +37,11 @@ const ENDEMIAS = [
   { id: "chagas", nome: "Chagas", endpoint: "/api/chagas/" },
   { id: "hanseniase", nome: "Hanseníase", endpoint: "/api/hans/" },
   { id: "hepatite", nome: "Hepatite", endpoint: "/api/hepatite/" },
+  {
+    id: "violencia",
+    nome: "Violência Domestica",
+    endpoint: "/api/violenciadomestica/",
+  },
 ];
 
 // Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
