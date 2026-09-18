@@ -84,6 +84,7 @@ function App() {
               path="profissional/mapa-epidemiologico/endemias/hepatite"
               element={<MapHepa />}
             />
+            <Route path="profissional/suporte" element={<Support />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
