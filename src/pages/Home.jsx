@@ -134,7 +134,7 @@ function Home() {
                   placeholder="Login"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="..."
+                  className="w-full flex items-center justify-center gap-2 p-2 bg-slate-50 hover:bg-slate-100 text-[#054060] border border-slate-200 hover:border-slate-300 font-semibold text-sm py-2.5 sm:py-3 rounded-lg transition-colors mt-1 sm:mt-2 hover:cursor-pointer"
                 />
               </div>
               <div>
@@ -143,15 +143,18 @@ function Home() {
                   placeholder="Senha"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="..."
+                  className="w-full flex items-center justify-center gap-2 p-2 bg-slate-50 hover:bg-slate-100 text-[#054060] border border-slate-200 hover:border-slate-300 font-semibold text-sm py-2.5 sm:py-3 rounded-lg transition-colors mt-1 sm:mt-2 hover:cursor-pointer"
                 />
               </div>
 
               {erroLogin && <p className="text-red-500 text-sm">{erroLogin}</p>}
 
-              <button type="submit" className="...">
-                <LockKeyhole className="size-4" />
-                Fazer Login
+              <button
+                type="submit"
+                className="flex gap-3 p-2 border-gray-400 bg-[#054060] border rounded-lg hover:bg-[#085883] focus:ring-4 focus:ring-[#054060]/20 text-white font-semibold text-sm sm:text-base py-3.5 sm:py-4 px-5 sm:px-6 transition-colors hover:cursor-pointer"
+              >
+                <LockKeyhole className="size-4 mt-1" />
+                <h2 className="">Fazer Login</h2>
               </button>
             </form>
           </div>

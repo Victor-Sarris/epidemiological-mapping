@@ -18,8 +18,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import CasosRecentes from "@/components/Dashboard/Dengue/CasosRecentes";
-import DistribuicaoQuadrante from "@/components/Dashboard/Dengue/DistribuicaoQuadrante";
+import CasosRecentes from "@/components/CasosRecentes";
+import DistribuicaoQuadrante from "@/components/DistribuicaoQuadrante";
 
 const COLORS = ["#8b5cf6", "#d946ef", "#f43f5e", "#0ea5e9"];
 

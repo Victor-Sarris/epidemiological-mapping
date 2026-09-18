@@ -10,7 +10,7 @@ import {
   MarkerContent,
   MarkerLabel,
   MarkerPopup,
-} from "../../components/ui/map.jsx";
+} from "../../components/map.jsx";
 import {
   Activity,
   Map as MapIcon,
@@ -20,7 +20,7 @@ import {
   Menu,
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button.jsx";
 
 // importação de imagens para o maps ----------
 // imagens das ubs do perimetro urbano

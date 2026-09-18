@@ -8,8 +8,8 @@ import {
   MarkerPopup,
   MarkerTooltip,
   MarkerLabel,
-} from "../components/ui/map.jsx";
-import { Button } from "@/components/ui/button";
+} from "../components/map.jsx";
+import { Button } from "@/components/button.jsx";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/Sidebar.jsx";
 import EndemiasFilter from "../components/EndemiasFilter.jsx";

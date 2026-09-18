@@ -10,15 +10,15 @@ import {
   Bell,
   UserCircle,
 } from "lucide-react";
-import PatientModal from "../components/Dashboard/Dengue/Modal/PatientModal.jsx";
+import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
   CurvaEpidemica,
   StatusDonut,
   PerfilDemografico,
-} from "../components/Dashboard/Dengue/Modal/DashboardCharts.jsx";
-import KpisGrid from "../components/Dashboard/Dengue/KpisGrid.jsx";
-import DistribuicaoQuadrante from "../components/Dashboard/Dengue/DistribuicaoQuadrante.jsx";
-import CasosRecentes from "../components/Dashboard/Dengue/CasosRecentes.jsx";
+} from "../components/Modal/DashboardCharts.jsx";
+import KpisGrid from "../components/KpisGrid.jsx";
+import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
+import CasosRecentes from "../components/CasosRecentes.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import DashboardChagas from "./DashBoardChagas.jsx";
