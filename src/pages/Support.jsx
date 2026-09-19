@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import Sidebar from "../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   IoChatbubbles,
   IoEllipse,
@@ -10,7 +11,7 @@ import {
 } from "react-icons/io5";
 import { Menu } from "lucide-react";
 
-function Support() {
+function Support({ isPrivateView = false }) {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -94,7 +95,17 @@ function Support() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50/50 overflow-hidden text-slate-800">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto ml-0 md:ml-64 relative">
         <header className="md:hidden px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-lg border-b border-[#043048]">

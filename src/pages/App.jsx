@@ -15,6 +15,7 @@ import MapSifi from "./maps/MapSifi.jsx";
 import MapChaga from "./maps/MapChagas.jsx";
 import MapHans from "./maps/MapHans.jsx";
 import MapHepa from "./maps/MapHepa.jsx";
+import MapViolencia from "./maps/MapViolencia.jsx";
 
 function App() {
   return (
@@ -54,37 +55,48 @@ function App() {
               element={<Dashboard isPrivateView={false} />}
             />
             <Route path="/suporte" element={<Support />} />
-            {/* Rotas Privadas Admin */}
+
+            {/* =================== Rotas Privadas Admin ===================*/}
             <Route
               path="/profissional/dashboard"
               element={<Dashboard isPrivateView={true} />}
             />
-            <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
+            <Route
+              path="profissional/mapa-epidemiologico"
+              element={<EpidemiologicMap isPrivateView={true} />}
+            />
             <Route
               path="profissional/mapa-epidemiologico/endemias/tuberculose"
-              element={<MapTubercu />}
+              element={<MapTubercu isPrivateView={true} />}
             />
             <Route
               path="profissional/mapa-epidemiologico/endemias/sifi"
-              element={<MapSifi />}
+              element={<MapSifi isPrivateView={true} />}
             />
             <Route
               path="profissional/mapa-epidemiologico/endemias/dengue"
-              element={<MapDengue />}
+              element={<MapDengue isPrivateView={true} />}
             />
             <Route
               path="profissional/mapa-epidemiologico/endemias/chagas"
-              element={<MapChaga />}
+              element={<MapChaga isPrivateView={true} />}
             />
             <Route
               path="profissional/mapa-epidemiologico/endemias/hanseniase"
-              element={<MapHans />}
+              element={<MapHans isPrivateView={true} />}
             />
             <Route
               path="profissional/mapa-epidemiologico/endemias/hepatite"
-              element={<MapHepa />}
+              element={<MapHepa isPrivateView={true} />}
             />
-            <Route path="profissional/suporte" element={<Support />} />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/violenciadom"
+              element={<MapViolencia isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/suporte"
+              element={<Support isPrivateView={true} />}
+            />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

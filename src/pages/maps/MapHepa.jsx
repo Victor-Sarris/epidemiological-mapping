@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
+import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
 import {
   Map,
@@ -1919,7 +1921,7 @@ const marcadores = [
   },
 ];
 
-export default function MapHepa() {
+export default function MapHepa({ isPrivateView = false }) {
   const mapRef = useRef(null);
   const [activeStyle, setActiveStyle] = useState("light");
   const [geoData, setGeoData] = useState(bairrosFlorianoGeoJSON);
@@ -1929,7 +1931,20 @@ export default function MapHepa() {
   const [todosPacientes, setTodosPacientes] = useState([]);
 
   // Travado na endemia de Hepatite
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("hepatite");
+  const endemiaAtual = "hepatite";
+
+  const handleEndemiaChange = (novaEndemia) => {
+    if (novaEndemia === endemiaAtual) return;
+    const basePath = isPrivateView
+      ? "/profissional/mapa-epidemiologico"
+      : "/mapa-epidemiologico";
+
+    if (novaEndemia === "gerais") {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/endemias/${novaEndemia}`);
+    }
+  };
   const [zoomAtual, setZoomAtual] = useState(13.5);
   const is3D = activeStyle === "openstreetmap3d";
   const navigate = useNavigate();
@@ -2076,7 +2091,17 @@ export default function MapHepa() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
         <header className="px-4 md:px-8 py-3 md:py-5 bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
@@ -2101,10 +2126,17 @@ export default function MapHepa() {
 
         <main className="flex-1 p-2 md:p-6 relative flex flex-col">
           <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200 flex-1">
-            <EndemiasFilter
-              selected={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
-            />
+            {isPrivateView ? (
+              <EndemiasFilterPrivate
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            ) : (
+              <EndemiasFilter
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            )}
 
             {loading ? (
               <div className="flex h-full items-center justify-center">

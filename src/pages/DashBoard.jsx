@@ -81,7 +81,12 @@ const BAIRRO_PARA_UBS = {
 };
 
 export default function Dashboard({ isPrivateView = false }) {
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState(ENDEMIAS[0]);
+  const endemiasDisponiveis = isPrivateView
+    ? ENDEMIAS
+    : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
+  const [endemiaSelecionada, setEndemiaSelecionada] = useState(
+    endemiasDisponiveis[0],
+  );
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
@@ -318,9 +323,8 @@ export default function Dashboard({ isPrivateView = false }) {
               </p>
             </div>
 
-            {/* O SELETOR EXTRAÍDO AGORA ESTÁ AQUI 👇 */}
             <EndemiaSelector
-              options={ENDEMIAS}
+              options={endemiasDisponiveis}
               value={endemiaSelecionada}
               onChange={setEndemiaSelecionada}
             />
@@ -332,7 +336,9 @@ export default function Dashboard({ isPrivateView = false }) {
             </div>
           ) : (
             <>
-              {endemiaSelecionada.id === "sifilis" ? (
+              {endemiaSelecionada.id === "violencia" && isPrivateView ? (
+                <DashboardViolencia pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "sifilis" ? (
                 <DashboardSifilis
                   pacientes={pacientes}
                   distribuicaoUbs={distribuicaoUbs}

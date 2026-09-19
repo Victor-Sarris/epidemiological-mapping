@@ -17,12 +17,12 @@ const NAV_ITEMS = [
     label: "Dados Gerais",
   },
   {
-    path: "/area-profissional/mapa-epidemiologico",
+    path: "/profissional/mapa-epidemiologico",
     icon: Map,
     label: "Mapa Epidemiológico",
   },
   {
-    path: "/area-profissional/suporte",
+    path: "/profissional/suporte",
     icon: CircleQuestionMark,
     label: "Dúvidas Frequentes",
   },

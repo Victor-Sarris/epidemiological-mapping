@@ -12,7 +12,9 @@ import {
 import { Button } from "@/components/button.jsx";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../components/EndemiasFilter.jsx";
+import EndemiasFilterPrivate from "../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../components/ButtonTheme.jsx";
 import {
   Activity,
@@ -1920,7 +1922,7 @@ const marcadores = [
   },
 ];
 
-function EpidemiologicMap() {
+function EpidemiologicMap({ isPrivateView = false }) {
   const mapRef = useRef(null);
   const [activeStyle, setActiveStyle] = useState("light");
   const [geoData, setGeoData] = useState(bairrosFlorianoGeoJSON);
@@ -1931,9 +1933,23 @@ function EpidemiologicMap() {
   const [hoverInfo, setHoverInfo] = useState(null);
 
   const [todosPacientes, setTodosPacientes] = useState([]);
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
 
   const [zoomAtual, setZoomAtual] = useState(13.5);
+  const endemiaAtual = "gerais";
+
+  const handleEndemiaChange = (novaEndemia) => {
+    if (novaEndemia === endemiaAtual) return;
+
+    const basePath = isPrivateView
+      ? "/profissional/mapa-epidemiologico"
+      : "/mapa-epidemiologico";
+
+    if (novaEndemia === "gerais") {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/endemias/${novaEndemia}`);
+    }
+  };
 
   // modal exclusivo para o mobile
   const [showMobileHint, setShowMobileHint] = useState(false);
@@ -2006,17 +2022,17 @@ function EpidemiologicMap() {
     const pacientesFiltrados = todosPacientes.filter((p) => {
       const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
 
-      if (endemiaSelecionada === "dengue")
+      if (endemiaAtual === "dengue")
         return agravo.includes("A90") || agravo === "";
-      if (endemiaSelecionada === "sifilis")
+      if (endemiaAtual === "sifilis")
         return (
           agravo.includes("A51") ||
           agravo.includes("A52") ||
           agravo.includes("A53")
         );
-      if (endemiaSelecionada === "tuberculose")
+      if (endemiaAtual === "tuberculose")
         return agravo.includes("A15") || agravo.includes("A16");
-      if (endemiaSelecionada === "gerais") return true;
+      if (endemiaAtual === "gerais") return true;
 
       return true;
     });
@@ -2115,11 +2131,21 @@ function EpidemiologicMap() {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [endemiaSelecionada, todosPacientes, activeStyle]);
+  }, [endemiaAtual, todosPacientes, activeStyle]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
         <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -2145,10 +2171,17 @@ function EpidemiologicMap() {
         {/* 4. ÁREA DO MAPA RESPONSIVA */}
         <main className="flex-1 p-2 md:p-6 relative flex flex-col">
           <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200 flex-1">
-            <EndemiasFilter
-              selected={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
-            />
+            {isPrivateView ? (
+              <EndemiasFilterPrivate
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            ) : (
+              <EndemiasFilter
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            )}
 
             {loading ? (
               <div className="flex h-full items-center justify-center">
