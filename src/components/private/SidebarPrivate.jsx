@@ -9,7 +9,6 @@ import {
   SquareLibrary,
 } from "lucide-react";
 
-// 1. Atualizamos os caminhos e o rótulo para refletir a área privada
 const NAV_ITEMS = [
   {
     path: "/profissional/dashboard",
