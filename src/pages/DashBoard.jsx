@@ -1,48 +1,101 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   Users,
   Activity,
   AlertTriangle,
   MapPin,
   RefreshCw,
+  Menu,
   Bell,
   UserCircle,
-  Menu,
 } from "lucide-react";
-import AssinaturaGovernamental from "../assets/AssinaturaGovernoFederal.png";
 import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
   CurvaEpidemica,
   StatusDonut,
   PerfilDemografico,
 } from "../components/Modal/DashboardCharts.jsx";
+import KpisGrid from "../components/KpisGrid.jsx";
+import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
+import CasosRecentes from "../components/CasosRecentes.jsx";
+import DashboardSifilis from "./DashboardSifilis.jsx";
+import DashboardTuberculose from "./DashBoardTuberculose.jsx";
+import DashboardChagas from "./DashBoardChagas.jsx";
+import DashboardHanseniase from "./DashBoardHans.jsx";
+import DashboardHepatite from "./DashBoardHepa.jsx";
+import DashboardViolencia from "./private/DashBoardViolencia.jsx";
 
-// Importando os novos subcomponentes modularizados
-import KpisGrid from "../components/Dashboard/KpisGrid.jsx";
-import DistribuicaoQuadrante from "../components/Dashboard/DistribuicaoQuadrante.jsx";
-import CasosRecentes from "../components/Dashboard/CasosRecentes.jsx";
+// Importando o novo componente
+import EndemiaSelector from "../components/EndemiasSelector.jsx";
 
-// Dicionário de endemias para o filtro (Aqui você adiciona as futuras)
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
-  { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" }, // Exemplo para o futuro
+  { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
+  { id: "chagas", nome: "Chagas", endpoint: "/api/chagas/" },
+  { id: "hanseniase", nome: "Hanseníase", endpoint: "/api/hans/" },
+  { id: "hepatite", nome: "Hepatite", endpoint: "/api/hepatite/" },
+  {
+    id: "violencia",
+    nome: "Violência Domestica",
+    endpoint: "/api/violenciadomestica/",
+  },
 ];
 
-export default function Dashboard() {
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState(ENDEMIAS[0]);
+// Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
+const BAIRRO_PARA_UBS = {
+  CENTRO: "UBS Floriano (Centro)",
+  SAMBAIBA: "UBS Dirceu Arcoverde",
+  "SAMBAIBA VELHA": "UBS Dirceu Arcoverde",
+  MANGUINHA: "UBS José Paraguassú",
+  "ALTO DA CRUZ": "UBS Theodoro F. Sobral",
+  "CAMPO VELHO": "UBS Pedro Simplício",
+  "REDE NOVA": "UBS Alfredo de Carvalho",
+  TABOCA: "UBS Luiz Tavares",
+  "IRAPUA I": "UBS Camilo Filho",
+  "IRAPUA II": "UBS Camilo Filho",
+  "NOSSA SENHORA DA GUIA": "UBS N. Sra. da Guia",
+  TIBERAO: "UBS Raimundo Filho",
+  "BOM LUGAR": "UBS Paulo Kalume",
+  "BOSQUE SANTA TEREZINHA": "UBS João Elias Oka",
+  "CAIXA D AGUA": "UBS Theodoro F. Sobral",
+  CAJUEIRO: "UBS João Elias Oka",
+  "ALTO DA GUIA": "UBS N. Sra. da Guia",
+  CURADOR: "UBS Theodoro F. Sobral",
+  IBIAPABA: "UBS Viana de Carvalho",
+  "PAU FERRADO": "UBS Paulo Martins",
+  "SAO BORJA": "UBS Pedro Simplício",
+  "PLANALTO SAMBAIBA": "UBS Dirceu Arcoverde",
+  CATUMBI: "UBS Raimundo Filho",
+  "SAO CRISTOVAO": "UBS Floriano (Centro)",
+  TAMBORIL: "UBS Alfredo de Carvalho",
+  "CONJUNTO PARAISO": "UBS Jasmina Bucar",
+  CANCELA: "UBS Paulo Kalume",
+  CANOAS: "UBS José Paraguassú",
+  "PLANALTO BELA VISTA": "UBS Pedro Simplício",
+  MELADAO: "UBS Pedro Simplício",
+  VIAZUL: "UBS Raimundo Filho",
+  "PEDRO SIMPLICIO": "UBS Pedro Simplício",
+};
+
+export default function Dashboard({ isPrivateView = false }) {
+  const endemiasDisponiveis = isPrivateView
+    ? ENDEMIAS
+    : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
+  const [endemiaSelecionada, setEndemiaSelecionada] = useState(
+    endemiasDisponiveis[0],
+  );
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Busca os dados dinamicamente com base na endemia selecionada
   useEffect(() => {
     setLoading(true);
     const baseUrl = import.meta.env.VITE_API_URL;
-
     fetch(`${baseUrl}${endemiaSelecionada.endpoint}`)
       .then((response) => {
         if (!response.ok)
@@ -55,27 +108,41 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error("Erro ao buscar dados:", error);
-        setPacientes([]); // Limpa se der erro (ex: endpoint da sífilis ainda não existe)
+        setPacientes([]);
         setLoading(false);
       });
   }, [endemiaSelecionada]);
 
-  // Lógica de Processamento de Dados (Mantida igual a original)
-  const extrairBairro = (endereco) => {
+  // Helpers de Bairro baseados no mapa
+  const obterBairroNormalizado = (endereco) => {
+    if (!endereco) return "";
+    const partes = endereco.split(",");
+    let bairroStr = partes[partes.length - 1].trim();
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
+      bairroStr = partes[partes.length - 2].trim();
+    } else if (/^[0-9-]+$/.test(bairroStr)) {
+      return "";
+    }
+    return bairroStr
+      .toUpperCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  };
+
+  const extrairBairroVisual = (endereco) => {
     if (!endereco) return "Não informado";
     const partes = endereco.split(",");
-    if (partes.length === 1) return "Endereço incompleto";
     let bairroStr = partes[partes.length - 1].trim();
-    if (/^[0-9-]+$/.test(bairroStr) && partes.length > 2) {
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
       bairroStr = partes[partes.length - 2].trim();
+    } else if (/^[0-9-]+$/.test(bairroStr)) {
+      return "CEP Genérico";
     }
     return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
   };
 
   const casosAlerta = pacientes.filter((p) => {
     const classFinal = String(p.classi_fin || "").trim();
-    // ATENÇÃO: Os códigos 10 e 11 são específicos da Dengue.
-    // Futuramente, você pode precisar ajustar isso dependendo da endemia.
     return classFinal === "10" || classFinal === "11";
   }).length;
 
@@ -89,7 +156,15 @@ export default function Dashboard() {
     })
     .slice(0, 5)
     .map((paciente) => {
-      const bairro = extrairBairro(paciente.endereco);
+      const bairro = extrairBairroVisual(paciente.endereco);
+      let ubsTag = "";
+      if (endemiaSelecionada.id === "dengue") {
+        ubsTag =
+          BAIRRO_PARA_UBS[obterBairroNormalizado(paciente.endereco)] ||
+          "Não Mapeada";
+      } else {
+        ubsTag = paciente.nm_ubs || paciente.un_saude || "Não informada";
+      }
       const classFinal = String(paciente.classi_fin || "").trim();
       let statusCor = "bg-amber-500";
       if (classFinal === "10" || classFinal === "11") statusCor = "bg-rose-600";
@@ -99,19 +174,27 @@ export default function Dashboard() {
       return {
         name: `Caso #${paciente.numero_notificacao || "S/N"}`,
         condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
-        ubs: `UBS: ${paciente.id_unidade || "N/I"} | ${bairro}`,
+        ubs: `UBS: ${ubsTag} | ${bairro}`,
         corClassificacao: statusCor,
         dadosOriginais: paciente,
       };
     });
 
-  const contagemBairros = pacientes.reduce((acc, paciente) => {
-    const bairro = extrairBairro(paciente.endereco);
-    acc[bairro] = (acc[bairro] || 0) + 1;
+  // Distribuição Inteligente: Dengue por Mapa, Outras por API
+  const contagemUbs = pacientes.reduce((acc, paciente) => {
+    let ubs = "Não Informada";
+    if (endemiaSelecionada.id === "dengue") {
+      const bairroNormalizado = obterBairroNormalizado(paciente.endereco);
+      ubs = BAIRRO_PARA_UBS[bairroNormalizado] || "Outras Regiões";
+    } else {
+      const nomeAPI = paciente.nm_ubs || paciente.un_saude;
+      if (nomeAPI) ubs = nomeAPI;
+    }
+    acc[ubs] = (acc[ubs] || 0) + 1;
     return acc;
   }, {});
 
-  const maxCasos = Math.max(...Object.values(contagemBairros), 1);
+  const maxCasosUbs = Math.max(...Object.values(contagemUbs), 1);
   const coresDistribuicao = [
     "bg-blue-500",
     "bg-emerald-500",
@@ -120,30 +203,32 @@ export default function Dashboard() {
     "bg-purple-500",
   ];
 
-  const distribuicaoUbs = Object.entries(contagemBairros)
+  const distribuicaoUbs = Object.entries(contagemUbs)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([nome, valor], index) => ({
       name: nome,
       value: valor,
-      max: maxCasos,
+      max: maxCasosUbs,
       color: coresDistribuicao[index % coresDistribuicao.length],
     }));
 
-  const bairroMaisAfetadoNome =
-    Object.keys(contagemBairros).length > 0
-      ? Object.keys(contagemBairros).reduce((a, b) =>
-          contagemBairros[a] > contagemBairros[b] ? a : b,
+  const ubsMaisAfetadaNome =
+    Object.keys(contagemUbs).length > 0
+      ? Object.keys(contagemUbs).reduce((a, b) =>
+          contagemUbs[a] > contagemUbs[b] ? a : b,
         )
-      : "Nenhum";
-  const bairroMaisAfetadoValor = contagemBairros[bairroMaisAfetadoNome] || 0;
+      : "Nenhuma";
 
+  const ubsMaisAfetadaValor = contagemUbs[ubsMaisAfetadaNome] || 0;
   const hoje = new Date();
   const seteDiasAtras = new Date();
   seteDiasAtras.setDate(hoje.getDate() - 7);
+
   const casosUltimos7Dias = pacientes.filter((p) => {
-    if (!p.data_notificacao) return false;
-    const [ano, mes, dia] = p.data_notificacao.split("-");
+    const dt = p.data_notificacao || p.dt_notific;
+    if (!dt) return false;
+    const [ano, mes, dia] = dt.split("-");
     const dataNotificacao = new Date(ano, mes - 1, dia);
     return dataNotificacao >= seteDiasAtras && dataNotificacao <= hoje;
   }).length;
@@ -174,11 +259,11 @@ export default function Dashboard() {
       subtext: "Graves/Sinais de alarme.",
     },
     {
-      title: "Bairro mais Afetado",
-      value: bairroMaisAfetadoNome,
+      title: "UBS mais Afetada",
+      value: ubsMaisAfetadaNome,
       icon: MapPin,
       color: "rose",
-      subtext: `${bairroMaisAfetadoValor} casos registrados.`,
+      subtext: `${ubsMaisAfetadaValor} casos registrados.`,
     },
     {
       title: "Últimos Casos (7 dias)",
@@ -191,30 +276,46 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
-        {/* Header Superior Omitido para não estender muito o código (Mantenha o seu original aqui) */}
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-r from-[#054060] to-indigo-600 shadow-md border-b border-[#043048]">
-          <div className="flex items-center gap-3">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden p-2 text-white bg-white/20 rounded-md hover:bg-white/30 transition-colors"
+              className="md:hidden group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
+              aria-label="Abrir menu"
             >
-              <Menu className="size-6" />
+              <Menu className="size-6 group-hover:scale-110 transition-transform duration-200" />
             </button>
-            <h2 className="text-lg md:text-xl font-bold text-white tracking-wide">
-              Visão Geral
-            </h2>
+          </div>
+
+          <div className="flex items-center gap-4 text-white/90">
+            <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
+              <Bell className="size-5" />
+            </button>
+            <button className="flex items-center gap-2 p-1 pr-3 hover:bg-white/10 rounded-full transition-colors">
+              <UserCircle className="size-7" />
+              <span className="text-sm font-medium hidden sm:block">Admin</span>
+            </button>
           </div>
         </header>
 
         <main className="p-4 md:p-8 space-y-6 w-full max-w-7xl mx-auto overflow-x-hidden">
-          {/* Título e Filtro de Endemias */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                Dashboard - {endemiaSelecionada.nome}
+                Dados Gerais - {endemiaSelecionada.nome}
               </h1>
               <p className="text-sm md:text-base text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de{" "}
@@ -222,21 +323,11 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div className="flex items-center gap-3 bg-slate-100 p-1 rounded-lg">
-              {ENDEMIAS.map((endemia) => (
-                <button
-                  key={endemia.id}
-                  onClick={() => setEndemiaSelecionada(endemia)}
-                  className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${
-                    endemiaSelecionada.id === endemia.id
-                      ? "bg-white text-[#054060] shadow-sm border border-slate-200"
-                      : "text-slate-500 hover:text-slate-700"
-                  }`}
-                >
-                  {endemia.nome}
-                </button>
-              ))}
-            </div>
+            <EndemiaSelector
+              options={endemiasDisponiveis}
+              value={endemiaSelecionada}
+              onChange={setEndemiaSelecionada}
+            />
           </div>
 
           {loading ? (
@@ -245,36 +336,47 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              {/* KPIs Modularizados */}
-              <KpisGrid kpis={kpis} />
-
-              {/* Gráficos Recharts */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 overflow-hidden w-full">
-                  <CurvaEpidemica pacientes={pacientes} />
-                </div>
-                <div className="lg:col-span-1 overflow-hidden w-full">
-                  <StatusDonut pacientes={pacientes} />
-                </div>
-              </div>
-
-              {/* Terceira Linha */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 overflow-hidden w-full">
-                  <PerfilDemografico pacientes={pacientes} />
-                </div>
-
-                {/* Componentes Modularizados */}
-                <DistribuicaoQuadrante distribuicaoUbs={distribuicaoUbs} />
-
-                <CasosRecentes
-                  casos={casosRecentes}
-                  onSelectPaciente={(paciente) => {
-                    setPacienteSelecionado(paciente);
-                    setModalAberto(true);
-                  }}
+              {endemiaSelecionada.id === "violencia" && isPrivateView ? (
+                <DashboardViolencia pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "sifilis" ? (
+                <DashboardSifilis
+                  pacientes={pacientes}
+                  distribuicaoUbs={distribuicaoUbs}
                 />
-              </div>
+              ) : endemiaSelecionada.id === "tuberculose" ? (
+                <DashboardTuberculose pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "chagas" ? (
+                <DashboardChagas pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "hanseniase" ? (
+                <DashboardHanseniase pacientes={pacientes} />
+              ) : endemiaSelecionada.id === "hepatite" ? (
+                <DashboardHepatite pacientes={pacientes} />
+              ) : (
+                <>
+                  <KpisGrid kpis={kpis} />
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 overflow-hidden w-full">
+                      <CurvaEpidemica pacientes={pacientes} />
+                    </div>
+                    <div className="lg:col-span-1 overflow-hidden w-full">
+                      <StatusDonut pacientes={pacientes} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-1 overflow-hidden w-full">
+                      <PerfilDemografico pacientes={pacientes} />
+                    </div>
+                    <DistribuicaoQuadrante distribuicaoUbs={distribuicaoUbs} />
+                    <CasosRecentes
+                      casos={casosRecentes}
+                      onSelectPaciente={(paciente) => {
+                        setPacienteSelecionado(paciente);
+                        setModalAberto(true);
+                      }}
+                    />
+                  </div>
+                </>
+              )}
             </>
           )}
         </main>

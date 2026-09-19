@@ -8,11 +8,13 @@ import {
   MarkerPopup,
   MarkerTooltip,
   MarkerLabel,
-} from "../components/ui/map.jsx";
-import { Button } from "@/components/ui/button";
+} from "../components/map.jsx";
+import { Button } from "@/components/button.jsx";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../components/EndemiasFilter.jsx";
+import EndemiasFilterPrivate from "../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../components/ButtonTheme.jsx";
 import {
   Activity,
@@ -1920,7 +1922,7 @@ const marcadores = [
   },
 ];
 
-function EpidemiologicMap() {
+function EpidemiologicMap({ isPrivateView = false }) {
   const mapRef = useRef(null);
   const [activeStyle, setActiveStyle] = useState("light");
   const [geoData, setGeoData] = useState(bairrosFlorianoGeoJSON);
@@ -1931,9 +1933,35 @@ function EpidemiologicMap() {
   const [hoverInfo, setHoverInfo] = useState(null);
 
   const [todosPacientes, setTodosPacientes] = useState([]);
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("gerais");
 
   const [zoomAtual, setZoomAtual] = useState(13.5);
+  const endemiaAtual = "gerais";
+
+  const handleEndemiaChange = (novaEndemia) => {
+    if (novaEndemia === endemiaAtual) return;
+
+    const basePath = isPrivateView
+      ? "/profissional/mapa-epidemiologico"
+      : "/mapa-epidemiologico";
+
+    if (novaEndemia === "gerais") {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/endemias/${novaEndemia}`);
+    }
+  };
+
+  // modal exclusivo para o mobile
+  const [showMobileHint, setShowMobileHint] = useState(false);
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setShowMobileHint(true);
+      const timer = setTimeout(() => {
+        setShowMobileHint(false);
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const is3D = activeStyle === "openstreetmap3d";
   const navigate = useNavigate();
@@ -1971,12 +1999,15 @@ function EpidemiologicMap() {
   const extrairBairro = (endereco) => {
     if (!endereco) return "";
     const partes = endereco.split(",");
-    if (partes.length === 1) return "";
 
     let bairroStr = partes[partes.length - 1].trim();
-    // Se a última parte for número (CEP), pega a penúltima (Bairro)
-    if (/^[0-9-]+$/.test(bairroStr) && partes.length > 2) {
+
+    // Se a última parte for um número/CEP, pegamos a penúltima (>= 2 garante que não quebre em strings curtas)
+    if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
       bairroStr = partes[partes.length - 2].trim();
+    } else if (/^[0-9-]+$/.test(bairroStr)) {
+      // Se for apenas o CEP sem o bairro, retornamos vazio para não sujar o mapa
+      return "";
     }
 
     return bairroStr
@@ -1991,17 +2022,17 @@ function EpidemiologicMap() {
     const pacientesFiltrados = todosPacientes.filter((p) => {
       const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
 
-      if (endemiaSelecionada === "dengue")
+      if (endemiaAtual === "dengue")
         return agravo.includes("A90") || agravo === "";
-      if (endemiaSelecionada === "sifilis")
+      if (endemiaAtual === "sifilis")
         return (
           agravo.includes("A51") ||
           agravo.includes("A52") ||
           agravo.includes("A53")
         );
-      if (endemiaSelecionada === "tuberculose")
+      if (endemiaAtual === "tuberculose")
         return agravo.includes("A15") || agravo.includes("A16");
-      if (endemiaSelecionada === "gerais") return true;
+      if (endemiaAtual === "gerais") return true;
 
       return true;
     });
@@ -2100,13 +2131,23 @@ function EpidemiologicMap() {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [endemiaSelecionada, todosPacientes, activeStyle]);
+  }, [endemiaAtual, todosPacientes, activeStyle]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
-        <header className="px-4 md:px-8 py-3 md:py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -2130,10 +2171,17 @@ function EpidemiologicMap() {
         {/* 4. ÁREA DO MAPA RESPONSIVA */}
         <main className="flex-1 p-2 md:p-6 relative flex flex-col">
           <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200 flex-1">
-            <EndemiasFilter
-              selected={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
-            />
+            {isPrivateView ? (
+              <EndemiasFilterPrivate
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            ) : (
+              <EndemiasFilter
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            )}
 
             {loading ? (
               <div className="flex h-full items-center justify-center">
@@ -2141,6 +2189,20 @@ function EpidemiologicMap() {
               </div>
             ) : (
               <div className="relative w-full h-full">
+                {showMobileHint && (
+                  <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 md:hidden w-[85%] max-w-[320px] pointer-events-none animate-in fade-in slide-in-from-top-4 duration-700 mt-100">
+                    <div className="bg-slate-800/90 backdrop-blur-md text-white text-center px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-center gap-3 border border-slate-700">
+                      <span className="relative flex h-3 w-3 shrink-0">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                      </span>
+                      <p className="text-sm font-medium leading-tight text-left">
+                        Toque na área para revelar mais informações sobre a
+                        mesma.
+                      </p>
+                    </div>
+                  </div>
+                )}
                 <Map
                   ref={mapRef}
                   center={[-43.0225, -6.7672]}

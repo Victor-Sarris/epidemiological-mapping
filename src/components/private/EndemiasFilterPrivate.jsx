@@ -28,7 +28,7 @@ export default function EndemiasFilter({
       icon: MapPlus,
       color: "text-yellow-500",
       bg: "bg-yellow-100",
-      rota: "/mapa-epidemiologico",
+      rota: "/profissional/mapa-epidemiologico",
     },
     {
       id: "dengue",
@@ -36,7 +36,7 @@ export default function EndemiasFilter({
       icon: Bug,
       color: "text-rose-500",
       bg: "bg-rose-100",
-      rota: "/mapa-epidemiologico/endemias/dengue",
+      rota: "/profissional/mapa-epidemiologico/endemias/dengue",
     },
     {
       id: "sifilis",
@@ -44,7 +44,7 @@ export default function EndemiasFilter({
       icon: Activity,
       color: "text-purple-500",
       bg: "bg-purple-100",
-      rota: "/mapa-epidemiologico/endemias/sifi",
+      rota: "/profissional/mapa-epidemiologico/endemias/sifi",
     },
     {
       id: "tuberculose",
@@ -52,7 +52,7 @@ export default function EndemiasFilter({
       icon: ShieldAlert,
       color: "text-emerald-500",
       bg: "bg-emerald-100",
-      rota: "/mapa-epidemiologico/endemias/tuberculose",
+      rota: "/profissional/mapa-epidemiologico/endemias/tuberculose",
     },
     {
       id: "chagas",
@@ -60,7 +60,7 @@ export default function EndemiasFilter({
       icon: HeartPulse,
       color: "text-orange-500",
       bg: "bg-orange-100",
-      rota: "/mapa-epidemiologico/endemias/chagas",
+      rota: "/profissional/mapa-epidemiologico/endemias/chagas",
     },
     {
       id: "hanseniase",
@@ -68,7 +68,7 @@ export default function EndemiasFilter({
       icon: Hand,
       color: "text-purple-500",
       bg: "bg-purple-100",
-      rota: "/mapa-epidemiologico/endemias/hanseniase",
+      rota: "/profissional/mapa-epidemiologico/endemias/hanseniase",
     },
     {
       id: "hepatite",
@@ -76,15 +76,15 @@ export default function EndemiasFilter({
       icon: Droplets,
       color: "text-blue-500",
       bg: "bg-blue-100",
-      rota: "/mapa-epidemiologico/endemias/hepatite",
+      rota: "/profissional/mapa-epidemiologico/endemias/hepatite",
     },
     {
-      id: "violencia",
+      id: "violenciadom",
       name: "Violência Doméstica",
       icon: HeartHandshake,
       color: "text-rose-600",
       bg: "bg-rose-100",
-      rota: "profissional/mapa-epidemiologico/endemias/violenciadom",
+      rota: "/profissional/mapa-epidemiologico/endemias/violenciadom",
     },
   ];
 

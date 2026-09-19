@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar.jsx";
+import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
+import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
 import {
   Map,
@@ -10,7 +12,7 @@ import {
   MarkerContent,
   MarkerLabel,
   MarkerPopup,
-} from "../../components/ui/map.jsx";
+} from "../../components/map.jsx";
 import {
   Activity,
   Map as MapIcon,
@@ -21,7 +23,7 @@ import {
   Menu,
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/button.jsx";
 
 // importação de imagens para o maps ----------
 // imagens das ubs do perimetro urbano
@@ -1920,7 +1922,7 @@ const marcadores = [
   },
 ];
 
-export default function MapTubercu() {
+export default function MapTubercu({ isPrivateView = false }) {
   const mapRef = useRef(null);
   const [activeStyle, setActiveStyle] = useState("light");
   const [geoData, setGeoData] = useState(bairrosFlorianoGeoJSON);
@@ -1930,7 +1932,20 @@ export default function MapTubercu() {
   const [todosPacientes, setTodosPacientes] = useState([]);
 
   // Aqui já deixamos travado na tuberculose
-  const [endemiaSelecionada, setEndemiaSelecionada] = useState("tuberculose");
+  const endemiaAtual = "tuberculose";
+
+  const handleEndemiaChange = (novaEndemia) => {
+    if (novaEndemia === endemiaAtual) return;
+    const basePath = isPrivateView
+      ? "/profissional/mapa-epidemiologico"
+      : "/mapa-epidemiologico";
+
+    if (novaEndemia === "gerais") {
+      navigate(basePath);
+    } else {
+      navigate(`${basePath}/endemias/${novaEndemia}`);
+    }
+  };
   const [zoomAtual, setZoomAtual] = useState(13.5);
   const is3D = activeStyle === "openstreetmap3d";
 
@@ -2066,9 +2081,19 @@ export default function MapTubercu() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      {isPrivateView ? (
+        <SidebarPrivate
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      ) : (
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+      )}
       <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
-        <header className="px-4 md:px-8 py-3 md:py-5 border-b bg-linear-to-r from-[#054060] to-indigo-600 backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -2090,10 +2115,17 @@ export default function MapTubercu() {
 
         <main className="flex-1 p-2 md:p-6 relative flex flex-col">
           <div className="relative w-full h-full rounded-xl md:rounded-2xl overflow-hidden border border-slate-200 shadow-sm bg-slate-200 flex-1">
-            <EndemiasFilter
-              selected={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
-            />
+            {isPrivateView ? (
+              <EndemiasFilterPrivate
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            ) : (
+              <EndemiasFilter
+                selected={endemiaAtual}
+                onChange={handleEndemiaChange}
+              />
+            )}
 
             {loading ? (
               <div className="flex h-full items-center justify-center">

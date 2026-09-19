@@ -4,30 +4,102 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
+import DashboardSifilis from "./DashboardSifilis.jsx";
+import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import Support from "./Support.jsx";
+import { AuthProvider } from "../contexts/AuthContext.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
 import MapDengue from "./maps/MapDengue.jsx";
 import MapTubercu from "./maps/MapTubercu.jsx";
+import MapSifi from "./maps/MapSifi.jsx";
+import MapChaga from "./maps/MapChagas.jsx";
+import MapHans from "./maps/MapHans.jsx";
+import MapHepa from "./maps/MapHepa.jsx";
+import MapViolencia from "./maps/MapViolencia.jsx";
 
 function App() {
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dados-gerais" element={<Dashboard />} />
-          <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
-          <Route
-            path="/mapa-epidemiologico/endemias/dengue"
-            element={<MapDengue />}
-          />
-          <Route
-            path="/mapa-epidemiologico/endemias/tuberculose"
-            element={<MapTubercu />}
-          />
-          <Route path="/suporte" element={<Support />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Rotas Públicas */}
+            <Route path="/" element={<Home />} />
+            <Route path="/mapa-epidemiologico" element={<EpidemiologicMap />} />
+            <Route
+              path="/mapa-epidemiologico/endemias/tuberculose"
+              element={<MapTubercu />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/sifi"
+              element={<MapSifi />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/dengue"
+              element={<MapDengue />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/chagas"
+              element={<MapChaga />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/hanseniase"
+              element={<MapHans />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/hepatite"
+              element={<MapHepa />}
+            />
+            <Route
+              path="/dashboard"
+              element={<Dashboard isPrivateView={false} />}
+            />
+            <Route path="/suporte" element={<Support />} />
+
+            {/* =================== Rotas Privadas Admin ===================*/}
+            <Route
+              path="/profissional/dashboard"
+              element={<Dashboard isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico"
+              element={<EpidemiologicMap isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/tuberculose"
+              element={<MapTubercu isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/sifi"
+              element={<MapSifi isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/dengue"
+              element={<MapDengue isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/chagas"
+              element={<MapChaga isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/hanseniase"
+              element={<MapHans isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/hepatite"
+              element={<MapHepa isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/mapa-epidemiologico/endemias/violenciadom"
+              element={<MapViolencia isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/suporte"
+              element={<Support isPrivateView={true} />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </>
   );
 }
