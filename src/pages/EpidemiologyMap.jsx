@@ -8,7 +8,7 @@ import {
   MarkerPopup,
   MarkerTooltip,
   MarkerLabel,
-} from "../components/map.jsx";
+} from "../components/Map.jsx";
 import { Button } from "@/components/button.jsx";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Sidebar from "../components/Sidebar.jsx";
