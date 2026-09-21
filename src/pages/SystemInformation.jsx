@@ -12,6 +12,8 @@ import {
   Database,
   AlertCircle,
   CheckCircle2,
+  Upload,
+  FileUp,
 } from "lucide-react";
 
 // Mapeamento das tabelas/endpoints da API
@@ -37,7 +39,7 @@ const TABELAS = [
   { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
 ];
 
-// Esquema de campos para cada tabela (baseado no models.py) para o modal de inserção/edição
+// Esquema de campos para cada tabela (baseado no models.py)
 const TABLE_SCHEMAS = {
   dengue: [
     "numero_notificacao",
@@ -85,8 +87,13 @@ export default function SystemInformation() {
   const [formData, setFormData] = useState({});
   const [editingId, setEditingId] = useState(null);
 
+  // Estados de Importação
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
   // Feedback
-  const [mensagem, setMensagem] = useState({ texto: "", tipo: "" }); // tipo: 'sucesso' | 'erro'
+  const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
 
@@ -114,7 +121,6 @@ export default function SystemInformation() {
     fetchDados();
   }, [tabelaAtiva]);
 
-  // Função para mostrar mensagem temporária
   const mostrarMensagem = (texto, tipo) => {
     setMensagem({ texto, tipo });
     setTimeout(() => setMensagem({ texto: "", tipo: "" }), 5000);
@@ -131,7 +137,6 @@ export default function SystemInformation() {
     );
   }, [dados, searchTerm]);
 
-  // Obter colunas baseadas no esquema
   const colunas = TABLE_SCHEMAS[tabelaAtiva.id] || [];
 
   // Handlers do CRUD
@@ -140,7 +145,6 @@ export default function SystemInformation() {
       setFormData(item);
       setEditingId(item.id);
     } else {
-      // Inicializa formData vazio baseado no esquema
       const initialData = {};
       colunas.forEach((col) => (initialData[col] = ""));
       setFormData(initialData);
@@ -219,6 +223,42 @@ export default function SystemInformation() {
     }
   };
 
+  // Handler de Importação (DBF / EXCEL)
+  const handleFileUpload = async (e) => {
+    e.preventDefault();
+    if (!uploadFile) return;
+
+    setIsUploading(true);
+
+    // Preparando o formData para envio de arquivo
+    const formDataUpload = new FormData();
+    formDataUpload.append("arquivo", uploadFile);
+    formDataUpload.append("tabela_destino", tabelaAtiva.id);
+
+    try {
+      // Endpoint que deverá receber os arquivos (Ex: /api/upload_dbf/ ou /api/upload/)
+      const response = await fetch(`${baseUrl}/api/upload/`, {
+        method: "POST",
+        body: formDataUpload, // Não incluir Content-Type explicitamente com FormData
+      });
+
+      if (!response.ok) throw new Error("Falha ao importar o arquivo.");
+
+      mostrarMensagem("Arquivo importado e processado com sucesso!", "sucesso");
+      setIsImportModalOpen(false);
+      setUploadFile(null);
+      fetchDados(); // Atualiza a tabela após a importação
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(
+        "Erro ao importar. Verifique o formato do arquivo (.dbf, .xls, .xlsx).",
+        "erro",
+      );
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
       <SidebarPrivate
@@ -245,19 +285,18 @@ export default function SystemInformation() {
         </header>
 
         <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500">
-          {/* Cabeçalho da Página */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
               <h1 className="text-2xl font-extrabold text-slate-900">
                 Gerenciador de Tabelas
               </h1>
               <p className="text-slate-500 text-sm mt-1">
-                Visualize, edite e remova dados brutos do sistema
-                epidemiológico.
+                Visualize, edite, remova e importe dados brutos SINAN do
+                sistema.
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <select
                 value={tabelaAtiva.id}
                 onChange={(e) =>
@@ -284,7 +323,6 @@ export default function SystemInformation() {
             </div>
           </div>
 
-          {/* Feedback de Mensagem */}
           {mensagem.texto && (
             <div
               className={`p-4 rounded-xl flex items-center gap-3 border ${mensagem.tipo === "sucesso" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"}`}
@@ -298,9 +336,8 @@ export default function SystemInformation() {
             </div>
           )}
 
-          {/* Área Principal - Tabela */}
           <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-[500px]">
-            {/* Toolbar da Tabela */}
+            {/* Toolbar Principal */}
             <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center bg-slate-50/50">
               <div className="relative w-full sm:w-96">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-4" />
@@ -312,16 +349,25 @@ export default function SystemInformation() {
                   className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4180ab] focus:ring-1 focus:ring-[#4180ab] transition-all"
                 />
               </div>
-              <button
-                onClick={() => handleOpenModal()}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
-              >
-                <Plus className="size-4" />
-                Adicionar Registro
-              </button>
+
+              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
+                >
+                  <Upload className="size-4" />
+                  Importar Arquivo
+                </button>
+                <button
+                  onClick={() => handleOpenModal()}
+                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
+                >
+                  <Plus className="size-4" />
+                  Adicionar Registro
+                </button>
+              </div>
             </div>
 
-            {/* Container da Tabela com Scroll */}
             <div className="flex-1 overflow-auto">
               <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
@@ -416,7 +462,94 @@ export default function SystemInformation() {
         </div>
       </main>
 
-      {/* Modal de Formulário (Criar / Editar) */}
+      {/* Modal de Upload de Arquivo (DBF / Excel) */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <FileUp className="size-5 text-emerald-600" />
+                Importar SINAN
+              </h3>
+              <button
+                onClick={() => {
+                  setIsImportModalOpen(false);
+                  setUploadFile(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+
+            <div className="p-6 text-center">
+              <p className="text-sm text-slate-600 mb-6">
+                Selecione um arquivo <strong>.dbf</strong>,{" "}
+                <strong>.xls</strong> ou <strong>.xlsx</strong> para popular a
+                tabela{" "}
+                <strong className="text-[#4180ab]">{tabelaAtiva.nome}</strong>.
+              </p>
+
+              <div className="flex flex-col items-center justify-center w-full">
+                <label
+                  htmlFor="dropzone-file"
+                  className="flex flex-col items-center justify-center w-full h-40 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-8 h-8 mb-3 text-slate-400" />
+                    <p className="mb-2 text-sm text-slate-500 font-semibold">
+                      Clique para selecionar
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      DBF, XLS, XLSX ou CSV
+                    </p>
+                  </div>
+                  <input
+                    id="dropzone-file"
+                    type="file"
+                    className="hidden"
+                    accept=".dbf, .xls, .xlsx, .csv"
+                    onChange={(e) => setUploadFile(e.target.files[0])}
+                  />
+                </label>
+              </div>
+
+              {uploadFile && (
+                <div className="mt-4 p-3 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-lg border border-emerald-100 truncate">
+                  Arquivo selecionado: {uploadFile.name}
+                </div>
+              )}
+            </div>
+
+            <div className="p-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsImportModalOpen(false);
+                  setUploadFile(null);
+                }}
+                className="px-5 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleFileUpload}
+                disabled={isUploading || !uploadFile}
+                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isUploading ? (
+                  <RefreshCw className="size-4 animate-spin" />
+                ) : (
+                  <Save className="size-4" />
+                )}
+                {isUploading ? "Processando..." : "Iniciar Importação"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Formulário Manual (Criar / Editar) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
@@ -446,14 +579,12 @@ export default function SystemInformation() {
               >
                 {colunas.map((col) => {
                   const label = col.replace(/_/g, " ").toUpperCase();
-                  // Regras simples para tipos de input
                   const type =
                     col.includes("data") || col.includes("dt")
                       ? "date"
                       : "text";
                   return (
                     <div key={col} className="space-y-1.5">
-                      <title>Administração do Sistema</title>
                       <label className="text-xs font-bold text-slate-500 tracking-wide">
                         {label}
                       </label>
@@ -497,7 +628,6 @@ export default function SystemInformation() {
         </div>
       )}
 
-      {/* Adicionar CSS customizado para o scrollbar se necessário */}
       <style
         dangerouslySetInnerHTML={{
           __html: `
