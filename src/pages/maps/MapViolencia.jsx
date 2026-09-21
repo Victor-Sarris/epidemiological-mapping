@@ -1985,8 +1985,11 @@ export default function MapViolencia({ isPrivateView = true }) {
 
     todosPacientes.forEach((paciente) => {
       const nomeUbsOriginal = String(
-        paciente.nm_ubs || paciente.un_saude || paciente.id_unidade || "",
+        paciente.nm_ubs || paciente.un_saude || "",
       );
+
+      // Isola o ID da Unidade
+      const idUnidade = String(paciente.id_unidade || "").trim();
 
       const nomeUbs = nomeUbsOriginal
         .toUpperCase()
@@ -1995,56 +1998,66 @@ export default function MapViolencia({ isPrivateView = true }) {
 
       let nomeAreaMapa = null;
 
-      // Dicionário heurístico de ligação UBS -> Polígono
-      if (nomeUbs.includes("DIRCEU") || nomeUbs.includes("ARCOVERDE"))
-        nomeAreaMapa = "AREA UBS DIRCEU ARCOVERDE";
-      else if (nomeUbs.includes("PARAGUASSU"))
-        nomeAreaMapa = "AREA UBS JOSE PARAGUASSU";
-      else if (nomeUbs.includes("THEODORO") || nomeUbs.includes("SOBRAL"))
-        nomeAreaMapa = "AREA UBS THEODORO FERREIRA SOBRAL";
-      else if (nomeUbs.includes("PEDRO SIMPLICIO"))
-        nomeAreaMapa = "AREA DA UBS PEDRO SIMPLICIO";
-      else if (nomeUbs.includes("ALFREDO"))
-        nomeAreaMapa = "AREA UBS ALFREDO DE CARVALHO";
-      else if (nomeUbs.includes("LUIZ TAVARES") || nomeUbs.includes("TABOCA"))
-        nomeAreaMapa = "AREA DA UBS LUIZ TAVARES";
-      else if (nomeUbs.includes("CAMILO"))
-        nomeAreaMapa = "AREA UBS CAMILO FILHO";
-      else if (nomeUbs.includes("GUIA"))
-        nomeAreaMapa = "AREA UBS NOSSA SENHORA DA GUIA";
-      else if (nomeUbs.includes("RAIMUNDO FILHO"))
-        nomeAreaMapa = "AREA UBS RAIMUNDO FILHO";
-      else if (nomeUbs.includes("KALUME"))
-        nomeAreaMapa = "AREA UBS PAULO KALUME";
-      else if (nomeUbs.includes("OKA") || nomeUbs.includes("ELIAS"))
-        nomeAreaMapa = "AREA UBS JOAO ELIAS OKA";
-      else if (nomeUbs.includes("VIANA"))
-        nomeAreaMapa = "AREA UBS VIANA DE CARVALHO";
-      else if (nomeUbs.includes("PAULO MARTINS"))
-        nomeAreaMapa = "AREA UBS PAULO MARTINS";
-      else if (nomeUbs.includes("HELVIDIO") || nomeUbs.includes("HOLANDA"))
-        nomeAreaMapa = "AREA UBS HELVIDIO DE HOLANDA BARROS";
-      else if (nomeUbs.includes("JASMINA") || nomeUbs.includes("BUCAR"))
-        nomeAreaMapa = "AREA DA UBS JASMINA BUCAR";
-      else if (nomeUbs.includes("PAM") || nomeUbs.includes("P.A.M"))
-        nomeAreaMapa = "AREA UBS PAM";
-      else if (nomeUbs.includes("SANTA CRUZ"))
-        nomeAreaMapa = "AREA UBS SANTA CRUZ";
-      else if (nomeUbs.includes("FLORIANO") || nomeUbs.includes("CENTRO"))
-        nomeAreaMapa = "AREA UBS FLORIANO";
-      else if (nomeUbs.includes("L3")) nomeAreaMapa = "AREA UBS L3";
-      else if (nomeUbs.includes("LEONARDO") || nomeUbs.includes("DUDIMA"))
-        nomeAreaMapa = "AREA UBS LEONARDO DUDIMA";
-      else if (nomeUbs.includes("MORRINHOS"))
-        nomeAreaMapa = "AREA UBS MORRINHOS";
-      else if (nomeUbs.includes("MARGARIDA") || nomeUbs.includes("ALVES"))
-        nomeAreaMapa = "AREA UBS MARGARIDA ALVES";
-      else if (nomeUbs.includes("PROTASIO"))
-        nomeAreaMapa = "AREA UBS PROTASIO DE MORAES";
-      else if (nomeUbs.includes("BENVINDO"))
-        nomeAreaMapa = "AREA UBS RAIMUNDO BENVINDO LIMA";
-      else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
-        nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
+      const mapaPorId = {
+        5943817: "AREA UBS ALFREDO DE CARVALHO",
+        2778432: "AREA UBS JOAO ELIAS OKA",
+        2364654: "AREA UBS HELVIDIO DE HOLANDA BARROS",
+        2694743: "AREA UBS FLORIANO",
+      };
+
+      if (mapaPorId[idUnidade]) {
+        nomeAreaMapa = mapaPorId[idUnidade];
+      } else {
+        if (nomeUbs.includes("DIRCEU") || nomeUbs.includes("ARCOVERDE"))
+          nomeAreaMapa = "AREA UBS DIRCEU ARCOVERDE";
+        else if (nomeUbs.includes("PARAGUASSU"))
+          nomeAreaMapa = "AREA UBS JOSE PARAGUASSU";
+        else if (nomeUbs.includes("THEODORO") || nomeUbs.includes("SOBRAL"))
+          nomeAreaMapa = "AREA UBS THEODORO FERREIRA SOBRAL";
+        else if (nomeUbs.includes("PEDRO SIMPLICIO"))
+          nomeAreaMapa = "AREA DA UBS PEDRO SIMPLICIO";
+        else if (nomeUbs.includes("ALFREDO"))
+          nomeAreaMapa = "AREA UBS ALFREDO DE CARVALHO";
+        else if (nomeUbs.includes("LUIZ TAVARES") || nomeUbs.includes("TABOCA"))
+          nomeAreaMapa = "AREA DA UBS LUIZ TAVARES";
+        else if (nomeUbs.includes("CAMILO"))
+          nomeAreaMapa = "AREA UBS CAMILO FILHO";
+        else if (nomeUbs.includes("GUIA"))
+          nomeAreaMapa = "AREA UBS NOSSA SENHORA DA GUIA";
+        else if (nomeUbs.includes("RAIMUNDO FILHO"))
+          nomeAreaMapa = "AREA UBS RAIMUNDO FILHO";
+        else if (nomeUbs.includes("KALUME"))
+          nomeAreaMapa = "AREA UBS PAULO KALUME";
+        else if (nomeUbs.includes("OKA") || nomeUbs.includes("ELIAS"))
+          nomeAreaMapa = "AREA UBS JOAO ELIAS OKA";
+        else if (nomeUbs.includes("VIANA"))
+          nomeAreaMapa = "AREA UBS VIANA DE CARVALHO";
+        else if (nomeUbs.includes("PAULO MARTINS"))
+          nomeAreaMapa = "AREA UBS PAULO MARTINS";
+        else if (nomeUbs.includes("HELVIDIO") || nomeUbs.includes("HOLANDA"))
+          nomeAreaMapa = "AREA UBS HELVIDIO DE HOLANDA BARROS";
+        else if (nomeUbs.includes("JASMINA") || nomeUbs.includes("BUCAR"))
+          nomeAreaMapa = "AREA DA UBS JASMINA BUCAR";
+        else if (nomeUbs.includes("PAM") || nomeUbs.includes("P.A.M"))
+          nomeAreaMapa = "AREA UBS PAM";
+        else if (nomeUbs.includes("SANTA CRUZ"))
+          nomeAreaMapa = "AREA UBS SANTA CRUZ";
+        else if (nomeUbs.includes("FLORIANO") || nomeUbs.includes("CENTRO"))
+          nomeAreaMapa = "AREA UBS FLORIANO";
+        else if (nomeUbs.includes("L3")) nomeAreaMapa = "AREA UBS L3";
+        else if (nomeUbs.includes("LEONARDO") || nomeUbs.includes("DUDIMA"))
+          nomeAreaMapa = "AREA UBS LEONARDO DUDIMA";
+        else if (nomeUbs.includes("MORRINHOS"))
+          nomeAreaMapa = "AREA UBS MORRINHOS";
+        else if (nomeUbs.includes("MARGARIDA") || nomeUbs.includes("ALVES"))
+          nomeAreaMapa = "AREA UBS MARGARIDA ALVES";
+        else if (nomeUbs.includes("PROTASIO"))
+          nomeAreaMapa = "AREA UBS PROTASIO DE MORAES";
+        else if (nomeUbs.includes("BENVINDO"))
+          nomeAreaMapa = "AREA UBS RAIMUNDO BENVINDO LIMA";
+        else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
+          nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
+      }
 
       // Soma os casos aglutinados da planilha
       const casosAgregados = Number(paciente.nu_notific) || 1;
@@ -2053,8 +2066,7 @@ export default function MapViolencia({ isPrivateView = true }) {
         contagemPorArea[nomeAreaMapa] =
           (contagemPorArea[nomeAreaMapa] || 0) + casosAgregados;
       }
-      // Nota: Hospitais e CAPS (como Tibério Nunes) não possuem polígonos de bairros exclusivos,
-      // então eles não colorem uma área específica do GeoJSON, o que é o comportamento correto para o mapa de calor.
+      // Nota: Hospitais e CAPS mantêm o comportamento de não serem mapeados
     });
 
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
