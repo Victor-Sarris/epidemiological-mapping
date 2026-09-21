@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
@@ -10,6 +10,7 @@ import {
   Menu,
   Bell,
   UserCircle,
+  CalendarDays,
 } from "lucide-react";
 import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
@@ -26,8 +27,6 @@ import DashboardChagas from "./DashBoardChagas.jsx";
 import DashboardHanseniase from "./DashBoardHans.jsx";
 import DashboardHepatite from "./DashBoardHepa.jsx";
 import DashboardViolencia from "./private/DashBoardViolencia.jsx";
-
-// Importando o novo componente
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
 
 const ENDEMIAS = [
@@ -44,7 +43,6 @@ const ENDEMIAS = [
   },
 ];
 
-// Dicionário de Bairros -> UBS (Lógica replicada do Mapa)
 const BAIRRO_PARA_UBS = {
   CENTRO: "UBS Floriano (Centro)",
   SAMBAIBA: "UBS Dirceu Arcoverde",
@@ -84,14 +82,19 @@ export default function Dashboard({ isPrivateView = false }) {
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
     : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
+
   const [endemiaSelecionada, setEndemiaSelecionada] = useState(
     endemiasDisponiveis[0],
   );
+
   const [pacientes, setPacientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pacienteSelecionado, setPacienteSelecionado] = useState(null);
   const [modalAberto, setModalAberto] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // NOVO: Estado para o filtro de período
+  const [periodoFiltro, setPeriodoFiltro] = useState("todos"); // "todos" ou "ultimoMes"
 
   useEffect(() => {
     setLoading(true);
@@ -113,7 +116,29 @@ export default function Dashboard({ isPrivateView = false }) {
       });
   }, [endemiaSelecionada]);
 
-  // Helpers de Bairro baseados no mapa
+  // NOVO: Lógica de filtragem dos pacientes com base no período
+  const pacientesFiltrados = useMemo(() => {
+    if (periodoFiltro === "todos") return pacientes;
+
+    const hoje = new Date();
+    // Volta exatamente 1 mês atrás (ex: 21 de Setembro vira 21 de Agosto)
+    const ultimoMes = new Date(
+      hoje.getFullYear(),
+      hoje.getMonth() - 1,
+      hoje.getDate(),
+    );
+
+    return pacientes.filter((p) => {
+      const dt = p.data_notificacao || p.dt_notific;
+      if (!dt) return false;
+      const [ano, mes, dia] = dt.split("-");
+      const dataNotificacao = new Date(ano, mes - 1, dia);
+
+      // Retorna apenas se a notificação estiver entre há 1 mês e hoje
+      return dataNotificacao >= ultimoMes && dataNotificacao <= hoje;
+    });
+  }, [pacientes, periodoFiltro]);
+
   const obterBairroNormalizado = (endereco) => {
     if (!endereco) return "";
     const partes = endereco.split(",");
@@ -141,12 +166,13 @@ export default function Dashboard({ isPrivateView = false }) {
     return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
   };
 
-  const casosAlerta = pacientes.filter((p) => {
+  // ATENÇÃO: Todas as constantes abaixo passam a usar 'pacientesFiltrados' em vez de 'pacientes'
+  const casosAlerta = pacientesFiltrados.filter((p) => {
     const classFinal = String(p.classi_fin || "").trim();
     return classFinal === "10" || classFinal === "11";
   }).length;
 
-  const casosRecentes = [...pacientes]
+  const casosRecentes = [...pacientesFiltrados]
     .sort((a, b) => {
       const dateA = a.data_notificacao || "0000-00-00";
       const dateB = b.data_notificacao || "0000-00-00";
@@ -170,7 +196,6 @@ export default function Dashboard({ isPrivateView = false }) {
       if (classFinal === "10" || classFinal === "11") statusCor = "bg-rose-600";
       else if (classFinal === "5") statusCor = "bg-emerald-500";
       else if (classFinal === "8") statusCor = "bg-slate-400";
-
       return {
         name: `Caso #${paciente.numero_notificacao || "S/N"}`,
         condition: `Sintoma: ${paciente.data_pri_sintoma || "N/I"} | Sexo: ${paciente.cs_sexo || "N/I"}`,
@@ -180,8 +205,7 @@ export default function Dashboard({ isPrivateView = false }) {
       };
     });
 
-  // Distribuição Inteligente: Dengue por Mapa, Outras por API
-  const contagemUbs = pacientes.reduce((acc, paciente) => {
+  const contagemUbs = pacientesFiltrados.reduce((acc, paciente) => {
     let ubs = "Não Informada";
     if (endemiaSelecionada.id === "dengue") {
       const bairroNormalizado = obterBairroNormalizado(paciente.endereco);
@@ -219,13 +243,13 @@ export default function Dashboard({ isPrivateView = false }) {
           contagemUbs[a] > contagemUbs[b] ? a : b,
         )
       : "Nenhuma";
-
   const ubsMaisAfetadaValor = contagemUbs[ubsMaisAfetadaNome] || 0;
+
   const hoje = new Date();
   const seteDiasAtras = new Date();
   seteDiasAtras.setDate(hoje.getDate() - 7);
 
-  const casosUltimos7Dias = pacientes.filter((p) => {
+  const casosUltimos7Dias = pacientesFiltrados.filter((p) => {
     const dt = p.data_notificacao || p.dt_notific;
     if (!dt) return false;
     const [ano, mes, dia] = dt.split("-");
@@ -234,14 +258,17 @@ export default function Dashboard({ isPrivateView = false }) {
   }).length;
 
   const taxaNovosCasos =
-    pacientes.length > 0
-      ? Math.round((casosUltimos7Dias / pacientes.length) * 100)
+    pacientesFiltrados.length > 0
+      ? Math.round((casosUltimos7Dias / pacientesFiltrados.length) * 100)
       : 0;
 
   const totalNotificacoes =
     endemiaSelecionada.id === "tuberculose"
-      ? pacientes.reduce((acc, p) => acc + Number(p.nu_notific || 0), 0)
-      : pacientes.length;
+      ? pacientesFiltrados.reduce(
+          (acc, p) => acc + Number(p.nu_notific || 0),
+          0,
+        )
+      : pacientesFiltrados.length;
 
   const kpis = [
     {
@@ -249,7 +276,7 @@ export default function Dashboard({ isPrivateView = false }) {
       value: totalNotificacoes,
       icon: Users,
       color: "blue",
-      subtext: "Registros importados.",
+      subtext: "Registros no período.",
     },
     {
       title: "Casos em Alerta (Graves)",
@@ -287,7 +314,6 @@ export default function Dashboard({ isPrivateView = false }) {
           onClose={() => setIsSidebarOpen(false)}
         />
       )}
-
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
         <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
           <div className="flex items-center gap-4">
@@ -299,7 +325,6 @@ export default function Dashboard({ isPrivateView = false }) {
               <Menu className="size-6 group-hover:scale-110 transition-transform duration-200" />
             </button>
           </div>
-
           <div className="flex items-center gap-4 text-white/90">
             <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
               <Bell className="size-5" />
@@ -323,11 +348,45 @@ export default function Dashboard({ isPrivateView = false }) {
               </p>
             </div>
 
-            <EndemiaSelector
-              options={endemiasDisponiveis}
-              value={endemiaSelecionada}
-              onChange={setEndemiaSelecionada}
-            />
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              {/* NOVO: Seletor de Período Temporal */}
+              <div className="relative w-full sm:w-auto flex items-center bg-white border border-slate-200 rounded-lg focus-within:ring-2 focus-within:ring-[#4180ab]/50 shadow-sm transition-all overflow-hidden">
+                <div className="pl-3 text-slate-400">
+                  <CalendarDays className="w-4 h-4" />
+                </div>
+                <select
+                  value={periodoFiltro}
+                  onChange={(e) => setPeriodoFiltro(e.target.value)}
+                  className="bg-transparent text-slate-700 font-medium px-3 py-2 pr-8 appearance-none focus:outline-none cursor-pointer w-full sm:w-auto text-sm"
+                >
+                  <option value="todos">Todo o Período</option>
+                  <option value="ultimoMes">Último Mês</option>
+                </select>
+                {/* Ícone customizado de seta para não depender do nativo feio */}
+                <div className="absolute right-3 pointer-events-none text-slate-400">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Seletor de Endemia */}
+              <EndemiaSelector
+                options={endemiasDisponiveis}
+                value={endemiaSelecionada}
+                onChange={setEndemiaSelecionada}
+              />
+            </div>
           </div>
 
           {loading ? (
@@ -337,34 +396,34 @@ export default function Dashboard({ isPrivateView = false }) {
           ) : (
             <>
               {endemiaSelecionada.id === "violencia" && isPrivateView ? (
-                <DashboardViolencia pacientes={pacientes} />
+                <DashboardViolencia pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "sifilis" ? (
                 <DashboardSifilis
-                  pacientes={pacientes}
+                  pacientes={pacientesFiltrados}
                   distribuicaoUbs={distribuicaoUbs}
                 />
               ) : endemiaSelecionada.id === "tuberculose" ? (
-                <DashboardTuberculose pacientes={pacientes} />
+                <DashboardTuberculose pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "chagas" ? (
-                <DashboardChagas pacientes={pacientes} />
+                <DashboardChagas pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "hanseniase" ? (
-                <DashboardHanseniase pacientes={pacientes} />
+                <DashboardHanseniase pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "hepatite" ? (
-                <DashboardHepatite pacientes={pacientes} />
+                <DashboardHepatite pacientes={pacientesFiltrados} />
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 overflow-hidden w-full">
-                      <CurvaEpidemica pacientes={pacientes} />
+                      <CurvaEpidemica pacientes={pacientesFiltrados} />
                     </div>
                     <div className="lg:col-span-1 overflow-hidden w-full">
-                      <StatusDonut pacientes={pacientes} />
+                      <StatusDonut pacientes={pacientesFiltrados} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 overflow-hidden w-full">
-                      <PerfilDemografico pacientes={pacientes} />
+                      <PerfilDemografico pacientes={pacientesFiltrados} />
                     </div>
                     <DistribuicaoQuadrante distribuicaoUbs={distribuicaoUbs} />
                     <CasosRecentes
