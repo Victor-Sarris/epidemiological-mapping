@@ -431,17 +431,17 @@ export default function SystemInformation() {
                           </td>
                         ))}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex justify-end gap-2">
                             <button
                               onClick={() => handleOpenModal(item)}
-                              className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors"
+                              className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
                               title="Editar"
                             >
                               <Edit className="size-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors"
+                              className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors cursor-pointer"
                               title="Excluir"
                             >
                               <Trash2 className="size-4" />
