@@ -6,7 +6,7 @@ import {
   Activity,
   CircleQuestionMark,
   X,
-  SquareLibrary,
+  Database,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -26,9 +26,9 @@ const NAV_ITEMS = [
     label: "Dúvidas Frequentes",
   },
   {
-    path: "/mudar-depois",
-    icon: SquareLibrary,
-    label: "Informações Do Sistema",
+    path: "/profissional/informacoes-sistema",
+    icon: Database,
+    label: "Administração Do Sistema",
   },
 ];
 
@@ -60,11 +60,11 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
             className="flex items-center gap-3 group cursor-pointer"
             onClick={onClose}
           >
-            <div className="bg-[#054060]/10 p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
-              <Activity className="size-5 text-[#054060]" />
+            <div className="bg-[#538CB3]/10 p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
+              <Activity className="size-5 text-[#538CB3]" />
             </div>
             <span className="text-xl font-black tracking-tight text-slate-900">
-              Epi<span className="text-[#054060]">Data</span>
+              Epi<span className="text-[#538CB3]">Data</span>
             </span>
           </Link>
 
@@ -91,7 +91,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                     onClick={onClose}
                     className={`flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 group ${
                       active
-                        ? "bg-[#054060] text-white shadow-lg shadow-[#054060]/20 translate-x-1"
+                        ? "bg-[#538CB3] text-white shadow-lg shadow-[#054060]/20 translate-x-1"
                         : "text-slate-500 hover:bg-slate-50 hover:text-[#054060] hover:translate-x-1"
                     }`}
                   >

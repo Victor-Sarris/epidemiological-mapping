@@ -16,6 +16,8 @@ import MapChaga from "./maps/MapChagas.jsx";
 import MapHans from "./maps/MapHans.jsx";
 import MapHepa from "./maps/MapHepa.jsx";
 import MapViolencia from "./maps/MapViolencia.jsx";
+import SystemInformation from "./SystemInformation.jsx";
+import NotFound from "./NotFound.jsx";
 
 function App() {
   return (
@@ -55,6 +57,7 @@ function App() {
               element={<Dashboard isPrivateView={false} />}
             />
             <Route path="/suporte" element={<Support />} />
+            <Route path="*" element={<NotFound />} />
 
             {/* =================== Rotas Privadas Admin ===================*/}
             <Route
@@ -96,6 +99,10 @@ function App() {
             <Route
               path="profissional/suporte"
               element={<Support isPrivateView={true} />}
+            />
+            <Route
+              path="profissional/informacoes-sistema"
+              element={<SystemInformation isPrivateView={true} />}
             />
           </Routes>
         </BrowserRouter>
