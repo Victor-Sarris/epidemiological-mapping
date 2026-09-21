@@ -1,15 +1,18 @@
 import React from "react";
-import { X } from "lucide-react";
+import { X, ReceiptText } from "lucide-react";
 
 export default function TermsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
         {/* Cabeçalho */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-slate-800">Termos de Uso</h2>
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 bg-[#054060] text-white rounded-t-3xl">
+          <div className="flex items-center gap-3">
+            <ReceiptText className="size-6" />
+            <h2 className="text-xl font-bold text-white">Termos de Uso</h2>
+          </div>
           <button
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"

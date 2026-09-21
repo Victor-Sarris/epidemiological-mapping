@@ -26,8 +26,6 @@ import DashboardChagas from "./DashBoardChagas.jsx";
 import DashboardHanseniase from "./DashBoardHans.jsx";
 import DashboardHepatite from "./DashBoardHepa.jsx";
 import DashboardViolencia from "./private/DashBoardViolencia.jsx";
-
-// Importando o novo componente
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
 
 const ENDEMIAS = [
