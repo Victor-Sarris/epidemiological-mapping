@@ -18,6 +18,7 @@ import MapHepa from "./maps/MapHepa.jsx";
 import MapViolencia from "./maps/MapViolencia.jsx";
 import SystemInformation from "./SystemInformation.jsx";
 import NotFound from "./NotFound.jsx";
+import ProtectedRoute from "@/utils/ProtectedRoute.jsx";
 
 function App() {
   return (
@@ -60,50 +61,52 @@ function App() {
             <Route path="*" element={<NotFound />} />
 
             {/* =================== Rotas Privadas Admin ===================*/}
-            <Route
-              path="/profissional/dashboard"
-              element={<Dashboard isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico"
-              element={<EpidemiologicMap isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/tuberculose"
-              element={<MapTubercu isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/sifi"
-              element={<MapSifi isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/dengue"
-              element={<MapDengue isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/chagas"
-              element={<MapChaga isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/hanseniase"
-              element={<MapHans isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/hepatite"
-              element={<MapHepa isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/mapa-epidemiologico/endemias/violenciadom"
-              element={<MapViolencia isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/suporte"
-              element={<Support isPrivateView={true} />}
-            />
-            <Route
-              path="profissional/informacoes-sistema"
-              element={<SystemInformation isPrivateView={true} />}
-            />
+            <Route element={<ProtectedRoute />}>
+              <Route
+                path="/profissional/dashboard"
+                element={<Dashboard isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico"
+                element={<EpidemiologicMap isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/tuberculose"
+                element={<MapTubercu isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/sifi"
+                element={<MapSifi isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/dengue"
+                element={<MapDengue isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/chagas"
+                element={<MapChaga isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/hanseniase"
+                element={<MapHans isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/hepatite"
+                element={<MapHepa isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/violenciadom"
+                element={<MapViolencia isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/suporte"
+                element={<Support isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/informacoes-sistema"
+                element={<SystemInformation isPrivateView={true} />}
+              />
+            </Route>
           </Routes>
         </BrowserRouter>
       </AuthProvider>

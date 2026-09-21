@@ -1,13 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ShieldAlert, ArrowLeft, Home } from "lucide-react";
+import ParticlesBg from "particles-bg";
 
 export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-6 text-slate-800">
-      <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-200 text-center max-w-lg w-full animate-in zoom-in-95 duration-500">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-slate-800">
+      <ParticlesBg type="circle" bg={true} />
+
+      <div className="relative z-10 bg-white p-8 sm:p-12 rounded-3xl shadow-sm border border-slate-200 text-center max-w-lg w-full animate-in zoom-in-95 duration-500">
         <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
           <ShieldAlert className="size-12 text-rose-500" />
         </div>

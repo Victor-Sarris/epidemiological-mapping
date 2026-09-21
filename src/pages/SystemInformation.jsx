@@ -313,7 +313,7 @@ export default function SystemInformation() {
               <button
                 onClick={fetchDados}
                 disabled={loading}
-                className="p-2.5 bg-white border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-50"
+                className="p-2.5 bg-white border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors shadow-sm hover:cursor-pointer disabled:opacity-50"
                 title="Atualizar Dados"
               >
                 <RefreshCw
@@ -353,14 +353,14 @@ export default function SystemInformation() {
               <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
                 <button
                   onClick={() => setIsImportModalOpen(true)}
-                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
+                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
                 >
                   <Upload className="size-4" />
                   Importar Arquivo
                 </button>
                 <button
                   onClick={() => handleOpenModal()}
-                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm"
+                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
                 >
                   <Plus className="size-4" />
                   Adicionar Registro
@@ -549,7 +549,6 @@ export default function SystemInformation() {
         </div>
       )}
 
-      {/* Modal de Formulário Manual (Criar / Editar) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
