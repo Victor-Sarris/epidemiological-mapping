@@ -41,7 +41,7 @@ function Home() {
       <ParticlesBg type="cobweb" color="#054060" num={60} bg={true} />
 
       {/* Lado Esquerdo - Importante manter o 'relative z-10' */}
-      <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:p-16 relative z-10 -mt-14">
+      <div className="flex-1 flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:p-16 relative z-10 md:-mt-14">
         <div className="max-w-xl mx-auto w-full">
           <img
             src={EpiDataLogo}
@@ -99,7 +99,7 @@ function Home() {
         </div>
       </div>
 
-      <div className="w-full lg:w-120 bg-white/80 backdrop-blur-lg flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:px-16 lg:py-16 border-t lg:border-t-0 lg:border-l border-slate-200/50 relative z-10 shadow-[0_0_40px_-15px_rgba(0,0,0,0.1)] -mt-14">
+      <div className="w-full lg:w-120 bg-white/80 backdrop-blur-lg flex flex-col justify-center p-6 sm:p-10 md:p-12 lg:px-16 lg:py-16 border-t lg:border-t-0 lg:border-l border-slate-200/50 relative z-10 shadow-[0_0_40px_-15px_rgba(0,0,0,0.1)] md:-mt-14">
         <div className="max-w-md mx-auto w-full space-y-10 lg:space-y-12">
           {/* Acesso Público */}
           <div>
