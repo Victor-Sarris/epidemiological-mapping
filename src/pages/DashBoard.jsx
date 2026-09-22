@@ -105,8 +105,9 @@ export default function Dashboard({ isPrivateView = false }) {
   const [modalAberto, setModalAberto] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // NOVO: Estado para o filtro de período
-  const [periodoFiltro, setPeriodoFiltro] = useState("todos"); // "todos" ou "ultimoMes"
+  const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -130,26 +131,49 @@ export default function Dashboard({ isPrivateView = false }) {
 
   // NOVO: Lógica de filtragem dos pacientes com base no período
   const pacientesFiltrados = useMemo(() => {
-    if (periodoFiltro === "todos") return pacientes;
+    if (filtroTipo === "todos") return pacientes;
 
     const hoje = new Date();
-    // Volta exatamente 1 mês atrás (ex: 21 de Setembro vira 21 de Agosto)
-    const ultimoMes = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth() - 1,
-      hoje.getDate(),
-    );
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroTipo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(hoje.getFullYear(), 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(hoje.getFullYear() - 1, 0, 1);
+        dataRefFim = new Date(hoje.getFullYear() - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (!dataInicio || !dataFim) return pacientes;
+        // Adiciona o horário base para evitar problemas de fuso horário (Timezone)
+        dataRefInicio = new Date(dataInicio + "T00:00:00");
+        dataRefFim = new Date(dataFim + "T23:59:59");
+        break;
+      default:
+        return pacientes;
+    }
 
     return pacientes.filter((p) => {
       const dt = p.data_notificacao || p.dt_notific;
       if (!dt) return false;
+
       const [ano, mes, dia] = dt.split("-");
       const dataNotificacao = new Date(ano, mes - 1, dia);
 
-      // Retorna apenas se a notificação estiver entre há 1 mês e hoje
-      return dataNotificacao >= ultimoMes && dataNotificacao <= hoje;
+      return dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim;
     });
-  }, [pacientes, periodoFiltro]);
+  }, [pacientes, filtroTipo, dataInicio, dataFim]);
 
   const obterBairroNormalizado = (endereco) => {
     if (!endereco) return "";
@@ -361,35 +385,70 @@ export default function Dashboard({ isPrivateView = false }) {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              {/* NOVO: Seletor de Período Temporal */}
-              <div className="relative w-full sm:w-auto flex items-center bg-white border border-slate-200 rounded-lg focus-within:ring-2 focus-within:ring-[#4180ab]/50 shadow-sm transition-all overflow-hidden">
-                <div className="pl-3 text-slate-400">
-                  <CalendarDays className="w-4 h-4" />
-                </div>
-                <select
-                  value={periodoFiltro}
-                  onChange={(e) => setPeriodoFiltro(e.target.value)}
-                  className="bg-transparent text-slate-700 font-medium px-3 py-2 pr-8 appearance-none focus:outline-none cursor-pointer w-full sm:w-auto text-sm"
-                >
-                  <option value="todos">Todo o Período</option>
-                  <option value="ultimoMes">Último Mês</option>
-                </select>
-                {/* Ícone customizado de seta para não depender do nativo feio */}
-                <div className="absolute right-3 pointer-events-none text-slate-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              {/* Seletor de Período Temporal */}
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <div className="relative w-full sm:w-auto flex items-center bg-white border border-slate-200 rounded-lg focus-within:ring-2 focus-within:ring-[#4180ab]/50 shadow-sm transition-all overflow-hidden">
+                  <div className="pl-3 text-slate-400">
+                    <CalendarDays className="w-4 h-4" />
+                  </div>
+                  <select
+                    value={filtroTipo}
+                    onChange={(e) => {
+                      setFiltroTipo(e.target.value);
+                      // Limpa as datas personalizadas ao trocar de filtro para não prender o estado
+                      if (e.target.value !== "personalizado") {
+                        setDataInicio("");
+                        setDataFim("");
+                      }
+                    }}
+                    className="bg-transparent text-slate-700 font-medium px-3 py-2 pr-8 appearance-none focus:outline-none cursor-pointer w-full sm:w-auto text-sm"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
+                    <option value="todos">Todo o Período</option>
+                    <option value="ultimoMes">Último Mês</option>
+                    <option value="ultimos3Meses">Últimos 3 Meses</option>
+                    <option value="ultimos6Meses">Últimos 6 Meses</option>
+                    <option value="esteAno">Este Ano</option>
+                    <option value="anoPassado">Ano Passado</option>
+                    <option value="personalizado">Período Específico...</option>
+                  </select>
+
+                  <div className="absolute right-3 pointer-events-none text-slate-400">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
                 </div>
+
+                {/* Inputs para Período Personalizado (Renderização Condicional) */}
+                {filtroTipo === "personalizado" && (
+                  <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200">
+                    <input
+                      type="date"
+                      value={dataInicio}
+                      onChange={(e) => setDataInicio(e.target.value)}
+                      className="text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 shadow-sm"
+                    />
+                    <span className="text-slate-400 font-medium text-sm">
+                      até
+                    </span>
+                    <input
+                      type="date"
+                      value={dataFim}
+                      onChange={(e) => setDataFim(e.target.value)}
+                      className="text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 shadow-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Seletor de Endemia */}
