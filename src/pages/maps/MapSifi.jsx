@@ -1825,6 +1825,19 @@ const marcadores = [
     lng: -43.01737203229874,
     lat: -6.763413487734799,
   },
+  {
+    id: "pam",
+    name: "UBS do PAM",
+    label: "UBS do PAM",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#D9B885",
+    image: defaultImage,
+    lng: -43.02289009094238,
+    lat: -6.766993552136549,
+  },
 
   // =========== UBSs da zona rural ===========
   {

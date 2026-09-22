@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   {
     path: "/profissional/informacoes-sistema",
     icon: Database,
-    label: "Administração Do Sistema",
+    label: "Gerenciar Tabelas",
   },
 ];
 
