@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -7,6 +7,7 @@ import {
   CircleQuestionMark,
   X,
   Database,
+  ChevronLeft,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -34,6 +35,15 @@ const NAV_ITEMS = [
 
 const SidebarPrivate = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  // Sincroniza a largura da sidebar com uma variável CSS global
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--sidebar-width",
+      isCollapsed ? "5rem" : "16rem",
+    );
+  }, [isCollapsed]);
 
   const isActive = (itemPath) => {
     const rotaFinal = itemPath.split("/").pop();
@@ -50,34 +60,66 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
       )}
 
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-white border-r border-slate-100 flex flex-col z-50 transition-transform duration-300 ease-in-out shadow-[4px_0_24px_rgba(0,0,0,0.02)] ${
+        className={`fixed left-0 top-0 h-screen bg-white border-r border-slate-100 flex flex-col z-50 transition-all duration-300 ease-in-out shadow-[4px_0_24px_rgba(0,0,0,0.02)] w-64 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0`}
+        } md:translate-x-0 ${isCollapsed ? "md:w-20" : "md:w-64"}`}
       >
-        <div className="h-18 flex items-center justify-between px-6 border-b border-slate-100">
+        {/* Botão de Encolher (Exclusivo para Desktop) */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="hidden md:flex absolute -right-3 top-8 bg-white border border-slate-200 rounded-full p-1 z-50 hover:bg-slate-50 transition-transform duration-300 shadow-sm cursor-pointer"
+        >
+          <ChevronLeft
+            className={`size-4 text-slate-500 transition-transform duration-300 ${
+              isCollapsed ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+
+        {/* Cabeçalho / Logo */}
+        <div
+          className={`h-18 flex items-center ${
+            isCollapsed ? "justify-center px-0" : "justify-between px-6"
+          } border-b border-slate-100 transition-all duration-300`}
+        >
           <Link
             to="/profissional/dashboard"
-            className="flex items-center gap-3 group cursor-pointer"
+            className={`flex items-center group cursor-pointer ${
+              isCollapsed ? "justify-center" : "gap-3"
+            }`}
             onClick={onClose}
           >
-            <div className="bg-[#538CB3]/10 p-2 rounded-xl group-hover:scale-105 transition-transform duration-300">
+            <div className="bg-[#538CB3]/10 p-2 rounded-xl group-hover:scale-105 transition-transform duration-300 shrink-0">
               <Activity className="size-5 text-[#538CB3]" />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900">
+            <span
+              className={`text-xl font-black tracking-tight text-slate-900 transition-all duration-300 whitespace-nowrap overflow-hidden ${
+                isCollapsed ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+              }`}
+            >
               Epi<span className="text-[#538CB3]">Data</span>
             </span>
           </Link>
 
-          <button
-            onClick={onClose}
-            className="md:hidden text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"
-          >
-            <X className="size-5" />
-          </button>
+          {!isCollapsed && (
+            <button
+              onClick={onClose}
+              className="md:hidden text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"
+            >
+              <X className="size-5" />
+            </button>
+          )}
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-4">
-          <p className="px-2 text-xs font-bold tracking-widest text-slate-400 uppercase mb-4">
+        {/* Navegação Principal */}
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden py-6 px-4 custom-scrollbar">
+          <p
+            className={`px-2 text-xs font-bold tracking-widest text-slate-400 uppercase transition-all duration-300 overflow-hidden whitespace-nowrap ${
+              isCollapsed
+                ? "max-h-0 opacity-0 mb-0"
+                : "max-h-10 opacity-100 mb-4"
+            }`}
+          >
             Menu Principal
           </p>
 
@@ -89,20 +131,31 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                   <Link
                     to={path}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 group ${
+                    title={isCollapsed ? label : ""}
+                    className={`flex items-center ${
+                      isCollapsed ? "justify-center px-0" : "px-4 gap-3"
+                    } py-3 text-sm font-semibold rounded-xl transition-all duration-300 group ${
                       active
-                        ? "bg-[#538CB3] text-white shadow-lg shadow-[#054060]/20 translate-x-1"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-[#054060] hover:translate-x-1"
+                        ? "bg-[#538CB3] text-white shadow-lg shadow-[#054060]/20 md:translate-x-1"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-[#054060] md:hover:translate-x-1"
                     }`}
                   >
                     <Icon
-                      className={`size-5 transition-colors duration-300 ${
+                      className={`size-5 shrink-0 transition-colors duration-300 ${
                         active
                           ? "text-white"
                           : "text-slate-400 group-hover:text-[#054060]"
                       }`}
                     />
-                    {label}
+                    <span
+                      className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${
+                        isCollapsed
+                          ? "max-w-0 opacity-0"
+                          : "max-w-[200px] opacity-100"
+                      }`}
+                    >
+                      {label}
+                    </span>
                   </Link>
                 </li>
               );
@@ -110,13 +163,22 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
           </ul>
         </nav>
 
+        {/* Rodapé (Status do Sistema) */}
         <div className="p-4 border-t border-slate-100 bg-white">
-          <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl cursor-default">
-            <div className="relative flex size-2.5">
+          <div
+            className={`flex items-center ${
+              isCollapsed ? "justify-center px-0" : "gap-3 px-4"
+            } py-3 bg-slate-50 border border-slate-100 rounded-xl cursor-default transition-all duration-300`}
+          >
+            <div className="relative flex size-2.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full size-2.5 bg-emerald-500"></span>
             </div>
-            <div className="flex flex-col">
+            <div
+              className={`flex flex-col overflow-hidden transition-all duration-300 whitespace-nowrap ${
+                isCollapsed ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+              }`}
+            >
               <span className="text-[13px] font-bold text-slate-700 leading-none mb-1">
                 Acesso Profissional
               </span>

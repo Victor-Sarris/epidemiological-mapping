@@ -275,7 +275,7 @@ export default function SystemInformation() {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto ml-0 md:ml-64 relative">
+      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-sm border-b border-[#043048]/20">
           <div className="flex items-center gap-3">
             <button

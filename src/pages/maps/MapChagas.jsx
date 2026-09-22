@@ -2104,7 +2104,7 @@ export default function MapChagas({ isPrivateView = false }) {
         />
       )}
 
-      <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
+      <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-4 md:px-8 py-3 md:py-5 bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
