@@ -7,62 +7,53 @@ import {
   FlaskConical,
 } from "lucide-react";
 import {
-  AreaChart, // Importações alteradas para gerar curvas
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 
-export default function DashboardIntoxicacao({ pacientes = [] }) {
-  // 1. Processamento e Agrupamento de Dados (Robustez nas chaves)
-  const dadosEvolucao = useMemo(() => {
-    const agrupado = pacientes.reduce((acc, p) => {
-      // Captura o ano e número independente de como a chave venha escrita do importador
-      const anoRaw = p.ano_notific || p["ANO NOTIFIC"] || p.ano || "N/I";
-      const casosRaw =
-        p.nu_notific || p["NU NOTIFIC"] || p.casos || p.total || 1;
+const COLORS = ["#8b5cf6", "#d946ef", "#f43f5e", "#0ea5e9", "#10b981"];
 
-      const ano = String(anoRaw);
-      const casos = Number(casosRaw) || 0;
+export default function DashboardIntoxicacao({ pacientes }) {
+  // 1. Processamento de KPIs
+  const totalCasos = pacientes.reduce(
+    (sum, p) => sum + Number(p.nu_notific || 1),
+    0,
+  );
 
-      if (!acc[ano]) {
-        acc[ano] = 0;
-      }
-      acc[ano] += casos;
-      return acc;
-    }, {});
-
-    // Converte o objeto em array e ordena cronologicamente
-    return Object.entries(agrupado)
-      .map(([ano, casos]) => ({ ano, casos }))
-      .sort((a, b) => {
-        if (a.ano === "N/I") return -1;
-        if (b.ano === "N/I") return 1;
-        return Number(a.ano) - Number(b.ano);
-      });
-  }, [pacientes]);
-
-  // 2. Processamento de KPIs usando os dados tratados
-  const totalCasos = dadosEvolucao.reduce((sum, item) => sum + item.casos, 0);
-
-  // Conta apenas anos válidos para a média
-  const anosValidos = dadosEvolucao.filter((item) => item.ano !== "N/I").length;
-  const anosAtivos = anosValidos > 0 ? anosValidos : 1;
+  const anosAtivos = pacientes.length;
 
   const anoMaisAfetado = useMemo(() => {
-    if (!dadosEvolucao.length) return { ano: "Nenhum", casos: 0 };
-    return [...dadosEvolucao].sort((a, b) => b.casos - a.casos)[0];
-  }, [dadosEvolucao]);
+    if (!pacientes.length) return { ano: "Nenhum", casos: 0 };
+    const maior = [...pacientes].sort(
+      (a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0),
+    )[0];
+    return {
+      ano: maior.ano_notific || "N/I",
+      casos: maior.nu_notific || 1,
+    };
+  }, [pacientes]);
 
-  const mediaPorAno =
-    anosValidos > 0 ? (totalCasos / anosValidos).toFixed(1) : 0;
+  const mediaPorAno = anosAtivos > 0 ? (totalCasos / anosAtivos).toFixed(1) : 0;
+
+  // 2. Gráfico de Distribuição por Ano
+  const dadosEvolucao = useMemo(() => {
+    return [...pacientes]
+      .sort((a, b) => Number(a.ano_notific || 0) - Number(b.ano_notific || 0))
+      .map((p) => ({
+        ano: String(p.ano_notific || "N/I"),
+        casos: Number(p.nu_notific || 0),
+      }));
+  }, [pacientes]);
 
   // 3. Tabela de Consolidação
-  const listaAnos = [...dadosEvolucao].sort(
-    (a, b) => Number(b.ano) - Number(a.ano),
+  const listaAnos = [...pacientes].sort(
+    (a, b) => Number(b.ano_notific || 0) - Number(a.ano_notific || 0),
   );
 
   return (
@@ -79,7 +70,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
         />
         <KpiCard
           title="Anos Registados"
-          value={anosValidos}
+          value={anosAtivos}
           icon={Calendar}
           color="bg-indigo-500"
           bgLight="bg-indigo-50"
@@ -103,7 +94,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
         />
       </div>
 
-      {/* Linha 2: Gráfico de Curva Anual */}
+      {/* Linha 2: Gráfico de Barras Anual */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sm:p-6 w-full h-80 flex flex-col">
         <h3 className="text-base sm:text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
           <FlaskConical className="size-5 text-purple-600" /> Evolução Anual de
@@ -111,17 +102,10 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
         </h3>
         <div className="flex-1 w-full h-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
+            <BarChart
               data={dadosEvolucao}
               margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
             >
-              <defs>
-                {/* Criação de um gradiente para o preenchimento da curva */}
-                <linearGradient id="colorCasos" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
@@ -139,26 +123,22 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
                 tick={{ fill: "#64748b", fontSize: 12 }}
               />
               <Tooltip
-                cursor={{
-                  stroke: "#cbd5e1",
-                  strokeWidth: 1,
-                  strokeDasharray: "3 3",
-                }}
+                cursor={{ fill: "#f8fafc" }}
                 contentStyle={{
                   borderRadius: "12px",
                   border: "none",
                   boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                 }}
               />
-              <Area
-                type="monotone" // Este atributo transforma as linhas retas em curvas suaves
-                dataKey="casos"
-                stroke="#8b5cf6"
-                strokeWidth={3}
-                fillOpacity={1}
-                fill="url(#colorCasos)"
-              />
-            </AreaChart>
+              <Bar dataKey="casos" radius={[4, 4, 0, 0]}>
+                {dadosEvolucao.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -193,7 +173,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
                     <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold bg-purple-100 text-purple-700">
                       A
                     </div>
-                    Consolidado {anoItem.ano}
+                    Consolidado {anoItem.ano_notific}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
                     <span className="px-2 py-1 rounded-md text-[10px] sm:text-xs font-bold inline-block bg-slate-50 text-slate-600 border border-slate-200">
@@ -202,7 +182,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
                   </td>
                   <td className="px-4 py-3 text-right whitespace-nowrap">
                     <span className="font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-full">
-                      {anoItem.casos}
+                      {anoItem.nu_notific || 0}
                     </span>
                   </td>
                 </tr>
