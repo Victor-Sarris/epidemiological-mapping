@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
@@ -11,6 +11,8 @@ import {
   Bell,
   UserCircle,
   CalendarDays,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
@@ -90,6 +92,16 @@ const BAIRRO_PARA_UBS = {
   "PEDRO SIMPLICIO": "UBS Pedro Simplício",
 };
 
+const PERIODO_OPTIONS = [
+  { value: "todos", label: "Todo o Período" },
+  { value: "ultimoMes", label: "Último Mês" },
+  { value: "ultimos3Meses", label: "Últimos 3 Meses" },
+  { value: "ultimos6Meses", label: "Últimos 6 Meses" },
+  { value: "esteAno", label: "Este Ano" },
+  { value: "anoPassado", label: "Ano Passado" },
+  { value: "personalizado", label: "Período Específico..." },
+];
+
 export default function Dashboard({ isPrivateView = false }) {
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
@@ -108,6 +120,23 @@ export default function Dashboard({ isPrivateView = false }) {
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+
+  const [isPeriodoDropdownOpen, setIsPeriodoDropdownOpen] = useState(false);
+  const periodoDropdownRef = useRef(null);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        periodoDropdownRef.current &&
+        !periodoDropdownRef.current.contains(event.target)
+      ) {
+        setIsPeriodoDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -387,65 +416,88 @@ export default function Dashboard({ isPrivateView = false }) {
             <div className="flex flex-col sm:flex-row items-center gap-3">
               {/* Seletor de Período Temporal */}
               <div className="flex flex-col sm:flex-row items-center gap-3">
-                <div className="relative w-full sm:w-auto flex items-center bg-white border border-slate-200 rounded-lg focus-within:ring-2 focus-within:ring-[#4180ab]/50 shadow-sm transition-all overflow-hidden">
-                  <div className="pl-3 text-slate-400">
-                    <CalendarDays className="w-4 h-4" />
-                  </div>
-                  <select
-                    value={filtroTipo}
-                    onChange={(e) => {
-                      setFiltroTipo(e.target.value);
-                      // Limpa as datas personalizadas ao trocar de filtro para não prender o estado
-                      if (e.target.value !== "personalizado") {
-                        setDataInicio("");
-                        setDataFim("");
-                      }
-                    }}
-                    className="bg-transparent text-slate-700 font-medium px-3 py-2 pr-8 appearance-none focus:outline-none cursor-pointer w-full sm:w-auto text-sm"
+                {/* Dropdown Customizado Moderno */}
+                <div
+                  className="relative w-full sm:w-auto min-w-[200px]"
+                  ref={periodoDropdownRef}
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIsPeriodoDropdownOpen(!isPeriodoDropdownOpen)
+                    }
+                    className={`flex items-center justify-between w-full bg-white border ${
+                      isPeriodoDropdownOpen
+                        ? "border-[#4180ab] ring-2 ring-[#4180ab]/20"
+                        : "border-slate-200"
+                    } text-slate-700 rounded-lg px-4 py-2.5 outline-none font-medium shadow-sm transition-all hover:border-[#4180ab]/50 cursor-pointer`}
                   >
-                    <option value="todos">Todo o Período</option>
-                    <option value="ultimoMes">Último Mês</option>
-                    <option value="ultimos3Meses">Últimos 3 Meses</option>
-                    <option value="ultimos6Meses">Últimos 6 Meses</option>
-                    <option value="esteAno">Este Ano</option>
-                    <option value="anoPassado">Ano Passado</option>
-                    <option value="personalizado">Período Específico...</option>
-                  </select>
+                    <div className="flex items-center gap-2 truncate">
+                      <CalendarDays className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm truncate">
+                        {PERIODO_OPTIONS.find((opt) => opt.value === filtroTipo)
+                          ?.label || "Selecione"}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                        isPeriodoDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
 
-                  <div className="absolute right-3 pointer-events-none text-slate-400">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </div>
+                  {/* Menu Flutuante do Dropdown */}
+                  {isPeriodoDropdownOpen && (
+                    <div className="absolute top-full right-0 sm:left-0 mt-2 w-full sm:w-56 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="p-1 flex flex-col">
+                        {PERIODO_OPTIONS.map((opcao) => {
+                          const isSelected = filtroTipo === opcao.value;
+                          return (
+                            <button
+                              key={opcao.value}
+                              onClick={() => {
+                                setFiltroTipo(opcao.value);
+                                if (opcao.value !== "personalizado") {
+                                  setDataInicio("");
+                                  setDataFim("");
+                                }
+                                setIsPeriodoDropdownOpen(false);
+                              }}
+                              className={`flex items-center justify-between w-full px-3 py-2.5 text-sm text-left rounded-lg transition-colors cursor-pointer ${
+                                isSelected
+                                  ? "bg-[#4180ab]/10 text-[#4180ab] font-bold"
+                                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                              }`}
+                            >
+                              <span className="truncate">{opcao.label}</span>
+                              {isSelected && (
+                                <Check className="w-4 h-4 text-[#4180ab]" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Inputs para Período Personalizado (Renderização Condicional) */}
                 {filtroTipo === "personalizado" && (
-                  <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200 bg-white border border-slate-200 p-1 rounded-lg shadow-sm">
                     <input
                       type="date"
                       value={dataInicio}
                       onChange={(e) => setDataInicio(e.target.value)}
-                      className="text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 shadow-sm"
+                      className="text-sm text-slate-700 bg-transparent rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 hover:bg-slate-50 cursor-pointer"
                     />
-                    <span className="text-slate-400 font-medium text-sm">
+                    <span className="text-slate-300 font-medium text-sm">
                       até
                     </span>
                     <input
                       type="date"
                       value={dataFim}
                       onChange={(e) => setDataFim(e.target.value)}
-                      className="text-sm text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 shadow-sm"
+                      className="text-sm text-slate-700 bg-transparent rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 hover:bg-slate-50 cursor-pointer"
                     />
                   </div>
                 )}
