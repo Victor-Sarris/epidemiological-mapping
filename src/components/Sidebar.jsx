@@ -12,6 +12,11 @@ const NAV_ITEMS = [
   { path: "/dashboard", icon: LayoutDashboard, label: "Dados Gerais" },
   { path: "/mapa-epidemiologico", icon: Map, label: "Mapa Epidemiológico" },
   { path: "/suporte", icon: CircleQuestionMark, label: "Dúvidas Frequentes" },
+  {
+    path: "/suporte",
+    icon: CircleQuestionMark,
+    label: "Acidentes e Intoxicações",
+  },
 ];
 
 const Sidebar = ({ isOpen, onClose }) => {

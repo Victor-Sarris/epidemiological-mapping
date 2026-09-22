@@ -28,6 +28,7 @@ import DashboardHanseniase from "./DashBoardHans.jsx";
 import DashboardHepatite from "./DashBoardHepa.jsx";
 import DashboardViolencia from "./private/DashBoardViolencia.jsx";
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
+import DashboardAcidentes from "./DashboardAcidentes.jsx";
 
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
@@ -36,6 +37,11 @@ const ENDEMIAS = [
   { id: "chagas", nome: "Chagas", endpoint: "/api/chagas/" },
   { id: "hanseniase", nome: "Hanseníase", endpoint: "/api/hans/" },
   { id: "hepatite", nome: "Hepatite", endpoint: "/api/hepatite/" },
+  {
+    id: "animaispec",
+    nome: "Animais Peçonhentos",
+    endpoint: "/api/animaispec/",
+  },
   {
     id: "violencia",
     nome: "Violência Domestica",
@@ -410,6 +416,8 @@ export default function Dashboard({ isPrivateView = false }) {
                 <DashboardHanseniase pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "hepatite" ? (
                 <DashboardHepatite pacientes={pacientesFiltrados} />
+              ) : endemiaSelecionada.id === "animaispec" ? (
+                <DashboardAcidentes pacientes={pacientesFiltrados} />
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />

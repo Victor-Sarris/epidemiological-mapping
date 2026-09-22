@@ -2064,6 +2064,8 @@ export default function MapSifi({ isPrivateView = false }) {
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
 
+      const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
+
       return {
         ...feature,
         properties: {
@@ -2146,11 +2148,16 @@ export default function MapSifi({ isPrivateView = false }) {
                     data={geoData}
                     fillPaint={{
                       "fill-color": ["get", "color"],
-                      "fill-opacity": 0.3,
+                      "fill-opacity": [
+                        "case",
+                        ["==", ["get", "casos"], 0],
+                        0.15,
+                        0.45,
+                      ],
                     }}
                     linePaint={{
                       "line-color": ["get", "color"],
-                      "line-width": 2,
+                      "line-width": ["case", ["==", ["get", "casos"], 0], 1, 2],
                       "line-dasharray": [2, 2],
                     }}
                     interactive={true}
