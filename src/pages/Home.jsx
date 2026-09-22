@@ -91,7 +91,7 @@ function Home() {
                   Controle de Surtos
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-1">
-                  Mapeamento de risco e suporte à decisão em tempo real.
+                  Mapeamento de risco com atualização mensal.
                 </p>
               </div>
             </div>

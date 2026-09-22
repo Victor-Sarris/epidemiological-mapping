@@ -384,7 +384,7 @@ export default function SystemInformation() {
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-[500px]">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-125">
             {/* Toolbar Principal */}
             <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center bg-slate-50/50">
               <div className="relative w-full sm:w-96">
@@ -417,7 +417,7 @@ export default function SystemInformation() {
             </div>
 
             <div className="flex-1 overflow-auto">
-              <table className="w-full text-left border-collapse min-w-[800px]">
+              <table className="w-full text-left border-collapse min-w-200">
                 <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
                   <tr>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
@@ -468,7 +468,7 @@ export default function SystemInformation() {
                         {colunas.map((col) => (
                           <td
                             key={col}
-                            className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate"
+                            className="px-6 py-4 text-sm text-slate-600 max-w-50 truncate"
                             title={item[col]}
                           >
                             {item[col] || (
