@@ -1611,7 +1611,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#1A66",
     image: ubsFloriano,
     lng: -43.02682240512934,
     lat: -6.770093782739466,
@@ -1624,7 +1624,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#1F3D99",
     image: dirceuArcoverde,
     lng: -43.035177909954896,
     lat: -6.765799779484518,
@@ -1637,7 +1637,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#6EBF89",
     image: joseParaguassu,
     lng: -43.00770775101921,
     lat: -6.773752245581162,
@@ -1650,7 +1650,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D8D087",
     image: santaCruz,
     lng: -43.00218329805059,
     lat: -6.761697944954173,
@@ -1663,7 +1663,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#9ABC76",
     image: TheodoroSobral,
     lng: -43.020540939559325,
     lat: -6.778873054851179,
@@ -1676,7 +1676,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#5888A2",
     image: pedroSimplicio,
     lng: -43.03129938856098,
     lat: -6.780671072283543,
@@ -1689,7 +1689,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D2C965",
     image: alfedroCarvalho,
     lng: -43.03492649035711,
     lat: -6.787711988762435,
@@ -1702,7 +1702,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D7A067",
     image: defaultImage,
     lng: -43.02848164082034,
     lat: -6.786913028924275,
@@ -1715,7 +1715,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D7DCA4",
     image: defaultImage,
     lng: -43.018652030194644,
     lat: -6.78669340844439,
@@ -1728,7 +1728,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#C79A89",
     image: RaimundoFilho,
     lng: -43.012394698425496,
     lat: -6.776288849546959,
@@ -1742,7 +1742,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#327F56",
     image: JasminaBucar,
     lng: -43.040365240768104,
     lat: -6.7808203604476915,
@@ -1755,7 +1755,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#C4BC56",
     image: postodeSaudeTaboca,
     lng: -43.042174574073606,
     lat: -6.770507792362777,
@@ -1768,7 +1768,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D289A5",
     image: VianaCarvalho,
     lng: -43.01058274720951,
     lat: -6.764758882936275,
@@ -1781,7 +1781,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#AE4F7B",
     image: camiloFilho,
     lng: -43.04194310195003,
     lat: -6.78623928806005,
@@ -1794,7 +1794,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#DEBD8A",
     image: pauloKalume,
     lng: -43.00642190016104,
     lat: -6.778271099329543,
@@ -1807,7 +1807,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#6DAF8F",
     image: VianaCarvalho,
     lng: -43.009957159718944,
     lat: -6.801771476889063,
@@ -1820,10 +1820,23 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#9F6BA8",
     image: joaoEliasOka,
     lng: -43.01737203229874,
     lat: -6.763413487734799,
+  },
+  {
+    id: "pam",
+    name: "UBS do PAM",
+    label: "UBS do PAM",
+    category: "UBS",
+    rating: 4,
+    reviews: 2,
+    hours: "07:00 AM - 5:00 PM",
+    color: "#D9B885",
+    image: defaultImage,
+    lng: -43.02289009094238,
+    lat: -6.766993552136549,
   },
 
   // =========== UBSs da zona rural ===========
@@ -1835,7 +1848,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#DEBB84",
     image: MargaridaAlvez,
     lng: -42.99622811510465,
     lat: -7.071558304760834,
@@ -1849,7 +1862,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D1D884",
     image: RaimundoBenvindoLima,
     lng: -42.907166149826985,
     lat: -7.321264212578072,
@@ -1862,7 +1875,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D1D884",
     image: RosaRodriguesCamelo,
     lng: -42.90072202285687,
     lat: -7.267051325394482,
@@ -1876,7 +1889,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#D78DA8",
     image: Morrinhos,
     lng: -43.02380440567498,
     lat: -6.8600533934180365,
@@ -1889,7 +1902,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#A771AE",
     image: UbsL3,
     lng: -42.92196772000125,
     lat: -6.785588080100101,
@@ -1902,7 +1915,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#5E8DA7",
     image: ProtasioMoraes,
     lng: -42.802106472732234,
     lat: -6.913968407079276,
@@ -1915,7 +1928,7 @@ const marcadores = [
     rating: 4,
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
-    color: "#8b5cf6",
+    color: "#77BB98",
     image: LeonardoDudima,
     lng: -43.262039544583175,
     lat: -6.786737604151918,
@@ -2101,6 +2114,7 @@ export default function MapDengue({ isPrivateView = false }) {
         // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
+      const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
 
       return {
         ...feature,
@@ -2128,7 +2142,7 @@ export default function MapDengue({ isPrivateView = false }) {
           onClose={() => setIsSidebarOpen(false)}
         />
       )}
-      <div className="flex-1 flex flex-col h-full relative ml-0 md:ml-64 w-full">
+      <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
@@ -2185,11 +2199,16 @@ export default function MapDengue({ isPrivateView = false }) {
                     data={geoData}
                     fillPaint={{
                       "fill-color": ["get", "color"],
-                      "fill-opacity": 0.3,
+                      "fill-opacity": [
+                        "case",
+                        ["==", ["get", "casos"], 0],
+                        0.15,
+                        0.45,
+                      ],
                     }}
                     linePaint={{
                       "line-color": ["get", "color"],
-                      "line-width": 2,
+                      "line-width": ["case", ["==", ["get", "casos"], 0], 1, 2],
                       "line-dasharray": [2, 2],
                     }}
                     interactive={true}
@@ -2213,7 +2232,10 @@ export default function MapDengue({ isPrivateView = false }) {
                       latitude={place.lat}
                     >
                       <MarkerContent>
-                        <div className="size-5 cursor-pointer rounded-full border-2 border-white bg-red-500 shadow-lg transition-transform h-6 w-6 hover:scale-110">
+                        <div
+                          className="size-5 cursor-pointer rounded-full border-2 border-white shadow-lg transition-transform h-6 w-6 hover:scale-110"
+                          style={{ backgroundColor: place.color }}
+                        >
                           <p className="text-center text-white font-bold">U</p>
                         </div>
 
