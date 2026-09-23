@@ -55,7 +55,7 @@ const ENDEMIAS = [
   {
     id: "violencia",
     nome: "Violência Doméstica",
-    endpoint: "/api/intoxicacao/",
+    endpoint: "/api/violenciadomestica/",
   },
 ];
 
@@ -106,7 +106,6 @@ const PERIODO_OPTIONS = [
 
 export default function Dashboard({ isPrivateView = false }) {
   const { user } = useAuth();
-  console.log("Objeto de Usuário logado:", user);
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
     : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
@@ -162,7 +161,6 @@ export default function Dashboard({ isPrivateView = false }) {
       });
   }, [endemiaSelecionada]);
 
-  // NOVO: Lógica de filtragem dos pacientes com base no período
   const pacientesFiltrados = useMemo(() => {
     if (filtroTipo === "todos") return pacientes;
 
