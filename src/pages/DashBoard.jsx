@@ -23,6 +23,8 @@ import {
 import KpisGrid from "../components/KpisGrid.jsx";
 import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
 import CasosRecentes from "../components/CasosRecentes.jsx";
+import { useAuth } from "@/contexts/AuthContext.jsx";
+import UserProfileMenu from "@/components/Modal/UserProfileMenu.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import DashboardChagas from "./DashBoardChagas.jsx";
@@ -52,7 +54,7 @@ const ENDEMIAS = [
   },
   {
     id: "violencia",
-    nome: "Violência Domestica",
+    nome: "Violência Doméstica",
     endpoint: "/api/intoxicacao/",
   },
 ];
@@ -103,6 +105,8 @@ const PERIODO_OPTIONS = [
 ];
 
 export default function Dashboard({ isPrivateView = false }) {
+  const { user } = useAuth();
+  console.log("Objeto de Usuário logado:", user);
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
     : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
@@ -394,10 +398,7 @@ export default function Dashboard({ isPrivateView = false }) {
             <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
               <Bell className="size-5" />
             </button>
-            <button className="flex items-center gap-2 p-1 pr-3 hover:bg-white/10 rounded-full transition-colors">
-              <UserCircle className="size-7" />
-              <span className="text-sm font-medium hidden sm:block">Admin</span>
-            </button>
+            <UserProfileMenu className="hover:cursor-pointer" />
           </div>
         </header>
 
