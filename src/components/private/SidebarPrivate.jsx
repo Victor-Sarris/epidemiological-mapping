@@ -8,6 +8,7 @@ import {
   X,
   Database,
   ChevronLeft,
+  Syringe,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -30,6 +31,11 @@ const NAV_ITEMS = [
     path: "/profissional/informacoes-sistema",
     icon: Database,
     label: "Gerenciar Tabelas",
+  },
+  {
+    path: "/cobertura-vacinal",
+    icon: Syringe,
+    label: "Cobertura Vacinal",
   },
 ];
 

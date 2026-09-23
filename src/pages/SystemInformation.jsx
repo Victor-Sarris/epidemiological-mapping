@@ -71,7 +71,7 @@ const TABLE_SCHEMAS = {
   violenciadomestica: ["nu_notific", "id_unidade", "nm_ubs"],
   hans: ["id_unidade", "nm_ubs", "nu_notific"],
   hepatite: ["nu_notific", "id_unidade", "nm_ubs"],
-  animaispec: ["id_unidade", "nm_ubs", "hospital", "nu_notific"],
+  animaispec: ["id_unidade", "nm_ubs", "hospital", "ano_notific", "nu_notific"],
   intoxicacao: ["ano_notific", "nu_notific"],
   leish: ["ano_notific", "nu_notific"],
   aidsadulta: ["ano_notific", "nu_notific"],
@@ -524,7 +524,7 @@ export default function SystemInformation() {
                   setIsImportModalOpen(false);
                   setUploadFile(null);
                 }}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 hover:cursor-pointer p-1.5 rounded-full transition-colors"
               >
                 <X className="size-5" />
               </button>
@@ -662,7 +662,7 @@ export default function SystemInformation() {
                 type="submit"
                 form="recordForm"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] transition-colors disabled:opacity-70"
+                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] hover:cursor-pointer transition-colors disabled:opacity-70"
               >
                 {loading ? (
                   <RefreshCw className="size-4 animate-spin" />

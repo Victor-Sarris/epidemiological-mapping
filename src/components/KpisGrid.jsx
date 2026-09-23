@@ -26,7 +26,7 @@ export default function KpisGrid({ kpis }) {
                 <p className="text-sm font-medium text-slate-500 mb-1">
                   {kpi.title}
                 </p>
-                <h3 className="text-2xl md:text-3xl font-bold text-slate-800">
+                <h3 className="text-2xl font-bold text-slate-800">
                   {kpi.value}
                 </h3>
               </div>

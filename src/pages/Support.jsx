@@ -3,19 +3,53 @@ import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   IoChatbubbles,
-  IoEllipse,
   IoClose,
   IoWarning,
   IoSend,
   IoHardwareChip,
 } from "react-icons/io5";
-import { Menu } from "lucide-react";
+import {
+  Menu,
+  HelpCircle,
+  FileText,
+  ShieldCheck,
+  Bot,
+  AlertTriangle,
+  ChevronDown,
+} from "lucide-react";
+
+// Lista de Flashcards / Dúvidas Comuns
+const FAQS = [
+  {
+    q: "Como atualizo os dados do mapa?",
+    a: "Acesse a aba 'Gerenciar Tabelas', selecione a endemia desejada e clique em 'Importar Arquivo' para subir o relatório atualizado do SINAN (.dbf, .xls ou .csv).",
+    icon: <FileText className="size-6 text-blue-500" />,
+  },
+  {
+    q: "O que significa 'Casos em Alerta'?",
+    a: "São casos classificados como graves ou com sinais de alarme no momento da notificação (classificação 10 ou 11), exigindo atenção imediata da rede de saúde.",
+    icon: <AlertTriangle className="size-6 text-amber-500" />,
+  },
+  {
+    q: "Quem tem acesso à Área do Profissional?",
+    a: "O acesso é estritamente restrito a agentes de saúde respectivos da sua UBS, com credenciais cadastradas previamente pela Secretaria de Saúde.",
+    icon: <ShieldCheck className="size-6 text-emerald-500" />,
+  },
+  {
+    q: "O Assistente Virtual pode dar diagnósticos?",
+    a: "Não. A inteligência artificial foi treinada exclusivamente para sanar dúvidas sobre o uso do sistema EPI-DATA e ajudar a interpretar as métricas da plataforma.",
+    icon: <Bot className="size-6 text-purple-500" />,
+  },
+];
 
 function Support({ isPrivateView = false }) {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Estado para controlar qual Flashcard está aberto
+  const [openFaq, setOpenFaq] = useState(null);
 
   const [messages, setMessages] = useState([
     {
@@ -112,7 +146,7 @@ function Support({ isPrivateView = false }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
+              className="p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
             >
               <Menu className="size-6" />
             </button>
@@ -122,7 +156,7 @@ function Support({ isPrivateView = false }) {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto space-y-8">
+        <div className="p-4 md:p-8 lg:p-10 w-full max-w-7xl mx-auto space-y-8 pb-24">
           {/* Hero Section */}
           <section className="bg-[#4180ab] text-white py-12 md:py-16 px-6 lg:px-12 relative overflow-hidden rounded-3xl shadow-xl border border-white/10">
             <div className="absolute inset-0 opacity-30 pointer-events-none">
@@ -173,7 +207,66 @@ function Support({ isPrivateView = false }) {
             </div>
           </section>
 
-          {/* Banner de Aviso */}
+          <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <h2 className="text-2xl font-extrabold text-slate-800 mb-6 flex items-center gap-2">
+              <HelpCircle className="text-[#4180ab] size-6" />
+              Dúvidas Frequentes
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {FAQS.map((faq, index) => {
+                const isOpen = openFaq === index;
+                return (
+                  <div
+                    key={index}
+                    onClick={() => setOpenFaq(isOpen ? null : index)}
+                    className={`bg-white rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all cursor-pointer group ${
+                      isOpen
+                        ? "border-[#4180ab]/50 ring-2 ring-[#4180ab]/10"
+                        : "border-slate-200"
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${isOpen ? "bg-blue-50" : "bg-slate-50 group-hover:bg-slate-100"}`}
+                      >
+                        <div
+                          className={`transition-transform duration-300 ${isOpen ? "scale-110" : "scale-100"}`}
+                        >
+                          {faq.icon}
+                        </div>
+                      </div>
+                      <div className="flex-1 w-full">
+                        <div className="flex justify-between items-start w-full">
+                          <h3
+                            className={`font-bold text-base md:text-lg pr-4 transition-colors ${isOpen ? "text-[#054060]" : "text-slate-800"}`}
+                          >
+                            {faq.q}
+                          </h3>
+                          <ChevronDown
+                            className={`size-5 shrink-0 text-slate-400 transition-transform duration-300 ${
+                              isOpen ? "rotate-180 text-[#054060]" : ""
+                            }`}
+                          />
+                        </div>
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isOpen
+                              ? "max-h-40 mt-3 opacity-100"
+                              : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <p className="text-slate-600 text-sm leading-relaxed">
+                            {faq.a}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="bg-amber-50 border-l-4 border-amber-500 p-5 md:p-6 flex flex-col gap-2 rounded-xl shadow-sm">
             <h2 className="flex items-center gap-2 text-lg text-amber-700 font-bold">
               <IoWarning size={24} className="shrink-0" /> Aviso Importante

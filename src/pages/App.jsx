@@ -19,6 +19,7 @@ import MapViolencia from "./maps/MapViolencia.jsx";
 import SystemInformation from "./SystemInformation.jsx";
 import NotFound from "./NotFound.jsx";
 import ProtectedRoute from "@/utils/ProtectedRoute.jsx";
+import DashboardCoberturaVacinal from "./DashboardCoberturaVacinal.jsx";
 
 function App() {
   return (
@@ -105,6 +106,11 @@ function App() {
               <Route
                 path="profissional/informacoes-sistema"
                 element={<SystemInformation isPrivateView={true} />}
+              />
+              <Route
+                path="/cobertura-vacinal"
+                element={<DashboardCoberturaVacinal />}
+                isPrivateView={true}
               />
             </Route>
           </Routes>

@@ -23,16 +23,19 @@ function Home() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [erroLogin, setErroLogin] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErroLogin("");
+    setIsLoggingIn(true);
 
     const success = await login(username, password);
     if (success) {
       navigate("/profissional/dashboard");
     } else {
       setErroLogin("Credenciais inválidas. Tente novamente.");
+      setIsLoggingIn(false);
     }
   };
 
@@ -164,10 +167,13 @@ function Home() {
 
               <button
                 type="submit"
-                className="flex gap-3 justify-center items-center p-2 border-transparent bg-[#054060] border rounded-lg hover:bg-[#085883] focus:ring-4 focus:ring-[#054060]/20 text-white font-semibold text-sm sm:text-base py-3.5 sm:py-4 px-5 sm:px-6 transition-colors hover:cursor-pointer shadow-md w-full"
+                disabled={isLoggingIn}
+                className="flex gap-3 justify-center items-center p-2 border-transparent bg-[#054060] border rounded-lg hover:bg-[#085883] focus:ring-4 focus:ring-[#054060]/20 text-white font-semibold text-sm sm:text-base py-3.5 sm:py-4 px-5 sm:px-6 transition-colors shadow-md w-full disabled:opacity-70 disabled:cursor-not-allowed hover:cursor-pointer"
               >
-                <LockKeyhole className="size-4" />
-                <span>Fazer Login</span>
+                <LockKeyhole
+                  className={`size-4 ${isLoggingIn ? "animate-bounce text-blue-200" : ""}`}
+                />
+                <span>{isLoggingIn ? "Autenticando..." : "Fazer Login"}</span>
               </button>
             </form>
           </div>
