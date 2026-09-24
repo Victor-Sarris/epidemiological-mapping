@@ -26,7 +26,7 @@ export default function UserProfileMenu() {
   };
 
   // Define o nome a exibir (com fallback de segurança)
-  const displayName = user?.first_name || user?.username || "Administrador";
+  const displayName = user?.first_name || user?.username || "Visitante";
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -55,7 +55,7 @@ export default function UserProfileMenu() {
               {displayName}
             </p>
             <p className="text-xs text-slate-500 truncate">
-              @{user?.username || "admin"}
+              @{user?.username || "vistante"}
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 w-max">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
