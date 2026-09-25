@@ -39,6 +39,12 @@ const TABELAS = [
   { id: "intoxicacao", nome: "Intoxicação", endpoint: "/api/intoxicacao/" },
   { id: "leish", nome: "Leishmaniose", endpoint: "/api/leish/" },
   { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
+  { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
+  {
+    id: "coberturavacinal",
+    nome: "Cobertura Vacinal",
+    endpoint: "/api/coberturavacinal/",
+  },
 ];
 
 // Esquema de campos para cada tabela (baseado no models.py)
@@ -75,6 +81,13 @@ const TABLE_SCHEMAS = {
   intoxicacao: ["ano_notific", "nu_notific"],
   leish: ["ano_notific", "nu_notific"],
   aidsadulta: ["ano_notific", "nu_notific"],
+  coberturavacinal: [
+    "ano",
+    "imunobiologico",
+    "cobertura_percentual",
+    "meta_otima",
+    "data_atualizacao",
+  ],
 };
 
 export default function SystemInformation() {
@@ -93,6 +106,7 @@ export default function SystemInformation() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Estados do Custom Dropdown
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false);
@@ -113,6 +127,36 @@ export default function SystemInformation() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleSyncGoverno = async () => {
+    setIsSyncing(true);
+    setMensagem({
+      texto:
+        "Conectando ao Ministério da Saúde. Isso pode levar alguns segundos...",
+      tipo: "sucesso",
+    });
+
+    try {
+      const response = await fetch(`${baseUrl}/api/sincronizar-governo/`, {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.erro || "Falha na sincronização.");
+
+      mostrarMensagem(data.mensagem, "sucesso");
+      fetchDados(); // Atualiza a tabela na tela
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(
+        error.message || "Erro ao sincronizar com a API do SUS.",
+        "erro",
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Carregar dados da tabela selecionada
   const fetchDados = async () => {
@@ -399,6 +443,20 @@ export default function SystemInformation() {
               </div>
 
               <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                {/* NOVO BOTÃO DE SINCRONIZAÇÃO */}
+                <button
+                  onClick={handleSyncGoverno}
+                  disabled={isSyncing}
+                  className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isSyncing ? (
+                    <RefreshCw className="size-4 animate-spin" />
+                  ) : (
+                    <Database className="size-4" />
+                  )}
+                  Sincronizar DataSUS
+                </button>
+
                 <button
                   onClick={() => setIsImportModalOpen(true)}
                   className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
@@ -406,6 +464,7 @@ export default function SystemInformation() {
                   <Upload className="size-4" />
                   Importar Arquivo
                 </button>
+
                 <button
                   onClick={() => handleOpenModal()}
                   className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"

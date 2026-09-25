@@ -12,13 +12,13 @@ import {
 
 // Mapeamento idêntico ao do Ministério da Saúde
 const FAIXAS_ETARIAS = {
-  "Ao Nascer": ["BCG", "Hepatite B (<= 30 dias)"],
+  "Ao Nascer": ["vacina BCG", "Hepatite B (<= 30 dias)"],
   "Menores de 1 ano de idade": [
     "Febre Amarela",
     "Poliomielite",
     "Pneumocócica Conjugada",
     "Meningocócica Conjugada",
-    "Penta (DTP/HepB/Hib)",
+    "vacina adsorvida difteria, tétano e pertussis", // Nome técnico da Penta no DataSUS
     "Rotavírus",
   ],
   "1 ano de idade": [
@@ -78,12 +78,17 @@ function ProgressBarMS({ percentual, meta }) {
 function VacinaCard({ dados }) {
   const isMetaAtingida = dados.cobertura_percentual >= dados.meta_otima;
 
+  // Limpa e formata o nome longo do banco para exibição na tela
+  const nomeExibicao = dados.imunobiologico
+    .replace(/^vacina /i, "") // Tira a palavra "vacina " do início (ex: "vacina BCG" vira "BCG")
+    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)"); // Encurta a Penta
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-[#1e40af] p-5 flex flex-col justify-between h-44 relative hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start">
         <div className="pr-14">
-          <h3 className="font-bold text-slate-800 text-[15px] leading-tight">
-            {dados.imunobiologico}
+          <h3 className="font-bold text-slate-800 text-[15px] leading-tight capitalize">
+            {nomeExibicao}
           </h3>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Meta ótima {dados.meta_otima}%
