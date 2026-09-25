@@ -151,7 +151,7 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300 relative">
         <header className="px-4 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm border-b border-slate-200 bg-[#4180ab] text-white">
           <div className="flex items-center gap-2 text-slate-800">
-            <ShieldCheck className="size-5 md:size-6 text-[#1d4ed8]" />
+            <ShieldCheck className="size-5 md:size-6 text-white" />
             <h2 className="text-lg md:text-xl font-bold tracking-wide text-white">
               Cobertura Vacinal Infantil - {anoVigente}
             </h2>
