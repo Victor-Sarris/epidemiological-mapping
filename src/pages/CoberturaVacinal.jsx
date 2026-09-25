@@ -8,6 +8,7 @@ import {
   Syringe,
   Smile,
   User,
+  Menu,
 } from "lucide-react";
 
 // Mapeamento idêntico ao do Ministério da Saúde
@@ -148,11 +149,17 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300 relative">
+      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-4 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm border-b border-slate-200 bg-[#4180ab] text-white">
           <div className="flex items-center gap-2 text-slate-800">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
+            >
+              <Menu className="size-6" />
+            </button>
             <ShieldCheck className="size-5 md:size-6 text-white" />
-            <h2 className="text-lg md:text-xl font-bold tracking-wide text-white">
+            <h2 className="text-s md:text-xl font-bold tracking-wide text-white">
               Cobertura Vacinal Infantil - {anoVigente}
             </h2>
           </div>
