@@ -8,17 +8,18 @@ import {
   Syringe,
   Smile,
   User,
+  Menu,
 } from "lucide-react";
 
 // Mapeamento idêntico ao do Ministério da Saúde
 const FAIXAS_ETARIAS = {
-  "Ao Nascer": ["BCG", "Hepatite B (<= 30 dias)"],
+  "Ao Nascer": ["vacina BCG", "Hepatite B (<= 30 dias)"],
   "Menores de 1 ano de idade": [
     "Febre Amarela",
     "Poliomielite",
     "Pneumocócica Conjugada",
     "Meningocócica Conjugada",
-    "Penta (DTP/HepB/Hib)",
+    "vacina adsorvida difteria, tétano e pertussis", // Nome técnico da Penta no DataSUS
     "Rotavírus",
   ],
   "1 ano de idade": [
@@ -78,12 +79,17 @@ function ProgressBarMS({ percentual, meta }) {
 function VacinaCard({ dados }) {
   const isMetaAtingida = dados.cobertura_percentual >= dados.meta_otima;
 
+  // Limpa e formata o nome longo do banco para exibição na tela
+  const nomeExibicao = dados.imunobiologico
+    .replace(/^vacina /i, "") // Tira a palavra "vacina " do início (ex: "vacina BCG" vira "BCG")
+    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)"); // Encurta a Penta
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-[#1e40af] p-5 flex flex-col justify-between h-44 relative hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start">
         <div className="pr-14">
-          <h3 className="font-bold text-slate-800 text-[15px] leading-tight">
-            {dados.imunobiologico}
+          <h3 className="font-bold text-slate-800 text-[15px] leading-tight capitalize">
+            {nomeExibicao}
           </h3>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Meta ótima {dados.meta_otima}%
@@ -143,11 +149,17 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300 relative">
+      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-4 py-4 flex items-center justify-between sticky top-0 z-30 shadow-sm border-b border-slate-200 bg-[#4180ab] text-white">
           <div className="flex items-center gap-2 text-slate-800">
-            <ShieldCheck className="size-5 md:size-6 text-[#1d4ed8]" />
-            <h2 className="text-lg md:text-xl font-bold tracking-wide text-white">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
+            >
+              <Menu className="size-6" />
+            </button>
+            <ShieldCheck className="size-5 md:size-6 text-white" />
+            <h2 className="text-s md:text-xl font-bold tracking-wide text-white">
               Cobertura Vacinal Infantil - {anoVigente}
             </h2>
           </div>
