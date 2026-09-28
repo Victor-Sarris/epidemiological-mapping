@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
+import SidebarPrivate from "../components/private/SidebarPrivate.jsx";
 import {
   ShieldCheck,
   CheckCircle2,
