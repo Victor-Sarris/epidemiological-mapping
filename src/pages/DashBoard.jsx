@@ -13,6 +13,7 @@ import {
   CalendarDays,
   ChevronDown,
   Check,
+  LayoutDashboard,
 } from "lucide-react";
 import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
@@ -382,7 +383,13 @@ export default function Dashboard({ isPrivateView = false }) {
         />
       )}
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300 -mb-6">
+          <div className="flex gap-2">
+            <LayoutDashboard className="size-5 md:size-6 text-white" />
+            <h2 className="text-s md:text-xl font-bold tracking-wide text-white flex -mt-1">
+              Dagos Gerais
+            </h2>
+          </div>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -393,9 +400,9 @@ export default function Dashboard({ isPrivateView = false }) {
             </button>
           </div>
           <div className="flex items-center gap-4 text-white/90">
-            <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
+            {/* <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
               <Bell className="size-5" />
-            </button>
+            </button> */}
             <UserProfileMenu className="hover:cursor-pointer" />
           </div>
         </header>
@@ -403,9 +410,6 @@ export default function Dashboard({ isPrivateView = false }) {
         <main className="p-4 md:p-8 space-y-6 w-full max-w-7xl mx-auto overflow-x-hidden">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                Dados Gerais - {endemiaSelecionada.nome}
-              </h1>
               <p className="text-sm md:text-base text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de{" "}
                 {endemiaSelecionada.nome}

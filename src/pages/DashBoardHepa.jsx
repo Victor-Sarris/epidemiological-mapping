@@ -9,13 +9,13 @@ import {
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 // Paleta focada em tons de Amarelo/Âmbar (Julho Amarelo - Hepatite)
-const COLORS = ["#f59e0b", "#eab308", "#d97706", "#b45309"];
+const COLORS = ["#4180ab", "#8ab3cf", "#bdd1de", "#e4ebf0"];
 const CORES_DISTRIBUICAO = [
-  "bg-yellow-500",
-  "bg-amber-500",
-  "bg-orange-500",
-  "bg-yellow-400",
-  "bg-amber-600",
+  "bg-cyan-500",
+  "bg-blue-500",
+  "bg-sky-500",
+  "bg-violet-400",
+  "bg-indigo-600",
 ];
 
 export default function DashboardHepatite({ pacientes }) {
@@ -97,32 +97,32 @@ export default function DashboardHepatite({ pacientes }) {
           title="Total de Casos Agregados"
           value={totalCasos}
           icon={Users}
-          color="bg-amber-500"
-          bgLight="bg-amber-50"
+          color="bg-indigo-900"
+          bgLight="bg-sky-50"
           subtitle="Notificações consolidadas"
         />
         <KpiCard
           title="Unidades com Casos"
           value={unidadesAtivas}
           icon={MapPin}
-          color="bg-yellow-500"
-          bgLight="bg-yellow-50"
+          color="bg-indigo-900"
+          bgLight="bg-sky-50"
           subtitle="Cobertura territorial"
         />
         <KpiCard
           title="Maior Foco (Unidade)"
           value={unidadeMaisAfetada.casos}
           icon={AlertTriangle}
-          color="bg-orange-500"
-          bgLight="bg-orange-50"
+          color="bg-indigo-900"
+          bgLight="bg-sky-50"
           subtitle={unidadeMaisAfetada.nome?.substring(0, 20)}
         />
         <KpiCard
           title="Média por Unidade"
           value={mediaPorUnidade}
           icon={Activity}
-          color="bg-amber-600"
-          bgLight="bg-amber-100"
+          color="bg-indigo-900"
+          bgLight="bg-sky-50"
           subtitle="Casos / UBS"
         />
       </div>
@@ -267,7 +267,7 @@ export default function DashboardHepatite({ pacientes }) {
                   >
                     <td className="px-4 py-3 font-medium text-slate-800 flex items-center gap-2 whitespace-nowrap">
                       <div
-                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${isEspecializada ? "bg-red-100 text-red-700" : "bg-amber-100 text-amber-700"}`}
+                        className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold ${isEspecializada ? "bg-red-100 text-red-700" : "bg-sky-100 text-blue-700"}`}
                       >
                         {isEspecializada ? "H" : "U"}
                       </div>
@@ -278,7 +278,7 @@ export default function DashboardHepatite({ pacientes }) {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <span
-                        className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-bold inline-block ${isEspecializada ? "bg-red-50 text-red-600 border border-red-200" : "bg-amber-50 text-amber-600 border border-amber-200"}`}
+                        className={`px-2 py-1 rounded-md text-[10px] sm:text-xs font-bold inline-block ${isEspecializada ? "bg-red-50 text-red-600 border border-red-200" : "bg-sky-50 text-blue-600 border border-sky-200"}`}
                       >
                         {isEspecializada
                           ? "Especializada/Hospital"

@@ -2067,6 +2067,7 @@ export default function MapSifi({ isPrivateView = false }) {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
       const nomeOriginal = feature.properties.name || "";
+
       let numeroCasos = 0;
 
       if (nomeOriginal) {
@@ -2074,9 +2075,10 @@ export default function MapSifi({ isPrivateView = false }) {
           .toUpperCase()
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
+
+        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
-
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
 
       return {
@@ -2106,7 +2108,7 @@ export default function MapSifi({ isPrivateView = false }) {
         />
       )}
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 md:py-5 bg-linear-to-r bg-[#4180ab] backdrop-blur-md z-10 flex items-center justify-between">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
