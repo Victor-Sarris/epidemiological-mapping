@@ -245,7 +245,6 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
           )}
         </div>
 
-        {/* Legenda flutuante idêntica ao DataSUS[cite: 4] */}
         {!loading && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white border border-slate-200 rounded-full px-4 sm:px-8 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-wrap gap-4 sm:gap-6 items-center justify-center text-[10px] sm:text-xs font-semibold text-slate-600 z-40 w-[95%] md:w-auto">
             <div className="flex items-center gap-1.5">
@@ -273,7 +272,6 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
               ótima
             </div>
           </div>
-          // ertgyhuijkolpçs
         )}
       </main>
     </div>
