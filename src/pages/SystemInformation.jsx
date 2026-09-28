@@ -337,12 +337,9 @@ export default function SystemInformation() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500">
+        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500 md:-mt-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-slate-900">
-                Gerenciador de Tabelas
-              </h1>
               <p className="text-slate-500 text-sm mt-1">
                 Visualize, edite, remova e importe dados brutos SINAN do
                 sistema.
@@ -428,7 +425,7 @@ export default function SystemInformation() {
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-125">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-125 md:min-h-160">
             {/* Toolbar Principal */}
             <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center bg-slate-50/50">
               <div className="relative w-full sm:w-96">
