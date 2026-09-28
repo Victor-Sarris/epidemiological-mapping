@@ -19,7 +19,7 @@ const FAIXAS_ETARIAS = {
     "Poliomielite",
     "Pneumocócica Conjugada",
     "Meningocócica Conjugada",
-    "vacina adsorvida difteria, tétano e pertussis", // Nome técnico da Penta no DataSUS
+    "vacina adsorvida difteria, tétano e pertussis",
     "Rotavírus",
   ],
   "1 ano de idade": [
@@ -39,7 +39,7 @@ const FAIXAS_ETARIAS = {
   ],
 };
 
-// Ícones ilustrativos para o menu de atalhos no topo
+// Ícones ilustrativos para o menu de atalhos no topo[cite: 4]
 const TABS_ICONS = {
   "Ao Nascer": Baby,
   "Menores de 1 ano de idade": Syringe,
@@ -47,22 +47,18 @@ const TABS_ICONS = {
   "4 anos de idade": User,
 };
 
-// Lógica de cores baseada na legenda do DataSUS
+// Lógica de cores baseada na legenda do DataSUS[cite: 4]
 function ProgressBarMS({ percentual, meta }) {
   const isMetaAtingida = percentual >= meta;
 
-  let corBarra = "bg-[#1d4ed8]"; // Azul
+  let corBarra = "bg-[#1d4ed8]";
 
   if (!isMetaAtingida) {
-    if (percentual <= 20)
-      corBarra = "bg-[#7f1d1d]"; // Vermelho Escuro
-    else if (percentual <= 40)
-      corBarra = "bg-[#e11d48]"; // Vermelho Claro
-    else if (percentual <= 60)
-      corBarra = "bg-[#f59e0b]"; // Laranja
-    else if (percentual <= 80)
-      corBarra = "bg-[#eab308]"; // Amarelo
-    else corBarra = "bg-[#10b981]"; // Verde
+    if (percentual <= 20) corBarra = "bg-[#7f1d1d]";
+    else if (percentual <= 40) corBarra = "bg-[#e11d48]";
+    else if (percentual <= 60) corBarra = "bg-[#f59e0b]";
+    else if (percentual <= 80) corBarra = "bg-[#eab308]";
+    else corBarra = "bg-[#10b981]";
   }
 
   return (
@@ -75,14 +71,13 @@ function ProgressBarMS({ percentual, meta }) {
   );
 }
 
-// O Card de cada Imunobiológico
+// O Card de cada Imunobiológico[cite: 4]
 function VacinaCard({ dados }) {
   const isMetaAtingida = dados.cobertura_percentual >= dados.meta_otima;
 
-  // Limpa e formata o nome longo do banco para exibição na tela
   const nomeExibicao = dados.imunobiologico
-    .replace(/^vacina /i, "") // Tira a palavra "vacina " do início (ex: "vacina BCG" vira "BCG")
-    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)"); // Encurta a Penta
+    .replace(/^vacina /i, "")
+    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)");
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-[#1e40af] p-5 flex flex-col justify-between h-44 relative hover:shadow-md transition-shadow">
@@ -166,13 +161,29 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
         </header>
 
         <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-10 animate-in fade-in duration-500 pb-32">
+          {/* Nova seção com o iframe do DataSUS */}
+          <section className="w-full bg-white rounded-2xl shadow-sm border-2 border-slate-200 overflow-hidden flex flex-col h-[700px]">
+            <div className="bg-slate-100 p-3 border-b border-slate-200 flex items-center gap-2">
+              <Activity className="size-5 text-[#1d4ed8]" />
+              <h3 className="font-bold text-slate-700 text-sm">
+                Painel Oficial do Ministério da Saúde (DataSUS)
+              </h3>
+            </div>
+            <iframe
+              src="https://infoms.saude.gov.br/extensions/SEIDIGI_DEMAS_VACINACAO_CALENDARIO_NACIONAL_COBERTURA_RESIDENCIA/index.html"
+              title="Painel de Vacinação do Ministério da Saúde"
+              className="w-full flex-1 border-0"
+              allowFullScreen
+            ></iframe>
+          </section>
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Activity className="size-8 text-[#1d4ed8] animate-spin" />
             </div>
           ) : (
             <>
-              {/* Menu de atalhos superiores */}
+              {/* Menu de atalhos superiores[cite: 4] */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {Object.keys(FAIXAS_ETARIAS).map((faixa) => {
                   const Icon = TABS_ICONS[faixa];
@@ -197,7 +208,7 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
                 })}
               </div>
 
-              {/* Seções por Faixa Etária */}
+              {/* Seções por Faixa Etária[cite: 4] */}
               {Object.entries(FAIXAS_ETARIAS).map(
                 ([faixa, vacinasEsperadas]) => {
                   const vacinasEncontradas = dadosVacinais.filter(
@@ -234,7 +245,7 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
           )}
         </div>
 
-        {/* Legenda flutuante idêntica ao DataSUS */}
+        {/* Legenda flutuante idêntica ao DataSUS[cite: 4] */}
         {!loading && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white border border-slate-200 rounded-full px-4 sm:px-8 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-wrap gap-4 sm:gap-6 items-center justify-center text-[10px] sm:text-xs font-semibold text-slate-600 z-40 w-[95%] md:w-auto">
             <div className="flex items-center gap-1.5">
