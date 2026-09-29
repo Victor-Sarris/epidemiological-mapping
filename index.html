@@ -17,12 +17,36 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script
-      src="https://vlibras.gov.br/app/vlibras-plugin.js"
-      id="vlibras"
-    ></script>
-    <script
       src="https://cdn.userway.org/widget.js"
       data-account="ZGKiuLM2Nr"
     ></script>
+    <script async src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      (() => {
+        const positionVlibrasButton = () => {
+          const wrapper = document.getElementById("vlibras-access-wrapper");
+          const accessButton =
+            wrapper?.shadowRoot?.getElementById("vlibras-access");
+
+          if (!accessButton) return false;
+
+          accessButton.style.setProperty(
+            "top",
+            "calc(50vh - 70px)",
+            "important",
+          );
+          accessButton.style.setProperty("right", "24px", "important");
+          return true;
+        };
+
+        if (!positionVlibrasButton()) {
+          const observer = new MutationObserver(() => {
+            if (positionVlibrasButton()) observer.disconnect();
+          });
+
+          observer.observe(document.body, { childList: true });
+        }
+      })();
+    </script>
   </body>
 </html>
