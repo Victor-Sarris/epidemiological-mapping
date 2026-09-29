@@ -100,7 +100,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
             </div>
             <span
               className={`text-xl font-black tracking-tight text-slate-900 transition-all duration-300 whitespace-nowrap overflow-hidden ${
-                isCollapsed ? "max-w-0 opacity-0" : "max-w-[100px] opacity-100"
+                isCollapsed ? "max-w-0 opacity-0" : "max-w-25 opacity-100"
               }`}
             >
               Epi<span className="text-[#538CB3]">Data</span>
@@ -157,7 +157,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                       className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${
                         isCollapsed
                           ? "max-w-0 opacity-0"
-                          : "max-w-[200px] opacity-100"
+                          : "max-w-50 opacity-100"
                       }`}
                     >
                       {label}
@@ -182,7 +182,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
             </div>
             <div
               className={`flex flex-col overflow-hidden transition-all duration-300 whitespace-nowrap ${
-                isCollapsed ? "max-w-0 opacity-0" : "max-w-[150px] opacity-100"
+                isCollapsed ? "max-w-0 opacity-0" : "max-w-37.5 opacity-100"
               }`}
             >
               <span className="text-[13px] font-bold text-slate-700 leading-none mb-1">

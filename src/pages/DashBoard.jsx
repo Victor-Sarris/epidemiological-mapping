@@ -383,26 +383,30 @@ export default function Dashboard({ isPrivateView = false }) {
         />
       )}
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300 -mb-6">
-          <div className="flex gap-2">
-            <LayoutDashboard className="size-5 md:size-6 text-white" />
-            <h2 className="text-s md:text-xl font-bold tracking-wide text-white flex -mt-1">
-              Dagos Gerais
-            </h2>
-          </div>
-          <div className="flex items-center gap-4">
+        <header className="px-3 sm:px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+          {/* Lado Esquerdo: Botão Menu + Título */}
+          <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
+              className="md:hidden shrink-0 group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
               aria-label="Abrir menu"
             >
-              <Menu className="size-6 group-hover:scale-110 transition-transform duration-200" />
+              <Menu className="size-5 sm:size-6 group-hover:scale-110 transition-transform duration-200" />
             </button>
+
+            <div className="flex items-center gap-2 min-w-0">
+              <LayoutDashboard className="size-5 md:size-6 text-white shrink-0" />
+              <h2 className="text-sm sm:text-base md:text-xl font-bold tracking-wide text-white truncate">
+                Dados Gerais
+              </h2>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-white/90">
+
+          {/* Lado Direito: Ações e Perfil */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
-              <Bell className="size-5" />
-            </button> */}
+      <Bell className="size-5" />
+    </button> */}
             <UserProfileMenu className="hover:cursor-pointer" />
           </div>
         </header>
