@@ -1,7 +1,7 @@
 vlibras-widget {
-  right: 50px !important; /* Afasta da borda direita */
-  top: 50% !important; /* Ajusta a altura (se quiser descer em pixels, use ex: 200px) */
-  margin-top: 0 !important; /* Reseta a margem padrão do plugin, se houver */
+  right: 50px !important;
+  top: 50% !important;
+  margin-top: 0 !important;
 }
 
 .poppins-thin {

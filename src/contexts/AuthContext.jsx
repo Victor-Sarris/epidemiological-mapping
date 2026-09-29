@@ -8,6 +8,12 @@ export function AuthProvider({ children }) {
     !!localStorage.getItem("access_token"),
   );
 
+  // NOVO: Estado para armazenar os dados do usuário, puxando do localStorage caso ele atualize a página
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const login = async (username, password) => {
     try {
       // Faz o POST para a rota JWT do Django
@@ -29,6 +35,14 @@ export function AuthProvider({ children }) {
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
 
+        // NOVO: Salva os dados do usuário retornados pela API (que nós configuramos no Django)
+        const userData = {
+          username: data.username,
+          first_name: data.first_name,
+        };
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData));
+
         setIsAuthenticated(true);
         return true; // Login bem-sucedido
       }
@@ -43,11 +57,17 @@ export function AuthProvider({ children }) {
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
+
+    // NOVO: Remove os dados do usuário ao deslogar
+    localStorage.removeItem("user");
+    setUser(null);
+
     setIsAuthenticated(false);
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+    // NOVO: Incluindo a variável 'user' dentro do value do Provider para que os componentes possam acessá-la
+    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

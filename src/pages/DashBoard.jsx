@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
@@ -11,6 +11,9 @@ import {
   Bell,
   UserCircle,
   CalendarDays,
+  ChevronDown,
+  Check,
+  LayoutDashboard,
 } from "lucide-react";
 import PatientModal from "../components/Modal/PatientModal.jsx";
 import {
@@ -21,6 +24,8 @@ import {
 import KpisGrid from "../components/KpisGrid.jsx";
 import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
 import CasosRecentes from "../components/CasosRecentes.jsx";
+import { useAuth } from "@/contexts/AuthContext.jsx";
+import UserProfileMenu from "@/components/Modal/UserProfileMenu.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
 import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import DashboardChagas from "./DashBoardChagas.jsx";
@@ -28,6 +33,8 @@ import DashboardHanseniase from "./DashBoardHans.jsx";
 import DashboardHepatite from "./DashBoardHepa.jsx";
 import DashboardViolencia from "./private/DashBoardViolencia.jsx";
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
+import DashboardAcidentes from "./DashboardAcidentes.jsx";
+import DashboardIntoxicacao from "./DashboardIntoxicacao.jsx";
 
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
@@ -37,8 +44,18 @@ const ENDEMIAS = [
   { id: "hanseniase", nome: "Hanseníase", endpoint: "/api/hans/" },
   { id: "hepatite", nome: "Hepatite", endpoint: "/api/hepatite/" },
   {
+    id: "animaispec",
+    nome: "Animais Peçonhentos",
+    endpoint: "/api/animaispec/",
+  },
+  {
+    id: "intoxicacao",
+    nome: "Casos de Intoxicação",
+    endpoint: "/api/animaispec/",
+  },
+  {
     id: "violencia",
-    nome: "Violência Domestica",
+    nome: "Violência Doméstica",
     endpoint: "/api/violenciadomestica/",
   },
 ];
@@ -78,7 +95,18 @@ const BAIRRO_PARA_UBS = {
   "PEDRO SIMPLICIO": "UBS Pedro Simplício",
 };
 
+const PERIODO_OPTIONS = [
+  { value: "todos", label: "Todo o Período" },
+  { value: "ultimoMes", label: "Último Mês" },
+  { value: "ultimos3Meses", label: "Últimos 3 Meses" },
+  { value: "ultimos6Meses", label: "Últimos 6 Meses" },
+  { value: "esteAno", label: "Este Ano" },
+  { value: "anoPassado", label: "Ano Passado" },
+  { value: "personalizado", label: "Período Específico..." },
+];
+
 export default function Dashboard({ isPrivateView = false }) {
+  const { user } = useAuth();
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
     : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
@@ -93,8 +121,26 @@ export default function Dashboard({ isPrivateView = false }) {
   const [modalAberto, setModalAberto] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // NOVO: Estado para o filtro de período
-  const [periodoFiltro, setPeriodoFiltro] = useState("todos"); // "todos" ou "ultimoMes"
+  const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
+  const [isPeriodoDropdownOpen, setIsPeriodoDropdownOpen] = useState(false);
+  const periodoDropdownRef = useRef(null);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        periodoDropdownRef.current &&
+        !periodoDropdownRef.current.contains(event.target)
+      ) {
+        setIsPeriodoDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -116,28 +162,50 @@ export default function Dashboard({ isPrivateView = false }) {
       });
   }, [endemiaSelecionada]);
 
-  // NOVO: Lógica de filtragem dos pacientes com base no período
   const pacientesFiltrados = useMemo(() => {
-    if (periodoFiltro === "todos") return pacientes;
+    if (filtroTipo === "todos") return pacientes;
 
     const hoje = new Date();
-    // Volta exatamente 1 mês atrás (ex: 21 de Setembro vira 21 de Agosto)
-    const ultimoMes = new Date(
-      hoje.getFullYear(),
-      hoje.getMonth() - 1,
-      hoje.getDate(),
-    );
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroTipo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(hoje.getFullYear(), 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(hoje.getFullYear() - 1, 0, 1);
+        dataRefFim = new Date(hoje.getFullYear() - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (!dataInicio || !dataFim) return pacientes;
+        // Adiciona o horário base para evitar problemas de fuso horário (Timezone)
+        dataRefInicio = new Date(dataInicio + "T00:00:00");
+        dataRefFim = new Date(dataFim + "T23:59:59");
+        break;
+      default:
+        return pacientes;
+    }
 
     return pacientes.filter((p) => {
       const dt = p.data_notificacao || p.dt_notific;
       if (!dt) return false;
+
       const [ano, mes, dia] = dt.split("-");
       const dataNotificacao = new Date(ano, mes - 1, dia);
 
-      // Retorna apenas se a notificação estiver entre há 1 mês e hoje
-      return dataNotificacao >= ultimoMes && dataNotificacao <= hoje;
+      return dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim;
     });
-  }, [pacientes, periodoFiltro]);
+  }, [pacientes, filtroTipo, dataInicio, dataFim]);
 
   const obterBairroNormalizado = (endereco) => {
     if (!endereco) return "";
@@ -314,34 +382,38 @@ export default function Dashboard({ isPrivateView = false }) {
           onClose={() => setIsSidebarOpen(false)}
         />
       )}
-      <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-64 transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
-          <div className="flex items-center gap-4">
+      <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
+        <header className="px-3 sm:px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+          {/* Lado Esquerdo: Botão Menu + Título */}
+          <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="md:hidden group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
+              className="md:hidden shrink-0 group p-2 text-white bg-white/10 rounded-xl hover:bg-white/20 border border-transparent hover:border-white/10 transition-all duration-300"
               aria-label="Abrir menu"
             >
-              <Menu className="size-6 group-hover:scale-110 transition-transform duration-200" />
+              <Menu className="size-5 sm:size-6 group-hover:scale-110 transition-transform duration-200" />
             </button>
+
+            <div className="flex items-center gap-2 min-w-0">
+              <LayoutDashboard className="size-5 md:size-6 text-white shrink-0" />
+              <h2 className="text-sm sm:text-base md:text-xl font-bold tracking-wide text-white truncate">
+                Dados Gerais
+              </h2>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-white/90">
-            <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
-              <Bell className="size-5" />
-            </button>
-            <button className="flex items-center gap-2 p-1 pr-3 hover:bg-white/10 rounded-full transition-colors">
-              <UserCircle className="size-7" />
-              <span className="text-sm font-medium hidden sm:block">Admin</span>
-            </button>
+
+          {/* Lado Direito: Ações e Perfil */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
+      <Bell className="size-5" />
+    </button> */}
+            <UserProfileMenu className="hover:cursor-pointer" />
           </div>
         </header>
 
         <main className="p-4 md:p-8 space-y-6 w-full max-w-7xl mx-auto overflow-x-hidden">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                Dados Gerais - {endemiaSelecionada.nome}
-              </h1>
               <p className="text-sm md:text-base text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de{" "}
                 {endemiaSelecionada.nome}
@@ -349,35 +421,93 @@ export default function Dashboard({ isPrivateView = false }) {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              {/* NOVO: Seletor de Período Temporal */}
-              <div className="relative w-full sm:w-auto flex items-center bg-white border border-slate-200 rounded-lg focus-within:ring-2 focus-within:ring-[#4180ab]/50 shadow-sm transition-all overflow-hidden">
-                <div className="pl-3 text-slate-400">
-                  <CalendarDays className="w-4 h-4" />
-                </div>
-                <select
-                  value={periodoFiltro}
-                  onChange={(e) => setPeriodoFiltro(e.target.value)}
-                  className="bg-transparent text-slate-700 font-medium px-3 py-2 pr-8 appearance-none focus:outline-none cursor-pointer w-full sm:w-auto text-sm"
+              {/* Seletor de Período Temporal */}
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                {/* Dropdown Customizado Moderno */}
+                <div
+                  className="relative w-full sm:w-auto min-w-[200px]"
+                  ref={periodoDropdownRef}
                 >
-                  <option value="todos">Todo o Período</option>
-                  <option value="ultimoMes">Último Mês</option>
-                </select>
-                {/* Ícone customizado de seta para não depender do nativo feio */}
-                <div className="absolute right-3 pointer-events-none text-slate-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setIsPeriodoDropdownOpen(!isPeriodoDropdownOpen)
+                    }
+                    className={`flex items-center justify-between w-full bg-white border ${
+                      isPeriodoDropdownOpen
+                        ? "border-[#4180ab] ring-2 ring-[#4180ab]/20"
+                        : "border-slate-200"
+                    } text-slate-700 rounded-lg px-4 py-2.5 outline-none font-medium shadow-sm transition-all hover:border-[#4180ab]/50 cursor-pointer`}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
+                    <div className="flex items-center gap-2 truncate">
+                      <CalendarDays className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm truncate">
+                        {PERIODO_OPTIONS.find((opt) => opt.value === filtroTipo)
+                          ?.label || "Selecione"}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                        isPeriodoDropdownOpen ? "rotate-180" : ""
+                      }`}
                     />
-                  </svg>
+                  </button>
+
+                  {/* Menu Flutuante do Dropdown */}
+                  {isPeriodoDropdownOpen && (
+                    <div className="absolute top-full right-0 sm:left-0 mt-2 w-full sm:w-56 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                      <div className="p-1 flex flex-col">
+                        {PERIODO_OPTIONS.map((opcao) => {
+                          const isSelected = filtroTipo === opcao.value;
+                          return (
+                            <button
+                              key={opcao.value}
+                              onClick={() => {
+                                setFiltroTipo(opcao.value);
+                                if (opcao.value !== "personalizado") {
+                                  setDataInicio("");
+                                  setDataFim("");
+                                }
+                                setIsPeriodoDropdownOpen(false);
+                              }}
+                              className={`flex items-center justify-between w-full px-3 py-2.5 text-sm text-left rounded-lg transition-colors cursor-pointer ${
+                                isSelected
+                                  ? "bg-[#4180ab]/10 text-[#4180ab] font-bold"
+                                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                              }`}
+                            >
+                              <span className="truncate">{opcao.label}</span>
+                              {isSelected && (
+                                <Check className="w-4 h-4 text-[#4180ab]" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {/* Inputs para Período Personalizado (Renderização Condicional) */}
+                {filtroTipo === "personalizado" && (
+                  <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200 bg-white border border-slate-200 p-1 rounded-lg shadow-sm">
+                    <input
+                      type="date"
+                      value={dataInicio}
+                      onChange={(e) => setDataInicio(e.target.value)}
+                      className="text-sm text-slate-700 bg-transparent rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 hover:bg-slate-50 cursor-pointer"
+                    />
+                    <span className="text-slate-300 font-medium text-sm">
+                      até
+                    </span>
+                    <input
+                      type="date"
+                      value={dataFim}
+                      onChange={(e) => setDataFim(e.target.value)}
+                      className="text-sm text-slate-700 bg-transparent rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#4180ab]/50 hover:bg-slate-50 cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Seletor de Endemia */}
@@ -410,6 +540,10 @@ export default function Dashboard({ isPrivateView = false }) {
                 <DashboardHanseniase pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "hepatite" ? (
                 <DashboardHepatite pacientes={pacientesFiltrados} />
+              ) : endemiaSelecionada.id === "animaispec" ? (
+                <DashboardAcidentes pacientes={pacientesFiltrados} />
+              ) : endemiaSelecionada.id === "intoxicacao" ? (
+                <DashboardIntoxicacao pacientes={pacientesFiltrados} />
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />

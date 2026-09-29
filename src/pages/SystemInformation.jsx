@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import SidebarPrivate from "@/components/private/SidebarPrivate";
 import {
   Menu,
@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Upload,
   FileUp,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 
 // Mapeamento das tabelas/endpoints da API
@@ -37,6 +39,12 @@ const TABELAS = [
   { id: "intoxicacao", nome: "Intoxicação", endpoint: "/api/intoxicacao/" },
   { id: "leish", nome: "Leishmaniose", endpoint: "/api/leish/" },
   { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
+  { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
+  {
+    id: "coberturavacinal",
+    nome: "Cobertura Vacinal",
+    endpoint: "/api/coberturavacinal/",
+  },
 ];
 
 // Esquema de campos para cada tabela (baseado no models.py)
@@ -54,7 +62,7 @@ const TABLE_SCHEMAS = {
     "cs_sexo",
     "classi_fin",
   ],
-  tuberculose: ["id_unidade", "nm_ubs", "nu_notific"],
+  tuberculose: ["id_unidade", "nm_ubs", "ano_notific", "nu_notific"],
   sifilis: [
     "nu_notific",
     "id_unidade",
@@ -62,17 +70,25 @@ const TABLE_SCHEMAS = {
     "nm_ubs",
     "mu_residen",
     "dt_notific",
+    "ano_notific",
     "id_agravo",
     "nm_pacient",
   ],
-  chagas: ["id_unidade", "nm_ubs", "nu_notific"],
-  violenciadomestica: ["nu_notific", "id_unidade", "nm_ubs"],
-  hans: ["id_unidade", "nm_ubs", "nu_notific"],
-  hepatite: ["nu_notific", "id_unidade", "nm_ubs"],
-  animaispec: ["id_unidade", "nm_ubs", "hospital", "nu_notific"],
+  chagas: ["id_unidade", "nm_ubs", "nu_notific", "ano_notific"],
+  violenciadomestica: ["nu_notific", "id_unidade", "nm_ubs", "ano_notific"],
+  hans: ["id_unidade", "nm_ubs", "ano_notific", "nu_notific"],
+  hepatite: ["nu_notific", "id_unidade", "nm_ubs", "ano_notific"],
+  animaispec: ["id_unidade", "nm_ubs", "hospital", "ano_notific", "nu_notific"],
   intoxicacao: ["ano_notific", "nu_notific"],
   leish: ["ano_notific", "nu_notific"],
   aidsadulta: ["ano_notific", "nu_notific"],
+  coberturavacinal: [
+    "ano",
+    "imunobiologico",
+    "cobertura_percentual",
+    "meta_otima",
+    "data_atualizacao",
+  ],
 };
 
 export default function SystemInformation() {
@@ -91,11 +107,57 @@ export default function SystemInformation() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Estados do Custom Dropdown
+  const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   // Feedback
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
+
+  // Fechar o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsTableDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSyncGoverno = async () => {
+    setIsSyncing(true);
+    setMensagem({
+      texto:
+        "Conectando ao Ministério da Saúde. Isso pode levar alguns segundos...",
+      tipo: "sucesso",
+    });
+
+    try {
+      const response = await fetch(`${baseUrl}/api/sincronizar-governo/`, {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.erro || "Falha na sincronização.");
+
+      mostrarMensagem(data.mensagem, "sucesso");
+      fetchDados(); // Atualiza a tabela na tela
+    } catch (error) {
+      console.error(error);
+      mostrarMensagem(
+        error.message || "Erro ao sincronizar com a API do SUS.",
+        "erro",
+      );
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Carregar dados da tabela selecionada
   const fetchDados = async () => {
@@ -167,11 +229,9 @@ export default function SystemInformation() {
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     const url = editingId
       ? `${baseUrl}${tabelaAtiva.endpoint}${editingId}/`
       : `${baseUrl}${tabelaAtiva.endpoint}`;
-
     const method = editingId ? "PUT" : "POST";
 
     try {
@@ -182,7 +242,6 @@ export default function SystemInformation() {
       });
 
       if (!response.ok) throw new Error("Falha ao salvar o registro.");
-
       mostrarMensagem(
         `Registro ${editingId ? "atualizado" : "criado"} com sucesso!`,
         "sucesso",
@@ -212,7 +271,6 @@ export default function SystemInformation() {
       });
 
       if (!response.ok) throw new Error("Falha ao excluir.");
-
       mostrarMensagem("Registro excluído com sucesso!", "sucesso");
       fetchDados();
     } catch (error) {
@@ -229,25 +287,21 @@ export default function SystemInformation() {
     if (!uploadFile) return;
 
     setIsUploading(true);
-
-    // Preparando o formData para envio de arquivo
     const formDataUpload = new FormData();
     formDataUpload.append("arquivo", uploadFile);
     formDataUpload.append("tabela_destino", tabelaAtiva.id);
 
     try {
-      // Endpoint que deverá receber os arquivos (Ex: /api/upload_dbf/ ou /api/upload/)
       const response = await fetch(`${baseUrl}/api/upload/`, {
         method: "POST",
-        body: formDataUpload, // Não incluir Content-Type explicitamente com FormData
+        body: formDataUpload,
       });
 
       if (!response.ok) throw new Error("Falha ao importar o arquivo.");
-
       mostrarMensagem("Arquivo importado e processado com sucesso!", "sucesso");
       setIsImportModalOpen(false);
       setUploadFile(null);
-      fetchDados(); // Atualiza a tabela após a importação
+      fetchDados();
     } catch (error) {
       console.error(error);
       mostrarMensagem(
@@ -266,8 +320,8 @@ export default function SystemInformation() {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto ml-0 md:ml-64 relative">
-        <header className="px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-sm border-b border-[#043048]/20">
+      <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -284,12 +338,9 @@ export default function SystemInformation() {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500">
+        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500 md:-mt-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-extrabold text-slate-900">
-                Gerenciador de Tabelas
-              </h1>
               <p className="text-slate-500 text-sm mt-1">
                 Visualize, edite, remova e importe dados brutos SINAN do
                 sistema.
@@ -297,19 +348,58 @@ export default function SystemInformation() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={tabelaAtiva.id}
-                onChange={(e) =>
-                  setTabelaAtiva(TABELAS.find((t) => t.id === e.target.value))
-                }
-                className="bg-white border border-slate-300 text-slate-700 rounded-xl px-4 py-2.5 outline-none focus:ring-2 focus:ring-[#4180ab]/50 font-medium cursor-pointer shadow-sm"
-              >
-                {TABELAS.map((tabela) => (
-                  <option key={tabela.id} value={tabela.id}>
-                    Tabela: {tabela.nome}
-                  </option>
-                ))}
-              </select>
+              {/* Dropdown Customizado Moderno */}
+              <div className="relative w-full sm:w-64" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsTableDropdownOpen(!isTableDropdownOpen)}
+                  className={`flex items-center justify-between w-full bg-white border ${
+                    isTableDropdownOpen
+                      ? "border-[#4180ab] ring-2 ring-[#4180ab]/20"
+                      : "border-slate-300"
+                  } text-slate-700 rounded-xl px-4 py-2.5 outline-none font-medium shadow-sm transition-all hover:border-[#4180ab]/50 cursor-pointer`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <Database className="w-4 h-4 text-[#4180ab]" />
+                    <span className="truncate">Tabela: {tabelaAtiva.nome}</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
+                      isTableDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isTableDropdownOpen && (
+                  <div className="absolute top-full right-0 w-full sm:w-64 mt-2 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 max-h-72 overflow-y-auto custom-scrollbar">
+                    <div className="p-1">
+                      {TABELAS.map((tabela) => {
+                        const isSelected = tabelaAtiva.id === tabela.id;
+                        return (
+                          <button
+                            key={tabela.id}
+                            onClick={() => {
+                              setTabelaAtiva(tabela);
+                              setIsTableDropdownOpen(false);
+                            }}
+                            className={`flex items-center justify-between w-full px-3 py-2.5 text-sm text-left rounded-lg transition-colors cursor-pointer ${
+                              isSelected
+                                ? "bg-[#4180ab]/10 text-[#4180ab] font-bold"
+                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                            }`}
+                          >
+                            <span className="truncate">{tabela.nome}</span>
+                            {isSelected && (
+                              <Check className="w-4 h-4 text-[#4180ab]" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <button
                 onClick={fetchDados}
                 disabled={loading}
@@ -336,7 +426,7 @@ export default function SystemInformation() {
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-[500px]">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-125 md:min-h-160">
             {/* Toolbar Principal */}
             <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center bg-slate-50/50">
               <div className="relative w-full sm:w-96">
@@ -351,6 +441,20 @@ export default function SystemInformation() {
               </div>
 
               <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
+                {/* NOVO BOTÃO DE SINCRONIZAÇÃO */}
+                <button
+                  onClick={handleSyncGoverno}
+                  disabled={isSyncing}
+                  className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isSyncing ? (
+                    <RefreshCw className="size-4 animate-spin" />
+                  ) : (
+                    <Database className="size-4" />
+                  )}
+                  Sincronizar DataSUS
+                </button>
+
                 <button
                   onClick={() => setIsImportModalOpen(true)}
                   className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
@@ -358,6 +462,7 @@ export default function SystemInformation() {
                   <Upload className="size-4" />
                   Importar Arquivo
                 </button>
+
                 <button
                   onClick={() => handleOpenModal()}
                   className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
@@ -369,7 +474,7 @@ export default function SystemInformation() {
             </div>
 
             <div className="flex-1 overflow-auto">
-              <table className="w-full text-left border-collapse min-w-[800px]">
+              <table className="w-full text-left border-collapse min-w-200">
                 <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
                   <tr>
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
@@ -384,7 +489,7 @@ export default function SystemInformation() {
                       </th>
                     ))}
                     <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap text-right">
-                      Ações
+                      AÇÕES
                     </th>
                   </tr>
                 </thead>
@@ -420,7 +525,7 @@ export default function SystemInformation() {
                         {colunas.map((col) => (
                           <td
                             key={col}
-                            className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate"
+                            className="px-6 py-4 text-sm text-slate-600 max-w-50 truncate"
                             title={item[col]}
                           >
                             {item[col] || (
@@ -476,7 +581,7 @@ export default function SystemInformation() {
                   setIsImportModalOpen(false);
                   setUploadFile(null);
                 }}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 hover:cursor-pointer p-1.5 rounded-full transition-colors"
               >
                 <X className="size-5" />
               </button>
@@ -549,6 +654,7 @@ export default function SystemInformation() {
         </div>
       )}
 
+      {/* Modal de Criação / Edição de Registos */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
@@ -613,7 +719,7 @@ export default function SystemInformation() {
                 type="submit"
                 form="recordForm"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] transition-colors disabled:opacity-70"
+                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] hover:cursor-pointer transition-colors disabled:opacity-70"
               >
                 {loading ? (
                   <RefreshCw className="size-4 animate-spin" />
