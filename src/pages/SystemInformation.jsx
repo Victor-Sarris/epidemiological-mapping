@@ -321,7 +321,7 @@ export default function SystemInformation() {
       />
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab]/90 backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
