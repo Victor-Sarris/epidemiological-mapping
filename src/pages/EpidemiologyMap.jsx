@@ -2190,7 +2190,7 @@ function EpidemiologicMap({ isPrivateView = false }) {
             ) : (
               <div className="relative w-full h-full">
                 {showMobileHint && (
-                  <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 md:hidden w-[85%] max-w-[320px] pointer-events-none animate-in fade-in slide-in-from-top-4 duration-700 mt-100">
+                  <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 md:hidden w-[85%] max-w-[320px] pointer-events-none animate-in fade-in slide-in-from-top-4 duration-700 mt-110">
                     <div className="bg-slate-800/90 backdrop-blur-md text-white text-center px-4 py-3 rounded-2xl shadow-2xl flex items-center justify-center gap-3 border border-slate-700">
                       <span className="relative flex h-3 w-3 shrink-0">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
