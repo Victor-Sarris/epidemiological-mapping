@@ -10,8 +10,8 @@ import EpiDataLogo from "../assets/EPI-DATA.png";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useState } from "react";
 import ParticlesBg from "particles-bg";
-import PrivacyPolicyModal from "@/components/Modal/PrivacyPolicy";
-import TermsModal from "@/components/Modal/TermsModal";
+import PoliLegal from "@/components/Modal/PoliLegal.jsx";
+import TermsModal from "@/components/Modal/TermsModal.jsx";
 
 function Home() {
   const navigate = useNavigate();
@@ -209,7 +209,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <PrivacyPolicyModal
+      <PoliLegal
         isOpen={isPrivacyModalOpen}
         onClose={() => setIsPrivacyModalOpen(false)}
       />

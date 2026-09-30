@@ -4,8 +4,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
-import DashboardSifilis from "./DashboardSifilis.jsx";
-import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import Support from "./Support.jsx";
 import { AuthProvider } from "../contexts/AuthContext.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
