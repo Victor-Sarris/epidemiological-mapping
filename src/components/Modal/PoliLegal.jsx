@@ -1,7 +1,7 @@
 import React from "react";
 import { ShieldCheck, Database, Lock, UserCheck, X } from "lucide-react";
 
-export default function PrivacyPolicyModal({ isOpen, onClose }) {
+export default function policalegal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (

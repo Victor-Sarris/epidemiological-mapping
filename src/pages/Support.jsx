@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
@@ -18,7 +20,9 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-// Lista de Flashcards / Dúvidas Comuns
+// =========================================================
+// FAQS (inalterado)
+// =========================================================
 const FAQS = [
   {
     q: "Como atualizo os dados do mapa?",
@@ -42,25 +46,175 @@ const FAQS = [
   },
 ];
 
+// =========================================================
+// COMPONENTES DE RENDERIZAÇÃO ESTRUTURADA
+// =========================================================
+
+/** Ranking com barras horizontais — usado para "top bairros", "panorama geral" */
+function RankingCard({ data }) {
+  const max = Math.max(...data.itens.map((i) => i.valor), 1);
+  const medalhas = ["🥇", "🥈", "🥉"];
+
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white p-4 shadow-sm w-full">
+      <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+        📊 {data.titulo}
+      </h3>
+      <ul className="space-y-2.5">
+        {data.itens.map((item, i) => (
+          <li key={i} className="flex items-center gap-2">
+            <span className="w-6 text-xs font-bold text-slate-500 shrink-0">
+              {medalhas[i] || `${i + 1}º`}
+            </span>
+            <span className="flex-1 text-xs text-slate-700 truncate font-medium">
+              {item.label}
+            </span>
+            <div className="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0">
+              <div
+                className={`h-full rounded-full ${
+                  i === 0 ? "bg-[#4180ab]" : "bg-[#4180ab]/60"
+                }`}
+                style={{ width: `${(item.valor / max) * 100}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-[#054060] w-8 text-right shrink-0">
+              {item.valor}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** KPI grande — usado para "quantos casos de X" */
+function KpiCard({ data }) {
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-gradient-to-br from-[#4180ab]/10 to-white p-5 shadow-sm w-full">
+      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
+        {data.titulo}
+      </p>
+      <p className="text-4xl font-extrabold text-[#054060] leading-none">
+        {data.valor}
+      </p>
+      <p className="text-xs text-slate-500 mt-1">{data.subtitulo}</p>
+    </div>
+  );
+}
+
+/** Tabela compacta — usado para cobertura vacinal */
+function TabelaCard({ data }) {
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white p-4 shadow-sm w-full overflow-hidden">
+      <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+        💉 {data.titulo}
+      </h3>
+      <div className="overflow-x-auto -mx-1">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-slate-200 text-left text-slate-500">
+              {data.colunas.map((c, i) => (
+                <th
+                  key={i}
+                  className="pb-2 pr-2 font-semibold whitespace-nowrap"
+                >
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.linhas.map((linha, i) => (
+              <tr key={i} className="border-b border-slate-100 last:border-0">
+                {linha.map((cell, j) => (
+                  <td
+                    key={j}
+                    className={`py-2 pr-2 ${
+                      j === 0 ? "font-medium text-slate-700" : "text-slate-600"
+                    }`}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function StructuredContent({ data }) {
+  if (!data) return null;
+  if (data.tipo === "ranking") return <RankingCard data={data} />;
+  if (data.tipo === "kpi") return <KpiCard data={data} />;
+  if (data.tipo === "tabela") return <TabelaCard data={data} />;
+  return null;
+}
+
+// =========================================================
+// Markdown customizado (sem precisar de @tailwindcss/typography)
+// =========================================================
+const mdComponents = {
+  p: ({ children }) => (
+    <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
+  ),
+  strong: ({ children }) => (
+    <strong className="font-bold text-slate-900">{children}</strong>
+  ),
+  em: ({ children }) => <em className="italic">{children}</em>,
+  ul: ({ children }) => (
+    <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>
+  ),
+  li: ({ children }) => <li className="text-sm">{children}</li>,
+  h1: ({ children }) => (
+    <h1 className="font-bold text-base mb-2">{children}</h1>
+  ),
+  h2: ({ children }) => <h2 className="font-bold text-sm mb-2">{children}</h2>,
+  h3: ({ children }) => (
+    <h3 className="font-semibold text-sm mb-1">{children}</h3>
+  ),
+  code: ({ children }) => (
+    <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">
+      {children}
+    </code>
+  ),
+  a: ({ children, href }) => (
+    <a
+      href={href}
+      className="text-blue-600 underline hover:text-blue-800"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  ),
+};
+
+// =========================================================
+// PÁGINA DE SUPORTE
+// =========================================================
 function Support({ isPrivateView = false }) {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Estado para controlar qual Flashcard está aberto
   const [openFaq, setOpenFaq] = useState(null);
 
   const [messages, setMessages] = useState([
     {
       sender: "bot",
       text: "Olá! Sou o seu assistente virtual. Como posso ajudar você hoje?",
+      structured: null,
     },
   ]);
 
   const messagesEndRef = useRef(null);
 
-  // Auto-scroll para a última mensagem
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -69,19 +223,19 @@ function Support({ isPrivateView = false }) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const toggleChatbot = () => {
-    setIsChatbotOpen(!isChatbotOpen);
-  };
+  const toggleChatbot = () => setIsChatbotOpen(!isChatbotOpen);
 
   const handleSendMessage = async () => {
     if (inputValue.trim() === "") return;
 
     const userText = inputValue;
 
-    // Adiciona a mensagem do usuário
-    setMessages((prev) => [...prev, { sender: "user", text: userText }]);
+    setMessages((prev) => [
+      ...prev,
+      { sender: "user", text: userText, structured: null },
+    ]);
     setInputValue("");
-    setIsLoading(true); // Ativa o estado de carregamento
+    setIsLoading(true);
 
     try {
       const rawApiUrl = import.meta.env.VITE_API_URL || "";
@@ -101,7 +255,11 @@ function Support({ isPrivateView = false }) {
       if (data.status === "success") {
         setMessages((prev) => [
           ...prev,
-          { sender: "bot", text: data.response },
+          {
+            sender: "bot",
+            text: data.response,
+            structured: data.structured || null, // ← captura o bloco estruturado
+          },
         ]);
       } else {
         throw new Error("Erro na resposta da API");
@@ -113,10 +271,11 @@ function Support({ isPrivateView = false }) {
         {
           sender: "bot",
           text: "Desculpe, ocorreu um erro de conexão com o servidor. Tente novamente mais tarde.",
+          structured: null,
         },
       ]);
     } finally {
-      setIsLoading(false); // Desativa o estado de carregamento
+      setIsLoading(false);
     }
   };
 
@@ -227,10 +386,16 @@ function Support({ isPrivateView = false }) {
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${isOpen ? "bg-blue-50" : "bg-slate-50 group-hover:bg-slate-100"}`}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                          isOpen
+                            ? "bg-blue-50"
+                            : "bg-slate-50 group-hover:bg-slate-100"
+                        }`}
                       >
                         <div
-                          className={`transition-transform duration-300 ${isOpen ? "scale-110" : "scale-100"}`}
+                          className={`transition-transform duration-300 ${
+                            isOpen ? "scale-110" : "scale-100"
+                          }`}
                         >
                           {faq.icon}
                         </div>
@@ -238,7 +403,9 @@ function Support({ isPrivateView = false }) {
                       <div className="flex-1 w-full">
                         <div className="flex justify-between items-start w-full">
                           <h3
-                            className={`font-bold text-base md:text-lg pr-4 transition-colors ${isOpen ? "text-[#054060]" : "text-slate-800"}`}
+                            className={`font-bold text-base md:text-lg pr-4 transition-colors ${
+                              isOpen ? "text-[#054060]" : "text-slate-800"
+                            }`}
                           >
                             {faq.q}
                           </h3>
@@ -333,24 +500,62 @@ function Support({ isPrivateView = false }) {
                 </span>
               </div>
 
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
+              {messages.map((msg, index) => {
+                const isUser = msg.sender === "user";
+                const hasStructured = !isUser && !!msg.structured;
+
+                // Caso especial: bot com card estruturado
+                if (hasStructured) {
+                  return (
+                    <div key={index} className="flex w-full justify-start">
+                      <div className="flex flex-col gap-2 max-w-[85%] w-full">
+                        <StructuredContent data={msg.structured} />
+                        {msg.text && (
+                          <div className="bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm p-3.5 text-sm md:text-base shadow-sm">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={mdComponents}
+                            >
+                              {msg.text}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Caso normal: texto puro (user ou bot sem structured)
+                return (
                   <div
-                    className={`p-3.5 text-sm md:text-base max-w-[85%] shadow-sm ${
-                      msg.sender === "user"
-                        ? "bg-[#054060] text-white rounded-2xl rounded-tr-sm"
-                        : "bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm"
+                    key={index}
+                    className={`flex w-full ${
+                      isUser ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {msg.text}
+                    <div
+                      className={`p-3.5 text-sm md:text-base max-w-[85%] shadow-sm ${
+                        isUser
+                          ? "bg-[#054060] text-white rounded-2xl rounded-tr-sm whitespace-pre-wrap"
+                          : "bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm"
+                      }`}
+                    >
+                      {isUser ? (
+                        msg.text
+                      ) : (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={mdComponents}
+                        >
+                          {msg.text}
+                        </ReactMarkdown>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
-              {/* Indicador de Digitação (Carregamento) */}
+              {/* Indicador de Digitação */}
               {isLoading && (
                 <div className="flex w-full justify-start">
                   <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-1.5">
@@ -367,7 +572,6 @@ function Support({ isPrivateView = false }) {
                 </div>
               )}
 
-              {/* Div invisível para ancorar o scroll */}
               <div ref={messagesEndRef} />
             </div>
 
