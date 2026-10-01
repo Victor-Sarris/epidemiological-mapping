@@ -18,7 +18,6 @@ import {
   Check,
 } from "lucide-react";
 
-// Mapeamento das tabelas/endpoints da API
 const TABELAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
   { id: "tuberculose", nome: "Tuberculose", endpoint: "/api/tuberculose/" },
@@ -39,7 +38,6 @@ const TABELAS = [
   { id: "intoxicacao", nome: "Intoxicação", endpoint: "/api/intoxicacao/" },
   { id: "leish", nome: "Leishmaniose", endpoint: "/api/leish/" },
   { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
-  { id: "aidsadulta", nome: "AIDS Adulta", endpoint: "/api/aidsadulta/" },
   {
     id: "coberturavacinal",
     nome: "Cobertura Vacinal",
@@ -47,7 +45,6 @@ const TABELAS = [
   },
 ];
 
-// Esquema de campos para cada tabela (baseado no models.py)
 const TABLE_SCHEMAS = {
   dengue: [
     "numero_notificacao",
@@ -98,27 +95,22 @@ export default function SystemInformation() {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Estados do Modal e Formulário
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({});
   const [editingId, setEditingId] = useState(null);
 
-  // Estados de Importação
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Estados do Custom Dropdown
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Feedback
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
 
-  // Fechar o dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -126,7 +118,11 @@ export default function SystemInformation() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, []);
 
   const handleSyncGoverno = async () => {
@@ -136,18 +132,14 @@ export default function SystemInformation() {
         "Conectando ao Ministério da Saúde. Isso pode levar alguns segundos...",
       tipo: "sucesso",
     });
-
     try {
       const response = await fetch(`${baseUrl}/api/sincronizar-governo/`, {
         method: "POST",
       });
-
       const data = await response.json();
-
       if (!response.ok) throw new Error(data.erro || "Falha na sincronização.");
-
       mostrarMensagem(data.mensagem, "sucesso");
-      fetchDados(); // Atualiza a tabela na tela
+      fetchDados();
     } catch (error) {
       console.error(error);
       mostrarMensagem(
@@ -159,7 +151,6 @@ export default function SystemInformation() {
     }
   };
 
-  // Carregar dados da tabela selecionada
   const fetchDados = async () => {
     setLoading(true);
     setMensagem({ texto: "", tipo: "" });
@@ -188,7 +179,6 @@ export default function SystemInformation() {
     setTimeout(() => setMensagem({ texto: "", tipo: "" }), 5000);
   };
 
-  // Filtragem local
   const dadosFiltrados = useMemo(() => {
     if (!searchTerm) return dados;
     const lowerSearch = searchTerm.toLowerCase();
@@ -201,7 +191,6 @@ export default function SystemInformation() {
 
   const colunas = TABLE_SCHEMAS[tabelaAtiva.id] || [];
 
-  // Handlers do CRUD
   const handleOpenModal = (item = null) => {
     if (item) {
       setFormData(item);
@@ -233,14 +222,12 @@ export default function SystemInformation() {
       ? `${baseUrl}${tabelaAtiva.endpoint}${editingId}/`
       : `${baseUrl}${tabelaAtiva.endpoint}`;
     const method = editingId ? "PUT" : "POST";
-
     try {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-
       if (!response.ok) throw new Error("Falha ao salvar o registro.");
       mostrarMensagem(
         `Registro ${editingId ? "atualizado" : "criado"} com sucesso!`,
@@ -263,13 +250,11 @@ export default function SystemInformation() {
       )
     )
       return;
-
     setLoading(true);
     try {
       const response = await fetch(`${baseUrl}${tabelaAtiva.endpoint}${id}/`, {
         method: "DELETE",
       });
-
       if (!response.ok) throw new Error("Falha ao excluir.");
       mostrarMensagem("Registro excluído com sucesso!", "sucesso");
       fetchDados();
@@ -281,22 +266,18 @@ export default function SystemInformation() {
     }
   };
 
-  // Handler de Importação (DBF / EXCEL)
   const handleFileUpload = async (e) => {
     e.preventDefault();
     if (!uploadFile) return;
-
     setIsUploading(true);
     const formDataUpload = new FormData();
     formDataUpload.append("arquivo", uploadFile);
     formDataUpload.append("tabela_destino", tabelaAtiva.id);
-
     try {
       const response = await fetch(`${baseUrl}/api/upload/`, {
         method: "POST",
         body: formDataUpload,
       });
-
       if (!response.ok) throw new Error("Falha ao importar o arquivo.");
       mostrarMensagem("Arquivo importado e processado com sucesso!", "sucesso");
       setIsImportModalOpen(false);
@@ -321,7 +302,7 @@ export default function SystemInformation() {
       />
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -331,24 +312,21 @@ export default function SystemInformation() {
             </button>
             <div className="flex items-center gap-2 text-white">
               <Database className="size-5 md:size-6" />
-              <h2 className="text-lg md:text-xl font-bold tracking-wide">
+              <h2 className="text-base md:text-xl font-bold tracking-wide">
                 Administração do Sistema
               </h2>
             </div>
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-6 animate-in fade-in duration-500 md:-mt-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <p className="text-slate-500 text-sm mt-1">
-                Visualize, edite, remova e importe dados brutos SINAN do
-                sistema.
-              </p>
-            </div>
+        <div className="p-3 sm:p-4 md:p-8 w-full max-w-[1600px] mx-auto space-y-4 md:space-y-6 animate-in fade-in duration-500 md:-mt-6">
+          <div className="flex flex-col gap-3">
+            <p className="text-slate-500 text-xs sm:text-sm">
+              Visualize, edite, remova e importe dados brutos SINAN do sistema.
+            </p>
 
-            <div className="flex flex-wrap items-center gap-2">
-              {/* Dropdown Customizado Moderno */}
+            {/* Filtros + Atualizar */}
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative w-full sm:w-64" ref={dropdownRef}>
                 <button
                   type="button"
@@ -360,18 +338,18 @@ export default function SystemInformation() {
                   } text-slate-700 rounded-xl px-4 py-2.5 outline-none font-medium shadow-sm transition-all hover:border-[#4180ab]/50 cursor-pointer`}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <Database className="w-4 h-4 text-[#4180ab]" />
-                    <span className="truncate">Tabela: {tabelaAtiva.nome}</span>
+                    <Database className="w-4 h-4 text-[#4180ab] shrink-0" />
+                    <span className="truncate text-sm">
+                      Tabela: {tabelaAtiva.nome}
+                    </span>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${
-                      isTableDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${isTableDropdownOpen ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {isTableDropdownOpen && (
-                  <div className="absolute top-full right-0 w-full sm:w-64 mt-2 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 max-h-72 overflow-y-auto custom-scrollbar">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200 max-h-72 overflow-y-auto custom-scrollbar">
                     <div className="p-1">
                       {TABELAS.map((tabela) => {
                         const isSelected = tabelaAtiva.id === tabela.id;
@@ -403,49 +381,56 @@ export default function SystemInformation() {
               <button
                 onClick={fetchDados}
                 disabled={loading}
-                className="p-2.5 bg-white border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors shadow-sm hover:cursor-pointer disabled:opacity-50"
+                className="flex items-center justify-center gap-2 sm:w-auto px-4 py-2.5 bg-white border border-slate-300 text-slate-600 rounded-xl hover:bg-slate-50 transition-colors shadow-sm hover:cursor-pointer disabled:opacity-50 text-sm font-medium"
                 title="Atualizar Dados"
               >
                 <RefreshCw
-                  className={`size-5 ${loading ? "animate-spin text-[#4180ab]" : ""}`}
+                  className={`size-4 ${loading ? "animate-spin text-[#4180ab]" : ""}`}
                 />
+                <span className="sm:hidden">Atualizar</span>
               </button>
             </div>
           </div>
 
           {mensagem.texto && (
             <div
-              className={`p-4 rounded-xl flex items-center gap-3 border ${mensagem.tipo === "sucesso" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-red-50 border-red-200 text-red-700"}`}
+              className={`p-3 sm:p-4 rounded-xl flex items-start sm:items-center gap-3 border ${
+                mensagem.tipo === "sucesso"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
             >
               {mensagem.tipo === "sucesso" ? (
-                <CheckCircle2 className="size-5" />
+                <CheckCircle2 className="size-5 shrink-0 mt-0.5 sm:mt-0" />
               ) : (
-                <AlertCircle className="size-5" />
+                <AlertCircle className="size-5 shrink-0 mt-0.5 sm:mt-0" />
               )}
-              <span className="font-medium text-sm">{mensagem.texto}</span>
+              <span className="font-medium text-xs sm:text-sm">
+                {mensagem.texto}
+              </span>
             </div>
           )}
 
-          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden h-[calc(100vh-280px)] min-h-125 md:min-h-160">
-            {/* Toolbar Principal */}
-            <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between gap-4 items-center bg-slate-50/50">
-              <div className="relative w-full sm:w-96">
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden md:h-[calc(100vh-280px)] md:min-h-160">
+            {/* Toolbar */}
+            <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-col gap-3 bg-slate-50/50">
+              <div className="relative w-full md:w-96">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-4" />
                 <input
                   type="text"
                   placeholder="Buscar nos registros..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4180ab] focus:ring-1 focus:ring-[#4180ab] transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#4180ab] focus:ring-1 focus:ring-[#4180ab] transition-all"
                 />
               </div>
 
-              <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
-                {/* NOVO BOTÃO DE SINCRONIZAÇÃO */}
+              {/* Botões de ação — grid 2col no mobile, linha no desktop */}
+              <div className="grid grid-cols-2 md:flex md:flex-row gap-2 w-full md:w-auto md:ml-auto">
                 <button
                   onClick={handleSyncGoverno}
                   disabled={isSyncing}
-                  className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSyncing ? (
                     <RefreshCw className="size-4 animate-spin" />
@@ -457,23 +442,84 @@ export default function SystemInformation() {
 
                 <button
                   onClick={() => setIsImportModalOpen(true)}
-                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
+                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
                 >
-                  <Upload className="size-4" />
-                  Importar Arquivo
+                  <Upload className="size-4 shrink-0" />
+                  Importar
                 </button>
 
                 <button
                   onClick={() => handleOpenModal()}
-                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
+                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
                 >
-                  <Plus className="size-4" />
-                  Adicionar Registro
+                  <Plus className="size-4 shrink-0" />
+                  Adicionar
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            {/* === MOBILE: Cards === */}
+            <div className="md:hidden divide-y divide-slate-100">
+              {loading && dados.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 text-sm">
+                  <RefreshCw className="size-6 animate-spin mx-auto mb-2 text-[#4180ab]" />
+                  Carregando registros...
+                </div>
+              ) : dadosFiltrados.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 font-medium text-sm">
+                  Nenhum registro encontrado.
+                </div>
+              ) : (
+                dadosFiltrados.map((item) => (
+                  <div key={item.id} className="p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center px-2 py-0.5 bg-[#4180ab]/10 text-[#4180ab] text-xs font-bold rounded-md">
+                        #{item.id}
+                      </span>
+                      <div className="flex gap-1.5">
+                        <button
+                          onClick={() => handleOpenModal(item)}
+                          className="p-2 text-blue-600 bg-blue-50 rounded-lg active:scale-95 transition-transform"
+                          title="Editar"
+                        >
+                          <Edit className="size-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-2 text-red-600 bg-red-50 rounded-lg active:scale-95 transition-transform"
+                          title="Excluir"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <dl className="grid grid-cols-1 gap-1.5">
+                      {colunas.map((col) => (
+                        <div
+                          key={col}
+                          className="flex items-start justify-between gap-3 text-sm"
+                        >
+                          <dt className="text-slate-500 font-medium shrink-0 text-xs uppercase tracking-wide">
+                            {col.replace(/_/g, " ")}
+                          </dt>
+                          <dd className="text-slate-700 text-right break-words min-w-0">
+                            {item[col] || (
+                              <span className="text-slate-300 italic">
+                                vazio
+                              </span>
+                            )}
+                          </dd>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* === DESKTOP: Tabela === */}
+            <div className="hidden md:block flex-1 overflow-auto">
               <table className="w-full text-left border-collapse min-w-200">
                 <thead className="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 shadow-sm">
                   <tr>
@@ -560,19 +606,19 @@ export default function SystemInformation() {
               </table>
             </div>
 
-            <div className="p-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-500 font-medium text-center sm:text-left">
+            <div className="p-3 border-t border-slate-100 bg-slate-50 text-xs text-slate-500 font-medium text-center md:text-left">
               Total de registros: {dadosFiltrados.length}
             </div>
           </div>
         </div>
       </main>
 
-      {/* Modal de Upload de Arquivo (DBF / Excel) */}
+      {/* Modal Import — bottom-sheet no mobile */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-md flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[90vh]">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2">
                 <FileUp className="size-5 text-emerald-600" />
                 Importar SINAN
               </h3>
@@ -587,60 +633,58 @@ export default function SystemInformation() {
               </button>
             </div>
 
-            <div className="p-6 text-center">
-              <p className="text-sm text-slate-600 mb-6">
+            <div className="p-5 sm:p-6 text-center overflow-y-auto">
+              <p className="text-sm text-slate-600 mb-5">
                 Selecione um arquivo <strong>.dbf</strong>,{" "}
                 <strong>.xls</strong> ou <strong>.xlsx</strong> para popular a
                 tabela{" "}
                 <strong className="text-[#4180ab]">{tabelaAtiva.nome}</strong>.
               </p>
 
-              <div className="flex flex-col items-center justify-center w-full">
-                <label
-                  htmlFor="dropzone-file"
-                  className="flex flex-col items-center justify-center w-full h-40 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="w-8 h-8 mb-3 text-slate-400" />
-                    <p className="mb-2 text-sm text-slate-500 font-semibold">
-                      Clique para selecionar
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      DBF, XLS, XLSX ou CSV
-                    </p>
-                  </div>
-                  <input
-                    id="dropzone-file"
-                    type="file"
-                    className="hidden"
-                    accept=".dbf, .xls, .xlsx, .csv"
-                    onChange={(e) => setUploadFile(e.target.files[0])}
-                  />
-                </label>
-              </div>
+              <label
+                htmlFor="dropzone-file"
+                className="flex flex-col items-center justify-center w-full h-36 sm:h-40 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors"
+              >
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-8 h-8 mb-2 text-slate-400" />
+                  <p className="mb-1 text-sm text-slate-500 font-semibold">
+                    Clique para selecionar
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    DBF, XLS, XLSX ou CSV
+                  </p>
+                </div>
+                <input
+                  id="dropzone-file"
+                  type="file"
+                  className="hidden"
+                  accept=".dbf, .xls, .xlsx, .csv"
+                  onChange={(e) => setUploadFile(e.target.files[0])}
+                />
+              </label>
 
               {uploadFile && (
                 <div className="mt-4 p-3 bg-emerald-50 text-emerald-700 text-sm font-medium rounded-lg border border-emerald-100 truncate">
-                  Arquivo selecionado: {uploadFile.name}
+                  {uploadFile.name}
                 </div>
               )}
             </div>
 
-            <div className="p-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
+            <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50/50 rounded-b-none sm:rounded-b-2xl">
               <button
                 type="button"
                 onClick={() => {
                   setIsImportModalOpen(false);
                   setUploadFile(null);
                 }}
-                className="px-5 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 onClick={handleFileUpload}
                 disabled={isUploading || !uploadFile}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isUploading ? (
                   <RefreshCw className="size-4 animate-spin" />
@@ -654,29 +698,31 @@ export default function SystemInformation() {
         </div>
       )}
 
-      {/* Modal de Criação / Edição de Registos */}
+      {/* Modal CRUD — full/bottom-sheet no mobile */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-5 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-100 shrink-0">
+              <h3 className="text-base sm:text-lg font-bold text-slate-800 flex items-center gap-2 truncate pr-2">
                 {editingId ? (
-                  <Edit className="size-5 text-[#4180ab]" />
+                  <Edit className="size-5 text-[#4180ab] shrink-0" />
                 ) : (
-                  <Plus className="size-5 text-[#4180ab]" />
+                  <Plus className="size-5 text-[#4180ab] shrink-0" />
                 )}
-                {editingId ? "Editar Registro" : "Novo Registro"} -{" "}
-                {tabelaAtiva.nome}
+                <span className="truncate">
+                  {editingId ? "Editar Registro" : "Novo Registro"} —{" "}
+                  {tabelaAtiva.nome}
+                </span>
               </h3>
               <button
                 onClick={handleCloseModal}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors"
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-full transition-colors shrink-0"
               >
                 <X className="size-5" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+            <div className="p-4 sm:p-6 overflow-y-auto flex-1 custom-scrollbar">
               <form
                 id="recordForm"
                 onSubmit={handleSave}
@@ -698,7 +744,7 @@ export default function SystemInformation() {
                         name={col}
                         value={formData[col] || ""}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-[#4180ab] focus:ring-1 focus:ring-[#4180ab] transition-all"
+                        className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-800 focus:outline-none focus:border-[#4180ab] focus:ring-1 focus:ring-[#4180ab] transition-all"
                         placeholder={`Inserir ${label.toLowerCase()}...`}
                       />
                     </div>
@@ -707,11 +753,11 @@ export default function SystemInformation() {
               </form>
             </div>
 
-            <div className="p-5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 rounded-b-2xl">
+            <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-end gap-2 sm:gap-3 bg-slate-50/50 shrink-0">
               <button
                 type="button"
                 onClick={handleCloseModal}
-                className="px-5 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
               >
                 Cancelar
               </button>
@@ -719,7 +765,7 @@ export default function SystemInformation() {
                 type="submit"
                 form="recordForm"
                 disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] hover:cursor-pointer transition-colors disabled:opacity-70"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-[#4180ab] rounded-lg hover:bg-[#32678c] hover:cursor-pointer transition-colors disabled:opacity-70"
               >
                 {loading ? (
                   <RefreshCw className="size-4 animate-spin" />

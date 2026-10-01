@@ -104,8 +104,8 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
             onClick={onClose}
           >
             <div className="relative shrink-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#538CB3] to-[#054060] rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
-              <div className="relative bg-gradient-to-br from-[#538CB3] to-[#054060] p-2.5 rounded-xl shadow-sm group-hover:scale-105 transition-transform duration-300">
+              <div className="absolute inset-0 bg-linear-to-br from-[#538CB3] to-[#054060] rounded-xl blur-md opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+              <div className="relative bg-linear-to-br from-[#538CB3] to-[#054060] p-2.5 rounded-xl shadow-sm group-hover:scale-105 transition-transform duration-300">
                 <Activity className="size-5 text-white" strokeWidth={2.5} />
               </div>
             </div>
@@ -135,7 +135,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
             isCollapsed ? "mx-4 mt-4" : "mx-5 mt-4"
           }`}
         >
-          <div className="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent"></div>
+          <div className="h-px bg-linear-to-r from-transparent via-slate-200 to-transparent"></div>
         </div>
 
         {/* Navegação Principal */}
@@ -170,7 +170,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                   >
                     {/* Barrinha lateral do item ativo */}
                     {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-gradient-to-b from-[#538CB3] to-[#054060] rounded-r-full" />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-linear-to-b from-[#538CB3] to-[#054060] rounded-r-full" />
                     )}
 
                     <Icon
@@ -220,7 +220,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
         {/* Rodapé (Status do Sistema) */}
         <div className="p-3 border-t border-slate-100">
           <div
-            className={`flex items-center rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-100 transition-all duration-300 ${
+            className={`flex items-center rounded-xl bg-linear-to-br from-slate-50 to-slate-100/50 border border-slate-100 transition-all duration-300 ${
               isCollapsed ? "justify-center px-0 py-3" : "gap-3 px-3.5 py-3"
             }`}
             title={isCollapsed ? "Acesso Profissional - Autenticado" : ""}
@@ -241,6 +241,23 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                 Autenticado
               </span>
             </div>
+          </div>
+          <div
+            className={`mt-2 transition-all duration-300 ${isCollapsed ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 max-h-10"}`}
+          >
+            <p className="text-center">
+              <Link
+                to="/profissional/desenvolvedor"
+                onClick={onClose}
+                className={`text-[12px] font-medium transition-colors px-3 py-1.5 rounded-lg inline-block ${
+                  location.pathname === "/profissional/desenvolvedor"
+                    ? "bg-[#4180ab]/10 text-[#054060] font-bold"
+                    : "text-slate-400 hover:text-[#4180ab]"
+                }`}
+              >
+                About Dev
+              </Link>
+            </p>
           </div>
         </div>
       </aside>

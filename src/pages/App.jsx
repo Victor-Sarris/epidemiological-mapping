@@ -18,6 +18,7 @@ import SystemInformation from "./SystemInformation.jsx";
 import NotFound from "./NotFound.jsx";
 import ProtectedRoute from "@/utils/ProtectedRoute.jsx";
 import CoberturaVacinal from "./CoberturaVacinal.jsx";
+import AboutDeveloper from "./AboutDeveloper.jsx";
 
 function App() {
   return (
@@ -57,6 +58,10 @@ function App() {
               element={<Dashboard isPrivateView={false} />}
             />
             <Route path="/suporte" element={<Support />} />
+            <Route
+              path="/desenvolvedor"
+              element={<AboutDeveloper isPrivateView={false} />}
+            />
             <Route path="*" element={<NotFound />} />
 
             {/* =================== Rotas Privadas Admin ===================*/}
@@ -108,6 +113,11 @@ function App() {
               <Route
                 path="profissional/cobertura-vacinal"
                 element={<CoberturaVacinal />}
+                isPrivateView={true}
+              />
+              <Route
+                path="profissional/desenvolvedor"
+                element={<AboutDeveloper />}
                 isPrivateView={true}
               />
             </Route>
