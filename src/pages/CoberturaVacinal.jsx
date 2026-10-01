@@ -19,7 +19,7 @@ const FAIXAS_ETARIAS = {
     "Poliomielite",
     "Pneumocócica Conjugada",
     "Meningocócica Conjugada",
-    "vacina adsorvida difteria, tétano e pertussis", // Nome técnico da Penta no DataSUS
+    "vacina adsorvida difteria, tétano e pertussis",
     "Rotavírus",
   ],
   "1 ano de idade": [
@@ -165,7 +165,7 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-10 animate-in fade-in duration-500 pb-32">
+        <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-10 animate-in fade-in duration-500 pb-32 md:mb-15">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Activity className="size-8 text-[#1d4ed8] animate-spin" />
