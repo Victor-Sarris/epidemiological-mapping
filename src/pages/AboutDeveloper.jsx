@@ -11,9 +11,14 @@ import {
   MapPin,
   ExternalLink,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
-export default function AboutDeveloper({ isPrivateView = false }) {
+export default function AboutDeveloper({ isPrivateView: propIsPrivateView }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  const isPrivateView =
+    propIsPrivateView ?? location.pathname.includes("/profissional");
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
