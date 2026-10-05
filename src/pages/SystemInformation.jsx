@@ -16,6 +16,9 @@ import {
   FileUp,
   ChevronDown,
   Check,
+  BookOpen,
+  ChevronUp,
+  Info,
 } from "lucide-react";
 
 const TABELAS = [
@@ -88,6 +91,37 @@ const TABLE_SCHEMAS = {
   ],
 };
 
+const REGRAS_NOMENCLATURA = [
+  { prefixo: "deng", tabela: "Dengue", exemplo: "DENGBR26.dbf" },
+  { prefixo: "tubercu", tabela: "Tuberculose", exemplo: "TUBERCU26.dbf" },
+  { prefixo: "sifi", tabela: "Sífilis", exemplo: "SIFIBR26.dbf" },
+  {
+    prefixo: "violencia",
+    tabela: "Violência Doméstica",
+    exemplo: "VIOLENCIA26.dbf",
+  },
+  { prefixo: "chagas", tabela: "Chagas", exemplo: "CHAGASBR26.dbf" },
+  { prefixo: "hans", tabela: "Hanseníase", exemplo: "HANSNET26.dbf" },
+  { prefixo: "hepatite", tabela: "Hepatite", exemplo: "HEPATITE26.dbf" },
+  {
+    prefixo: "animaispec",
+    tabela: "Animais Peçonhentos",
+    exemplo: "ANIMAISPEC26.dbf",
+  },
+  {
+    prefixo: "intoxicacao",
+    tabela: "Intoxicação",
+    exemplo: "INTOXICACAO26.dbf",
+  },
+  { prefixo: "leish", tabela: "Leishmaniose", exemplo: "LEISHBR26.dbf" },
+  { prefixo: "aidsadulto", tabela: "AIDS Adulto", exemplo: "AIDSADULTO26.dbf" },
+  {
+    prefixo: "coberturavacinal",
+    tabela: "Cobertura Vacinal",
+    exemplo: "cobertura_2026.csv",
+  },
+];
+
 export default function SystemInformation() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [tabelaAtiva, setTabelaAtiva] = useState(TABELAS[0]);
@@ -108,6 +142,7 @@ export default function SystemInformation() {
   const dropdownRef = useRef(null);
 
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
+  const [isDocOpen, setIsDocOpen] = useState(false);
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
 
@@ -278,15 +313,23 @@ export default function SystemInformation() {
         method: "POST",
         body: formDataUpload,
       });
-      if (!response.ok) throw new Error("Falha ao importar o arquivo.");
-      mostrarMensagem("Arquivo importado e processado com sucesso!", "sucesso");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(
+          data?.erro || "Falha ao importar. Verifique o formato do arquivo.",
+        );
+      }
+      mostrarMensagem(
+        data?.mensagem || "Arquivo importado e processado com sucesso!",
+        "sucesso",
+      );
       setIsImportModalOpen(false);
       setUploadFile(null);
       fetchDados();
     } catch (error) {
       console.error(error);
       mostrarMensagem(
-        "Erro ao importar. Verifique o formato do arquivo (.dbf, .xls, .xlsx).",
+        error.message || "Erro ao importar. Verifique o formato do arquivo.",
         "erro",
       );
     } finally {
@@ -410,6 +453,203 @@ export default function SystemInformation() {
               </span>
             </div>
           )}
+
+          {/* === MINI DOCUMENTAÇÃO: Regras de nomenclatura === */}
+          <div className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setIsDocOpen((v) => !v)}
+              className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 bg-gradient-to-r from-[#4180ab]/5 to-transparent hover:from-[#4180ab]/10 transition-colors cursor-pointer text-left"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 bg-[#4180ab]/10 rounded-lg shrink-0">
+                  <BookOpen className="size-4 sm:size-5 text-[#4180ab]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm sm:text-base font-bold text-slate-800 truncate">
+                    Como nomear os arquivos para importação
+                  </p>
+                  <p className="text-xs sm:text-sm text-slate-500 truncate">
+                    Regras de nomenclatura aceitas pelo sistema
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="hidden sm:inline text-xs font-semibold text-[#4180ab] bg-[#4180ab]/10 px-2.5 py-1 rounded-full">
+                  {isDocOpen ? "Fechar" : "Ver regras"}
+                </span>
+                {isDocOpen ? (
+                  <ChevronUp className="size-5 text-slate-400" />
+                ) : (
+                  <ChevronDown className="size-5 text-slate-400" />
+                )}
+              </div>
+            </button>
+
+            {isDocOpen && (
+              <div className="border-t border-slate-100 p-4 sm:p-6 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* Aviso principal */}
+                <div className="flex items-start gap-3 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
+                  <Info className="size-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-xs sm:text-sm text-amber-800 leading-relaxed">
+                    <p className="font-bold mb-1">
+                      O nome do arquivo define em qual tabela os dados serão
+                      importados.
+                    </p>
+                    <p>
+                      O sistema identifica a doença pela{" "}
+                      <strong>parte inicial do nome do arquivo</strong> (antes
+                      da extensão). Se o nome não contiver nenhum dos prefixos
+                      da lista abaixo, a importação será recusada.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tabela de regras */}
+                <div className="overflow-x-auto rounded-xl border border-slate-200">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-slate-50 border-b border-slate-200">
+                      <tr>
+                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                          Prefixo obrigatório
+                        </th>
+                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                          Tabela de destino
+                        </th>
+                        <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">
+                          Exemplo de arquivo
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {REGRAS_NOMENCLATURA.map((regra) => (
+                        <tr
+                          key={regra.prefixo}
+                          className="hover:bg-slate-50/70 transition-colors"
+                        >
+                          <td className="px-4 py-2.5 whitespace-nowrap">
+                            <code className="px-2 py-1 bg-[#4180ab]/10 text-[#4180ab] text-xs font-bold rounded-md font-mono">
+                              {regra.prefixo}
+                            </code>
+                          </td>
+                          <td className="px-4 py-2.5 text-slate-700 font-medium whitespace-nowrap">
+                            {regra.tabela}
+                          </td>
+                          <td className="px-4 py-2.5 text-slate-500 font-mono text-xs whitespace-nowrap">
+                            {regra.exemplo}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Exemplos práticos */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle2 className="size-4 text-emerald-600 shrink-0" />
+                      <p className="text-xs font-bold text-emerald-800 uppercase tracking-wide">
+                        Válidos
+                      </p>
+                    </div>
+                    <ul className="space-y-1 text-xs sm:text-sm text-emerald-800 font-mono">
+                      <li>✅ DENGBR26.dbf</li>
+                      <li>✅ dengue.xlsx</li>
+                      <li>✅ TUBERCU_2026.xls</li>
+                      <li>✅ hans_jan_dez.dbf</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="size-4 text-red-600 shrink-0" />
+                      <p className="text-xs font-bold text-red-800 uppercase tracking-wide">
+                        Inválidos
+                      </p>
+                    </div>
+                    <ul className="space-y-1 text-xs sm:text-sm text-red-800 font-mono">
+                      <li>❌ planilha_final.xlsx</li>
+                      <li>❌ dados_2026.dbf</li>
+                      <li>❌ notificacoes.xls</li>
+                      <li>❌ arquivo.dbf</li>
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Rodapé de observações */}
+                <div className="pt-4 border-t border-slate-100">
+                  <ul className="space-y-2 text-xs sm:text-sm text-slate-600">
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#4180ab] font-bold shrink-0">
+                        •
+                      </span>
+                      <span>
+                        <strong>Extensões aceitas:</strong>{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          .dbf
+                        </code>{" "}
+                        (padrão SINAN),{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          .xlsx
+                        </code>{" "}
+                        e{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          .xls
+                        </code>{" "}
+                        (Excel).
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#4180ab] font-bold shrink-0">
+                        •
+                      </span>
+                      <span>
+                        <strong>Colunas:</strong> para arquivos Excel, os
+                        cabeçalhos devem seguir o padrão SINAN (ex:{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          NU_NOTIFIC
+                        </code>
+                        ,{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          NM_PACIENT
+                        </code>
+                        ,{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          DT_NOTIFIC
+                        </code>
+                        ).
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#4180ab] font-bold shrink-0">
+                        •
+                      </span>
+                      <span>
+                        <strong>Maiúsculas/minúsculas:</strong> não importa — o
+                        sistema normaliza automaticamente.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-[#4180ab] font-bold shrink-0">
+                        •
+                      </span>
+                      <span>
+                        <strong>Dúvidas?</strong> Contate{" "}
+                        <a
+                          href="mailto:vigilanciafloriano@gmail.com"
+                          className="text-[#4180ab] font-semibold hover:underline"
+                        >
+                          vigilanciafloriano@gmail.com
+                        </a>
+                        .
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden md:h-[calc(100vh-280px)] md:min-h-160">
             {/* Toolbar */}
