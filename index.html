@@ -18,16 +18,6 @@
     <script type="module" src="/src/main.jsx"></script>
 
     <script>
-      /**
-       * Carrega UserWay + VLibras somente em telas >= 768px (não-mobile).
-       * Para mudar o breakpoint, altere o valor em `MOBILE_BREAKPOINT`.
-       *
-       * Por que não carregar e apenas esconder via CSS?
-       *   - UserWay injeta conteúdo em um <iframe>/Shadow DOM.
-       *   - VLibras injeta um elemento com Shadow DOM próprio.
-       *   Nenhum dos dois pode ser escondido de forma confiável com
-       *   CSS externo. A alternativa robusta é simplesmente não carregá-los.
-       */
       (() => {
         const MOBILE_BREAKPOINT = "(max-width: 767px)";
 
