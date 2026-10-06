@@ -9,6 +9,7 @@ import {
   Smile,
   User,
   Menu,
+  Info, // <-- Ícone adicionado para o aviso
 } from "lucide-react";
 
 // Mapeamento idêntico ao do Ministério da Saúde
@@ -165,13 +166,24 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-10 animate-in fade-in duration-500 pb-32 md:mb-15">
+        <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-500 pb-32 md:mb-15">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Activity className="size-8 text-[#1d4ed8] animate-spin" />
             </div>
           ) : (
             <>
+              {/* Aviso sobre a origem dos dados */}
+              <div className="bg-blue-50 border border-blue-200 text-[#054060] rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-in slide-in-from-top-2">
+                <Info className="size-5 text-[#4180ab] shrink-0 mt-0.5" />
+                <p className="text-sm md:text-base leading-relaxed">
+                  <strong className="font-bold">Nota sobre os dados:</strong> As
+                  informações são importadas diretamente do site oficial
+                  (SINAN/DataSUS). Por isso, pode haver um pequeno atraso entre
+                  a notificação e a atualização nesta plataforma.
+                </p>
+              </div>
+
               {/* Menu de atalhos superiores */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {Object.keys(FAIXAS_ETARIAS).map((faixa) => {
