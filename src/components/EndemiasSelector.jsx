@@ -26,7 +26,7 @@ export default function EndemiaSelector({ options, value, onChange }) {
       {/* Botão Principal do Dropdown */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-[#054060]/50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#054060]/20"
+        className="w-full flex items-center justify-between px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-[#054060]/50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#054060]/20 cursor-pointer"
       >
         <span className="font-bold text-[#054060] truncate">
           {value?.nome || "Selecione uma Endemia"}
