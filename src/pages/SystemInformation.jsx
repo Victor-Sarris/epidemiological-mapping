@@ -593,11 +593,15 @@ export default function SystemInformation() {
                         <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
                           .xlsx
                         </code>{" "}
-                        e{" "}
+                        ,{" "}
                         <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
                           .xls
                         </code>{" "}
-                        (Excel).
+                        (Excel) e{" "}
+                        <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
+                          .csv
+                        </code>{" "}
+                        (CSV).
                       </span>
                     </li>
                     <li className="flex items-start gap-2">

@@ -214,6 +214,7 @@ function Support({ isPrivateView = false }) {
   ]);
 
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null); // Ref para o campo de texto auto-ajustável
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -235,6 +236,12 @@ function Support({ isPrivateView = false }) {
       { sender: "user", text: userText, structured: null },
     ]);
     setInputValue("");
+
+    // Reseta a altura do textarea após enviar
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+
     setIsLoading(true);
 
     try {
@@ -258,7 +265,7 @@ function Support({ isPrivateView = false }) {
           {
             sender: "bot",
             text: data.response,
-            structured: data.structured || null, // ← captura o bloco estruturado
+            structured: data.structured || null,
           },
         ]);
       } else {
@@ -279,10 +286,23 @@ function Support({ isPrivateView = false }) {
     }
   };
 
+  // Lida com a tecla Enter (envia) e Shift+Enter (quebra linha)
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
+    }
+  };
+
+  // Auto-ajusta a altura do textarea conforme o usuário digita
+  const handleInput = (e) => {
+    setInputValue(e.target.value);
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto"; // Reseta a altura base
+      // Define a nova altura, limitando ao máximo de 120px
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      scrollToBottom();
     }
   };
 
@@ -301,17 +321,20 @@ function Support({ isPrivateView = false }) {
       )}
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="md:hidden px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-lg border-b border-[#043048]">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+              className="md:hidden p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
             >
               <Menu className="size-6" />
             </button>
-            <h2 className="text-lg font-bold text-white tracking-wide">
-              Suporte
-            </h2>
+            <div className="flex items-center gap-2 text-white">
+              <HelpCircle className="size-5 md:size-6" />
+              <h2 className="text-base md:text-xl font-bold tracking-wide">
+                Administração do Sistema
+              </h2>
+            </div>
           </div>
         </header>
 
@@ -371,7 +394,8 @@ function Support({ isPrivateView = false }) {
               <HelpCircle className="text-[#4180ab] size-6" />
               Dúvidas Frequentes
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Adicionado 'items-start' para evitar que os cards estiquem */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               {FAQS.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
@@ -418,7 +442,7 @@ function Support({ isPrivateView = false }) {
                         <div
                           className={`overflow-hidden transition-all duration-300 ease-in-out ${
                             isOpen
-                              ? "max-h-40 mt-3 opacity-100"
+                              ? "max-h-96 mt-3 opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >
@@ -467,9 +491,9 @@ function Support({ isPrivateView = false }) {
 
         {/* Janela do Chatbot Modal */}
         {isChatbotOpen && (
-          <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full h-full md:h-150 md:w-100 bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 w-full h-[100dvh] md:h-[600px] md:w-[400px] bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
             {/* Header do Chat */}
-            <div className="bg-[#4180ab] p-4 md:p-5 flex justify-between items-center shadow-md z-10">
+            <div className="bg-[#4180ab] p-4 md:p-5 flex justify-between items-center shadow-md z-10 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-sm">
                   <IoHardwareChip className="text-white text-xl" />
@@ -576,21 +600,23 @@ function Support({ isPrivateView = false }) {
             </div>
 
             {/* Área de Input */}
-            <div className="p-4 bg-white border-t border-slate-100">
-              <div className="relative flex items-center gap-2">
-                <input
-                  type="text"
+            <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0">
+              {/* Container que simula a caixa de input, com items-end para o botão acompanhar o crescimento */}
+              <div className="relative flex items-end gap-2 bg-slate-50 rounded-3xl border border-slate-200 focus-within:border-[#054060] focus-within:ring-2 focus-within:ring-[#054060]/20 transition-all p-1.5 pl-5">
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
                   placeholder="Escreva sua mensagem..."
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={handleInput}
                   onKeyDown={handleKeyDown}
                   disabled={isLoading}
-                  className="w-full bg-slate-50 text-slate-800 pl-5 pr-14 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:border-[#054060] focus:ring-2 focus:ring-[#054060]/20 transition-all text-sm disabled:opacity-50"
+                  className="w-full bg-transparent text-slate-800 py-3 pr-2 focus:outline-none text-sm disabled:opacity-50 resize-none overflow-y-auto min-h-[44px] max-h-[120px] custom-scrollbar"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={inputValue.trim() === "" || isLoading}
-                  className="absolute right-1.5 p-2.5 bg-[#054060] text-white rounded-full hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center justify-center"
+                  className="p-3 bg-[#054060] text-white rounded-full hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center justify-center shrink-0 mb-0.5"
                 >
                   <IoSend size={18} className="translate-x-0.5" />
                 </button>

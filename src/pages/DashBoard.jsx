@@ -515,6 +515,7 @@ export default function Dashboard({ isPrivateView = false }) {
                 options={endemiasDisponiveis}
                 value={endemiaSelecionada}
                 onChange={setEndemiaSelecionada}
+                className={"cursor-pointer bg-amber-400"}
               />
             </div>
           </div>
