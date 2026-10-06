@@ -50,7 +50,7 @@ export default function EndemiaSelector({ options, value, onChange }) {
                   <button
                     onClick={() => handleSelect(option)}
                     className={`
-                      w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium transition-colors
+                      w-full flex items-center justify-between px-4 py-3 text-left text-sm font-medium transition-colors cursor-pointer
                       ${
                         isActive
                           ? "bg-[#054060]/5 text-[#054060] font-bold"
