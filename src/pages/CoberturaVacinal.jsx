@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   ShieldCheck,
@@ -9,38 +9,72 @@ import {
   Smile,
   User,
   Menu,
-  Info, // <-- Ícone adicionado para o aviso
+  Info,
 } from "lucide-react";
 
-// Mapeamento idêntico ao do Ministério da Saúde
-const FAIXAS_ETARIAS = {
-  "Ao Nascer": ["vacina BCG", "Hepatite B (<= 30 dias)"],
-  "Menores de 1 ano de idade": [
-    "Febre Amarela",
-    "Poliomielite",
-    "Pneumocócica Conjugada",
-    "Meningocócica Conjugada",
-    "vacina adsorvida difteria, tétano e pertussis",
-    "Rotavírus",
-  ],
-  "1 ano de idade": [
-    "Hepatite A Infantil",
-    "DTP (1º Reforço)",
-    "Tríplice Viral - 1º Dose",
-    "Tríplice Viral - 2º Dose",
-    "Pneumocócica Conjugada (1º Reforço)",
-    "Poliomielite (1º Reforço)",
-    "Varicela",
-    "Meningocócica Conjugada (1º Reforço)",
-  ],
-  "4 anos de idade": [
-    "DTP (2º Reforço)",
-    "Varicela - 2º dose",
-    "Febre Amarela (Reforço)",
-  ],
+// Normaliza nome de vacina: minúsculo, sem acento, sem pontuação
+const normalizar = (s) =>
+  String(s || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/^vacina\s+/i, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+// Match com boundary de palavra — "tetano" NÃO casa em "antitetano"
+const contemPalavra = (nomeNormalizado, termo) => {
+  const t = normalizar(termo);
+  if (!t) return false;
+  const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Precisa ter espaço (ou início/fim) antes e depois do termo
+  return new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(nomeNormalizado);
 };
 
-// Ícones ilustrativos para o menu de atalhos no topo
+const EXCLUSAO_GLOBAL = [
+  "adulto",
+  "antitetano", // imunoglobulina antitetânica
+  "imunoglobulina", // imunoglobulina humana
+  "raiva", // vacina antirrábica
+  "influenza", // campanha sazonal
+  "covid",
+  "febre amarela", // (só entrará se explicitamente listada na faixa 4 anos)
+];
+
+const FAIXAS_ETARIAS = {
+  "Ao Nascer": {
+    include: ["bcg", "hepatite b"],
+  },
+  "Menores de 1 ano de idade": {
+    include: [
+      "penta",
+      "vip",
+      "vop",
+      "poliomielite",
+      "pneumococica",
+      "meningococica",
+      "rotavirus",
+    ],
+  },
+  "1 ano de idade": {
+    include: [
+      "triplice viral",
+      "tetra viral",
+      "hepatite a",
+      "varicela",
+      "pneumococica",
+      "meningococica",
+      "poliomielite",
+      "vip",
+      "vop",
+    ],
+  },
+  "4 anos de idade": {
+    include: ["dtp", "varicela", "poliomielite"],
+    extras: ["febre amarela"],
+  },
+};
+
 const TABS_ICONS = {
   "Ao Nascer": Baby,
   "Menores de 1 ano de idade": Syringe,
@@ -48,42 +82,68 @@ const TABS_ICONS = {
   "4 anos de idade": User,
 };
 
-// Lógica de cores baseada na legenda do DataSUS
-function ProgressBarMS({ percentual, meta }) {
-  const isMetaAtingida = percentual >= meta;
+const isAdminUser = () => {
+  try {
+    const token =
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("access_token");
+    if (!token) return false;
 
-  let corBarra = "bg-[#1d4ed8]"; // Azul
+    const payload = JSON.parse(atob(token.split(".")[1]));
 
-  if (!isMetaAtingida) {
-    if (percentual <= 20)
-      corBarra = "bg-[#7f1d1d]"; // Vermelho Escuro
-    else if (percentual <= 40)
-      corBarra = "bg-[#e11d48]"; // Vermelho Claro
-    else if (percentual <= 60)
-      corBarra = "bg-[#f59e0b]"; // Laranja
-    else if (percentual <= 80)
-      corBarra = "bg-[#eab308]"; // Amarelo
-    else corBarra = "bg-[#10b981]"; // Verde
+    // Checa várias formas por segurança
+    return (
+      payload.role === "ADMIN" ||
+      payload.role === "admin" ||
+      payload.is_superuser === true
+    );
+  } catch {
+    return false;
+  }
+};
+
+function matchFaixa(imunobiologico, regra) {
+  const nome = normalizar(imunobiologico);
+
+  // 1. Exclusão global — se bater, rejeita em qualquer faixa
+  if (EXCLUSAO_GLOBAL.some((ex) => contemPalavra(nome, ex))) {
+    // Mas se a faixa explicitamente libera (extras), deixa passar
+    const permitidos = regra.extras || [];
+    if (!permitidos.some((ex) => contemPalavra(nome, ex))) {
+      return false;
+    }
   }
 
+  // 2. Match por include
+  return regra.include.some((inc) => contemPalavra(nome, inc));
+} // ← ESSA CHAVE ESTAVA FALTANDO
+
+function ProgressBarMS({ percentual, meta }) {
+  const isMetaAtingida = percentual >= meta;
+  let corBarra = "bg-[#1d4ed8]";
+  if (!isMetaAtingida) {
+    if (percentual <= 20) corBarra = "bg-[#7f1d1d]";
+    else if (percentual <= 40) corBarra = "bg-[#e11d48]";
+    else if (percentual <= 60) corBarra = "bg-[#f59e0b]";
+    else if (percentual <= 80) corBarra = "bg-[#eab308]";
+    else corBarra = "bg-[#10b981]";
+  }
   return (
     <div className="w-full bg-slate-200 rounded-full h-2.5 mt-2">
       <div
         className={`${corBarra} h-2.5 rounded-full transition-all duration-1000`}
         style={{ width: `${Math.min(percentual, 100)}%` }}
-      ></div>
+      />
     </div>
   );
 }
 
-// O Card de cada Imunobiológico
 function VacinaCard({ dados }) {
   const isMetaAtingida = dados.cobertura_percentual >= dados.meta_otima;
-
-  // Limpa e formata o nome longo do banco para exibição na tela
   const nomeExibicao = dados.imunobiologico
-    .replace(/^vacina /i, "") // Tira a palavra "vacina " do início (ex: "vacina BCG" vira "BCG")
-    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)"); // Encurta a Penta
+    .replace(/^vacina /i, "")
+    .replace("adsorvida difteria, tétano e pertussis", "Penta (DTP/HepB/Hib)");
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border-2 border-[#1e40af] p-5 flex flex-col justify-between h-44 relative hover:shadow-md transition-shadow">
@@ -96,7 +156,6 @@ function VacinaCard({ dados }) {
             Meta ótima {dados.meta_otima}%
           </p>
         </div>
-
         {isMetaAtingida && (
           <div className="absolute top-4 right-4 flex flex-col items-center justify-center bg-[#1d4ed8] text-white rounded-full w-12 h-12 shadow-sm border-2 border-white">
             <span className="text-[6px] font-bold mt-0.5">META</span>
@@ -105,14 +164,16 @@ function VacinaCard({ dados }) {
           </div>
         )}
       </div>
-
       <div className="flex flex-col items-end mt-auto">
         <h4 className="text-3xl font-bold text-slate-700 mb-1">
-          {dados.cobertura_percentual.toFixed(2).replace(".", ",")}%
+          {Number(dados.cobertura_percentual || 0)
+            .toFixed(2)
+            .replace(".", ",")}
+          %
         </h4>
         <ProgressBarMS
-          percentual={dados.cobertura_percentual}
-          meta={dados.meta_otima}
+          percentual={Number(dados.cobertura_percentual || 0)}
+          meta={Number(dados.meta_otima || 95)}
         />
       </div>
     </div>
@@ -122,26 +183,73 @@ function VacinaCard({ dados }) {
 export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
   const [dadosVacinais, setDadosVacinais] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
   const anoVigente = 2026;
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(isAdminUser());
+  }, []);
 
   useEffect(() => {
     const fetchDados = async () => {
       try {
         const baseUrl = import.meta.env.VITE_API_URL;
-        const response = await fetch(`${baseUrl}/api/coberturavacinal/`);
-        if (!response.ok) throw new Error("Erro ao buscar dados de vacinação");
+        const token =
+          localStorage.getItem("access_token") ||
+          localStorage.getItem("token") ||
+          sessionStorage.getItem("access_token");
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        const response = await fetch(`${baseUrl}/api/coberturavacinal/`, {
+          headers,
+        });
+        if (!response.ok) {
+          throw new Error(`Erro ${response.status} ao buscar dados`);
+        }
         const data = await response.json();
-        setDadosVacinais(data);
+        console.log("[CoberturaVacinal] registros:", data.length);
+        console.log("[CoberturaVacinal] anos:", [
+          ...new Set(data.map((d) => d.ano)),
+        ]);
+        console.log(
+          "[CoberturaVacinal] vacinas do ano:",
+          data
+            .filter((d) => Number(d.ano) === anoVigente)
+            .map((d) => d.imunobiologico),
+        );
+
+        setDadosVacinais(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error(error);
+        console.error("[CoberturaVacinal] erro:", error);
+        setErro(error.message);
       } finally {
         setLoading(false);
       }
     };
     fetchDados();
   }, []);
+
+  const dadosAno = useMemo(
+    () => dadosVacinais.filter((d) => Number(d.ano) === anoVigente),
+    [dadosVacinais],
+  );
+
+  // 👇 Detecta quais vacinas do ano NÃO entraram em nenhuma faixa etária
+  const vacinasNaoAlocadas = useMemo(() => {
+    const alocadas = new Set();
+    Object.values(FAIXAS_ETARIAS).forEach((regra) => {
+      dadosAno.forEach((d) => {
+        if (matchFaixa(d.imunobiologico, regra)) {
+          alocadas.add(d.imunobiologico);
+        }
+      });
+    });
+    return dadosAno
+      .filter((d) => !alocadas.has(d.imunobiologico))
+      .map((d) => d.imunobiologico);
+  }, [dadosAno]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -173,8 +281,16 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
             </div>
           ) : (
             <>
-              {/* Aviso sobre a origem dos dados */}
-              <div className="bg-blue-50 border border-blue-200 text-[#054060] rounded-2xl p-4 flex items-start gap-3 shadow-sm animate-in slide-in-from-top-2">
+              {erro && (
+                <div className="bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 flex items-start gap-3">
+                  <Info className="size-5 shrink-0 mt-0.5" />
+                  <p className="text-sm">
+                    <strong>Falha ao carregar:</strong> {erro}
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-blue-50 border border-blue-200 text-[#054060] rounded-2xl p-4 flex items-start gap-3 shadow-sm">
                 <Info className="size-5 text-[#4180ab] shrink-0 mt-0.5" />
                 <p className="text-sm md:text-base leading-relaxed">
                   <strong className="font-bold">Nota sobre os dados:</strong> As
@@ -184,18 +300,28 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
                 </p>
               </div>
 
-              {/* Menu de atalhos superiores */}
+              {dadosAno.length === 0 && !erro && (
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl p-4 text-sm">
+                  <strong>Nenhum registro para {anoVigente}.</strong> Anos
+                  disponíveis:{" "}
+                  {[...new Set(dadosVacinais.map((d) => d.ano))]
+                    .sort()
+                    .join(", ") || "nenhum"}
+                </div>
+              )}
+
+              {/* Menu de atalhos */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 {Object.keys(FAIXAS_ETARIAS).map((faixa) => {
                   const Icon = TABS_ICONS[faixa];
                   return (
                     <button
                       key={faixa}
-                      onClick={() => {
+                      onClick={() =>
                         document
                           .getElementById(faixa)
-                          ?.scrollIntoView({ behavior: "smooth" });
-                      }}
+                          ?.scrollIntoView({ behavior: "smooth" })
+                      }
                       className="bg-white border border-slate-200 hover:border-[#1d4ed8] rounded-2xl p-6 flex flex-col items-center justify-center gap-4 transition-colors group shadow-sm cursor-pointer"
                     >
                       <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
@@ -209,44 +335,49 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
                 })}
               </div>
 
-              {/* Seções por Faixa Etária */}
-              {Object.entries(FAIXAS_ETARIAS).map(
-                ([faixa, vacinasEsperadas]) => {
-                  const vacinasEncontradas = dadosVacinais.filter(
-                    (d) =>
-                      d.ano === anoVigente &&
-                      vacinasEsperadas.includes(d.imunobiologico),
-                  );
+              {/* Seções */}
+              {Object.entries(FAIXAS_ETARIAS).map(([faixa, regra]) => {
+                const vacinasEncontradas = dadosAno.filter((d) =>
+                  matchFaixa(d.imunobiologico, regra),
+                );
 
-                  return (
-                    <section
-                      key={faixa}
-                      id={faixa}
-                      className="pt-4 scroll-mt-24"
-                    >
-                      <h2 className="text-lg font-bold text-slate-800 text-center mb-6">
-                        {faixa}
-                      </h2>
-                      {vacinasEncontradas.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                          {vacinasEncontradas.map((vacina) => (
-                            <VacinaCard key={vacina.id} dados={vacina} />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-10 bg-white rounded-xl border border-slate-200 border-dashed text-slate-400 text-sm font-medium">
-                          Aguardando dados para esta faixa etária...
-                        </div>
-                      )}
-                    </section>
-                  );
-                },
+                return (
+                  <section key={faixa} id={faixa} className="pt-4 scroll-mt-24">
+                    <h2 className="text-lg font-bold text-slate-800 text-center mb-6">
+                      {faixa}
+                    </h2>
+                    {vacinasEncontradas.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {vacinasEncontradas.map((vacina) => (
+                          <VacinaCard key={vacina.id} dados={vacina} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-10 bg-white rounded-xl border border-slate-200 border-dashed text-slate-400 text-sm font-medium">
+                        Aguardando dados para esta faixa etária...
+                      </div>
+                    )}
+                  </section>
+                );
+              })}
+
+              {/* 🔍 Dev hint: vacinas não categorizadas */}
+              {vacinasNaoAlocadas.length > 0 && (
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs text-slate-500">
+                  <strong className="text-slate-700">
+                    {vacinasNaoAlocadas.length} imunobiológico(s) não alocado(s)
+                    em nenhuma faixa:
+                  </strong>{" "}
+                  <span className="font-mono">
+                    {vacinasNaoAlocadas.join(" · ")}
+                  </span>
+                </div>
               )}
             </>
           )}
         </div>
 
-        {/* Legenda flutuante idêntica ao DataSUS */}
+        {/* Legenda flutuante */}
         {!loading && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white border border-slate-200 rounded-full px-4 sm:px-8 py-3 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex flex-wrap gap-4 sm:gap-6 items-center justify-center text-[10px] sm:text-xs font-semibold text-slate-600 z-40 w-[95%] md:w-auto">
             <div className="flex items-center gap-1.5">
