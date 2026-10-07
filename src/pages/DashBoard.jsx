@@ -36,6 +36,36 @@ import EndemiaSelector from "../components/EndemiasSelector.jsx";
 import DashboardAcidentes from "./DashboardAcidentes.jsx";
 import DashboardIntoxicacao from "./DashboardIntoxicacao.jsx";
 
+// ============================================================
+// 🔐 HELPER — centraliza o token
+// ============================================================
+const getToken = () =>
+  localStorage.getItem("access_token") ||
+  localStorage.getItem("token") ||
+  sessionStorage.getItem("access_token") ||
+  null;
+
+const getAuthHeaders = (extra = {}) => {
+  const token = getToken();
+  return {
+    ...extra,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+const handleAuthError = (status) => {
+  if (status === 401) {
+    console.warn("Token expirado/inválido. Redirecionando para login...");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    sessionStorage.clear();
+    window.location.href = "/login";
+    return true;
+  }
+  return false;
+};
+
 const ENDEMIAS = [
   { id: "dengue", nome: "Dengue", endpoint: "/api/dengue/" },
   { id: "sifilis", nome: "Sífilis", endpoint: "/api/sifilis/" },
@@ -128,7 +158,6 @@ export default function Dashboard({ isPrivateView = false }) {
   const [isPeriodoDropdownOpen, setIsPeriodoDropdownOpen] = useState(false);
   const periodoDropdownRef = useRef(null);
 
-  // Fecha o dropdown ao clicar fora
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -142,24 +171,44 @@ export default function Dashboard({ isPrivateView = false }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ------------------------------------------------------------
+  // ✅ FETCH CORRIGIDO — agora com Authorization
+  // ------------------------------------------------------------
   useEffect(() => {
+    let cancelado = false;
     setLoading(true);
+
     const baseUrl = import.meta.env.VITE_API_URL;
-    fetch(`${baseUrl}${endemiaSelecionada.endpoint}`)
+    const url = `${baseUrl}${endemiaSelecionada.endpoint}`;
+
+    fetch(url, {
+      method: "GET",
+      headers: getAuthHeaders({ "Content-Type": "application/json" }),
+    })
       .then((response) => {
-        if (!response.ok)
+        if (handleAuthError(response.status)) return null;
+
+        if (!response.ok) {
+          console.error(`Erro ${response.status} em ${url}`);
           throw new Error(`Erro HTTP! status: ${response.status}`);
+        }
         return response.json();
       })
       .then((data) => {
-        setPacientes(data);
+        if (cancelado || data === null) return;
+        setPacientes(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((error) => {
+        if (cancelado) return;
         console.error("Erro ao buscar dados:", error);
         setPacientes([]);
         setLoading(false);
       });
+
+    return () => {
+      cancelado = true;
+    };
   }, [endemiaSelecionada]);
 
   const pacientesFiltrados = useMemo(() => {
@@ -188,7 +237,6 @@ export default function Dashboard({ isPrivateView = false }) {
         break;
       case "personalizado":
         if (!dataInicio || !dataFim) return pacientes;
-        // Adiciona o horário base para evitar problemas de fuso horário (Timezone)
         dataRefInicio = new Date(dataInicio + "T00:00:00");
         dataRefFim = new Date(dataFim + "T23:59:59");
         break;
@@ -199,10 +247,8 @@ export default function Dashboard({ isPrivateView = false }) {
     return pacientes.filter((p) => {
       const dt = p.data_notificacao || p.dt_notific;
       if (!dt) return false;
-
       const [ano, mes, dia] = dt.split("-");
       const dataNotificacao = new Date(ano, mes - 1, dia);
-
       return dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim;
     });
   }, [pacientes, filtroTipo, dataInicio, dataFim]);
@@ -234,7 +280,6 @@ export default function Dashboard({ isPrivateView = false }) {
     return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
   };
 
-  // ATENÇÃO: Todas as constantes abaixo passam a usar 'pacientesFiltrados' em vez de 'pacientes'
   const casosAlerta = pacientesFiltrados.filter((p) => {
     const classFinal = String(p.classi_fin || "").trim();
     return classFinal === "10" || classFinal === "11";
@@ -384,7 +429,6 @@ export default function Dashboard({ isPrivateView = false }) {
       )}
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
         <header className="px-3 sm:px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
-          {/* Lado Esquerdo: Botão Menu + Título */}
           <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
             <button
               onClick={() => setIsSidebarOpen(true)}
@@ -402,11 +446,7 @@ export default function Dashboard({ isPrivateView = false }) {
             </div>
           </div>
 
-          {/* Lado Direito: Ações e Perfil */}
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* <button className="p-2 hover:bg-white/10 rounded-full transition-colors hidden sm:block">
-      <Bell className="size-5" />
-    </button> */}
             <UserProfileMenu className="hover:cursor-pointer" />
           </div>
         </header>
@@ -421,9 +461,7 @@ export default function Dashboard({ isPrivateView = false }) {
             </div>
 
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              {/* Seletor de Período Temporal */}
               <div className="flex flex-col sm:flex-row items-center gap-3">
-                {/* Dropdown Customizado Moderno */}
                 <div
                   className="relative w-full sm:w-auto min-w-[200px]"
                   ref={periodoDropdownRef}
@@ -453,7 +491,6 @@ export default function Dashboard({ isPrivateView = false }) {
                     />
                   </button>
 
-                  {/* Menu Flutuante do Dropdown */}
                   {isPeriodoDropdownOpen && (
                     <div className="absolute top-full right-0 sm:left-0 mt-2 w-full sm:w-56 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                       <div className="p-1 flex flex-col">
@@ -488,7 +525,6 @@ export default function Dashboard({ isPrivateView = false }) {
                   )}
                 </div>
 
-                {/* Inputs para Período Personalizado (Renderização Condicional) */}
                 {filtroTipo === "personalizado" && (
                   <div className="flex items-center gap-2 animate-in fade-in zoom-in-95 duration-200 bg-white border border-slate-200 p-1 rounded-lg shadow-sm">
                     <input
@@ -510,7 +546,6 @@ export default function Dashboard({ isPrivateView = false }) {
                 )}
               </div>
 
-              {/* Seletor de Endemia */}
               <EndemiaSelector
                 options={endemiasDisponiveis}
                 value={endemiaSelecionada}

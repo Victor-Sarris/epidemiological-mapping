@@ -122,6 +122,61 @@ const REGRAS_NOMENCLATURA = [
   },
 ];
 
+// ============================================================
+// 🔐 HELPER DE AUTENTICAÇÃO — centraliza o token em 1 lugar só
+// ============================================================
+const getToken = () => {
+  return (
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("access_token") ||
+    null
+  );
+};
+
+const getAuthHeaders = (extraHeaders = {}) => {
+  const token = getToken();
+  return {
+    ...extraHeaders,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
+
+const handleAuthError = (status) => {
+  if (status === 401) {
+    console.warn("Token expirado/inválido. Redirecionando para login...");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
+    sessionStorage.clear();
+    // Ajuste a rota de login se for diferente
+    window.location.href = "/login";
+    return true;
+  }
+  return false;
+};
+
+const isAdminUser = () => {
+  try {
+    const token =
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("token") ||
+      sessionStorage.getItem("access_token");
+    if (!token) return false;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+
+    // Checa várias formas por segurança
+    return (
+      payload.role === "ADMIN" ||
+      payload.role === "admin" ||
+      payload.is_superuser === true
+    );
+  } catch {
+    return false;
+  }
+};
+
 export default function SystemInformation() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [tabelaAtiva, setTabelaAtiva] = useState(TABELAS[0]);
@@ -146,6 +201,12 @@ export default function SystemInformation() {
 
   const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/+$/, "") || "";
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    setIsAdmin(isAdminUser());
+  }, []);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -160,6 +221,9 @@ export default function SystemInformation() {
     };
   }, []);
 
+  // ------------------------------------------------------------
+  // Sincronizar Governo — AGORA COM TOKEN
+  // ------------------------------------------------------------
   const handleSyncGoverno = async () => {
     setIsSyncing(true);
     setMensagem({
@@ -170,8 +234,10 @@ export default function SystemInformation() {
     try {
       const response = await fetch(`${baseUrl}/api/sincronizar-governo/`, {
         method: "POST",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
       });
       const data = await response.json();
+      if (handleAuthError(response.status)) return;
       if (!response.ok) throw new Error(data.erro || "Falha na sincronização.");
       mostrarMensagem(data.mensagem, "sucesso");
       fetchDados();
@@ -186,12 +252,26 @@ export default function SystemInformation() {
     }
   };
 
+  // ------------------------------------------------------------
+  // Buscar dados — AGORA COM TOKEN
+  // ------------------------------------------------------------
   const fetchDados = async () => {
     setLoading(true);
     setMensagem({ texto: "", tipo: "" });
     try {
-      const response = await fetch(`${baseUrl}${tabelaAtiva.endpoint}`);
-      if (!response.ok) throw new Error("Erro ao buscar dados");
+      const response = await fetch(`${baseUrl}${tabelaAtiva.endpoint}`, {
+        method: "GET",
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
+      });
+
+      if (handleAuthError(response.status)) return;
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        console.error("Erro na requisição:", response.status, errBody);
+        throw new Error(`Erro ${response.status} ao buscar dados`);
+      }
+
       const data = await response.json();
       setDados(data);
     } catch (error) {
@@ -207,6 +287,7 @@ export default function SystemInformation() {
 
   useEffect(() => {
     fetchDados();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabelaAtiva]);
 
   const mostrarMensagem = (texto, tipo) => {
@@ -260,10 +341,18 @@ export default function SystemInformation() {
     try {
       const response = await fetch(url, {
         method,
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders({ "Content-Type": "application/json" }),
         body: JSON.stringify(formData),
       });
-      if (!response.ok) throw new Error("Falha ao salvar o registro.");
+
+      if (handleAuthError(response.status)) return;
+
+      if (!response.ok) {
+        const errBody = await response.text();
+        console.error("Erro ao salvar:", response.status, errBody);
+        throw new Error("Falha ao salvar o registro.");
+      }
+
       mostrarMensagem(
         `Registro ${editingId ? "atualizado" : "criado"} com sucesso!`,
         "sucesso",
@@ -289,13 +378,23 @@ export default function SystemInformation() {
     try {
       const response = await fetch(`${baseUrl}${tabelaAtiva.endpoint}${id}/`, {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
-      if (!response.ok) throw new Error("Falha ao excluir.");
+
+      if (handleAuthError(response.status)) return;
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error("Você não tem permissão para excluir registros.");
+        }
+        throw new Error("Falha ao excluir.");
+      }
+
       mostrarMensagem("Registro excluído com sucesso!", "sucesso");
       fetchDados();
     } catch (error) {
       console.error(error);
-      mostrarMensagem("Erro ao excluir o registro.", "erro");
+      mostrarMensagem(error.message || "Erro ao excluir o registro.", "erro");
     } finally {
       setLoading(false);
     }
@@ -311,8 +410,13 @@ export default function SystemInformation() {
     try {
       const response = await fetch(`${baseUrl}/api/upload/`, {
         method: "POST",
+        // ⚠️ NÃO setamos Content-Type: o browser põe multipart/form-data + boundary sozinho
+        headers: getAuthHeaders(),
         body: formDataUpload,
       });
+
+      if (handleAuthError(response.status)) return;
+
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(
@@ -336,6 +440,9 @@ export default function SystemInformation() {
       setIsUploading(false);
     }
   };
+
+  const somenteAdmin = tabelaAtiva.id === "coberturavacinal";
+  const podeEditar = !somenteAdmin || isAdmin;
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -368,7 +475,6 @@ export default function SystemInformation() {
               Visualize, edite, remova e importe dados brutos SINAN do sistema.
             </p>
 
-            {/* Filtros + Atualizar */}
             <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative w-full sm:w-64" ref={dropdownRef}>
                 <button
@@ -454,7 +560,7 @@ export default function SystemInformation() {
             </div>
           )}
 
-          {/* === MINI DOCUMENTAÇÃO: Regras de nomenclatura === */}
+          {/* === MINI DOCUMENTAÇÃO === */}
           <div className="bg-white border border-slate-200 shadow-sm rounded-2xl overflow-hidden">
             <button
               type="button"
@@ -488,7 +594,6 @@ export default function SystemInformation() {
 
             {isDocOpen && (
               <div className="border-t border-slate-100 p-4 sm:p-6 space-y-5 animate-in fade-in slide-in-from-top-2 duration-200">
-                {/* Aviso principal */}
                 <div className="flex items-start gap-3 p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
                   <Info className="size-5 text-amber-600 shrink-0 mt-0.5" />
                   <div className="text-xs sm:text-sm text-amber-800 leading-relaxed">
@@ -505,7 +610,6 @@ export default function SystemInformation() {
                   </div>
                 </div>
 
-                {/* Tabela de regras */}
                 <div className="overflow-x-auto rounded-xl border border-slate-200">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200">
@@ -544,7 +648,6 @@ export default function SystemInformation() {
                   </table>
                 </div>
 
-                {/* Exemplos práticos */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
@@ -577,7 +680,6 @@ export default function SystemInformation() {
                   </div>
                 </div>
 
-                {/* Rodapé de observações */}
                 <div className="pt-4 border-t border-slate-100">
                   <ul className="space-y-2 text-xs sm:text-sm text-slate-600">
                     <li className="flex items-start gap-2">
@@ -592,7 +694,7 @@ export default function SystemInformation() {
                         (padrão SINAN),{" "}
                         <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
                           .xlsx
-                        </code>{" "}
+                        </code>
                         ,{" "}
                         <code className="px-1.5 py-0.5 bg-slate-100 rounded text-xs font-mono">
                           .xls
@@ -656,7 +758,6 @@ export default function SystemInformation() {
           </div>
 
           <div className="bg-white border border-slate-200 shadow-sm rounded-2xl flex flex-col overflow-hidden md:h-[calc(100vh-280px)] md:min-h-160">
-            {/* Toolbar */}
             <div className="p-3 sm:p-4 border-b border-slate-100 flex flex-col gap-3 bg-slate-50/50">
               <div className="relative w-full md:w-96">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 size-4" />
@@ -669,36 +770,39 @@ export default function SystemInformation() {
                 />
               </div>
 
-              {/* Botões de ação — grid 2col no mobile, linha no desktop */}
               <div className="grid grid-cols-2 md:flex md:flex-row gap-2 w-full md:w-auto md:ml-auto">
-                <button
-                  onClick={handleSyncGoverno}
-                  disabled={isSyncing}
-                  className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSyncing ? (
-                    <RefreshCw className="size-4 animate-spin" />
-                  ) : (
-                    <Database className="size-4" />
-                  )}
-                  Sincronizar DataSUS
-                </button>
+                {podeEditar && (
+                  <>
+                    <button
+                      onClick={handleSyncGoverno}
+                      disabled={isSyncing}
+                      className="col-span-2 md:col-span-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isSyncing ? (
+                        <RefreshCw className="size-4 animate-spin" />
+                      ) : (
+                        <Database className="size-4" />
+                      )}
+                      Sincronizar DataSUS
+                    </button>
 
-                <button
-                  onClick={() => setIsImportModalOpen(true)}
-                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
-                >
-                  <Upload className="size-4 shrink-0" />
-                  Importar
-                </button>
+                    <button
+                      onClick={() => setIsImportModalOpen(true)}
+                      className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
+                    >
+                      <Upload className="size-4 shrink-0" />
+                      Importar
+                    </button>
 
-                <button
-                  onClick={() => handleOpenModal()}
-                  className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
-                >
-                  <Plus className="size-4 shrink-0" />
-                  Adicionar
-                </button>
+                    <button
+                      onClick={() => handleOpenModal()}
+                      className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
+                    >
+                      <Plus className="size-4 shrink-0" />
+                      Adicionar
+                    </button>
+                  </>
+                )}
               </div>
             </div>
 
@@ -720,22 +824,28 @@ export default function SystemInformation() {
                       <span className="inline-flex items-center px-2 py-0.5 bg-[#4180ab]/10 text-[#4180ab] text-xs font-bold rounded-md">
                         #{item.id}
                       </span>
-                      <div className="flex gap-1.5">
-                        <button
-                          onClick={() => handleOpenModal(item)}
-                          className="p-2 text-blue-600 bg-blue-50 rounded-lg active:scale-95 transition-transform"
-                          title="Editar"
-                        >
-                          <Edit className="size-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          className="p-2 text-red-600 bg-red-50 rounded-lg active:scale-95 transition-transform"
-                          title="Excluir"
-                        >
-                          <Trash2 className="size-4" />
-                        </button>
-                      </div>
+                      {podeEditar ? (
+                        <div className="flex gap-1.5">
+                          <button
+                            onClick={() => handleOpenModal(item)}
+                            className="p-2 text-blue-600 bg-blue-50 rounded-lg active:scale-95 transition-transform"
+                            title="Editar"
+                          >
+                            <Edit className="size-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(item.id)}
+                            className="p-2 text-red-600 bg-red-50 rounded-lg active:scale-95 transition-transform"
+                            title="Excluir"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300 text-[10px] italic">
+                          somente leitura
+                        </span>
+                      )}
                     </div>
 
                     <dl className="grid grid-cols-1 gap-1.5">
@@ -826,22 +936,30 @@ export default function SystemInformation() {
                           </td>
                         ))}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => handleOpenModal(item)}
-                              className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
-                              title="Editar"
-                            >
-                              <Edit className="size-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors cursor-pointer"
-                              title="Excluir"
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-                          </div>
+                          <td className="px-6 py-4 whitespace-nowrap text-right">
+                            {podeEditar ? (
+                              <div className="flex justify-end gap-2">
+                                <button
+                                  onClick={() => handleOpenModal(item)}
+                                  className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
+                                  title="Editar"
+                                >
+                                  <Edit className="size-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(item.id)}
+                                  className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors cursor-pointer"
+                                  title="Excluir"
+                                >
+                                  <Trash2 className="size-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <span className="text-slate-300 text-xs italic pr-2">
+                                somente leitura
+                              </span>
+                            )}
+                          </td>
                         </td>
                       </tr>
                     ))
@@ -857,7 +975,7 @@ export default function SystemInformation() {
         </div>
       </main>
 
-      {/* Modal Import — bottom-sheet no mobile */}
+      {/* Modal Import */}
       {isImportModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-md flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[90vh]">
@@ -942,7 +1060,7 @@ export default function SystemInformation() {
         </div>
       )}
 
-      {/* Modal CRUD — full/bottom-sheet no mobile */}
+      {/* Modal CRUD */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
           <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
