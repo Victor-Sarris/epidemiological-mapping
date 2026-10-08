@@ -69,7 +69,7 @@ function FeatureCard({
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-white/70 bg-white/70 p-4 shadow-[0_2px_20px_-8px_rgba(5,64,96,0.15)] backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_30px_-10px_rgba(5,64,96,0.25)] sm:p-5">
       <div
-        className={`pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${accent}`}
+        className={`pointer-events-none absolute inset-0 bg-linear-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${accent}`}
         aria-hidden="true"
       />
       <div className="relative flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:gap-4 sm:text-left">
@@ -94,12 +94,10 @@ function FeatureCard({
   );
 }
 
-/* ------------------------------- Splash Loader ------------------------------ */
-
 function SplashLoader({ isFadingOut }) {
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] transition-opacity duration-700 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] transition-opacity duration-700 ${
         isFadingOut ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
       aria-hidden={isFadingOut}
@@ -140,7 +138,7 @@ function SplashLoader({ isFadingOut }) {
 
         {/* Barra de progresso */}
         <div className="mt-4 h-1 w-56 overflow-hidden rounded-full bg-[#054060]/10 sm:w-64">
-          <span className="block h-full w-1/3 animate-loading-bar rounded-full bg-gradient-to-r from-[#054060] to-[#0a7ea3]" />
+          <span className="block h-full w-1/3 animate-loading-bar rounded-full bg-linear-to-r from-[#054060] to-[#0a7ea3]" />
         </div>
       </div>
 
@@ -215,7 +213,7 @@ function Home() {
       {/* Splash Loader */}
       {isLoading && <SplashLoader isFadingOut={isFadingOut} />}
 
-      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-gradient-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] lg:flex-row">
+      <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] lg:flex-row">
         {/* Partículas */}
         <div className="pointer-events-none absolute inset-0 opacity-70">
           <ParticlesBg type="cobweb" color="#054060" num={60} bg={true} />
@@ -249,7 +247,7 @@ function Home() {
 
                 <h1 className="text-3xl font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                   <span className="relative inline-block">
-                    <span className="relative z-10 bg-gradient-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
+                    <span className="relative z-10 bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
                       Mapeamento
                     </span>
                     <span
@@ -258,7 +256,7 @@ function Home() {
                     />
                   </span>
                   <br />
-                  <span className="bg-gradient-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
                     Epidemiológico
                   </span>
                   <span className="mt-2 block text-base font-bold tracking-normal text-slate-500 sm:text-lg lg:text-xl">
@@ -308,21 +306,21 @@ function Home() {
             {/* Acesso público */}
             <section>
               <div className="mb-3 flex items-center gap-2.5 lg:mb-4">
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent lg:hidden" />
+                <span className="h-px flex-1 bg-linear-to-r from-transparent via-slate-300 to-transparent lg:hidden" />
                 <h2 className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 sm:text-[11px]">
                   Acesso Público
                 </h2>
-                <span className="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 to-transparent lg:hidden" />
+                <span className="h-px flex-1 bg-linear-to-r from-transparent via-slate-300 to-transparent lg:hidden" />
                 <span className="hidden h-px flex-1 bg-slate-200 lg:block" />
               </div>
 
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
-                className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-[#054060] to-[#0a6a8c] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#054060]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#054060]/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#054060]/25 sm:text-base"
+                className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl bg-linear-to-r from-[#054060] to-[#0a6a8c] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#054060]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#054060]/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#054060]/25 sm:text-base hover:cursor-pointer"
               >
                 <span
-                  className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
+                  className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
                   aria-hidden="true"
                 />
                 <span className="relative">Acessar Painel do Mapa</span>
@@ -348,7 +346,7 @@ function Home() {
             {/* Área do profissional */}
             <section className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-5 shadow-[0_10px_40px_-20px_rgba(5,64,96,0.3)] backdrop-blur-sm sm:p-7">
               <div
-                className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#054060] via-[#0a7ea3] to-[#054060]"
+                className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060]"
                 aria-hidden="true"
               />
 

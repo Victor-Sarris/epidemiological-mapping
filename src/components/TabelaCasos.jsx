@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { Table2 } from "lucide-react";
+import { formatarBairro } from "@/lib/bairros";
 
 const extrairBairro = (endereco) => {
   if (!endereco) return "—";
@@ -12,7 +13,7 @@ const extrairBairro = (endereco) => {
   if (/^[0-9-]+$/.test(ultima) && partes.length >= 2) {
     ultima = partes[partes.length - 2];
   }
-  return ultima.charAt(0).toUpperCase() + ultima.slice(1).toLowerCase();
+  return formatarBairro(ultima);
 };
 
 export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {

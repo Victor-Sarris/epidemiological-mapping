@@ -21,6 +21,7 @@ import {
   StatusDonut,
   PerfilDemografico,
 } from "../components/Modal/DashboardCharts.jsx";
+import { formatarBairro } from "@/lib/bairros.js";
 import KpisGrid from "../components/KpisGrid.jsx";
 import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
 import CasosRecentes from "../components/CasosRecentes.jsx";
@@ -300,7 +301,7 @@ export default function Dashboard({ isPrivateView = false }) {
     } else if (/^[0-9-]+$/.test(bairroStr)) {
       return "CEP Genérico";
     }
-    return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
+    return formatarBairro(bairroStr);
   };
 
   const casosAlerta = pacientesFiltrados.filter((p) => {

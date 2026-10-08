@@ -163,7 +163,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
           Detalhamento por Ano
         </h3>
         <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-          <table className="w-full text-left text-sm text-slate-600 min-w-[600px]">
+          <table className="w-full text-left text-sm text-slate-600 min-w-150">
             <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
               <tr>
                 <th className="px-4 py-3 font-semibold rounded-tl-lg whitespace-nowrap">
