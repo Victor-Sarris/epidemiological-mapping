@@ -21,9 +21,14 @@ import {
   StatusDonut,
   PerfilDemografico,
 } from "../components/Modal/DashboardCharts.jsx";
+import { formatarBairro } from "@/lib/bairros.js";
 import KpisGrid from "../components/KpisGrid.jsx";
 import DistribuicaoQuadrante from "../components/DistribuicaoQuadrante.jsx";
 import CasosRecentes from "../components/CasosRecentes.jsx";
+import DistribuicaoBairro from "@/components/DistribuicaoBairro.jsx";
+import EvolucaoMensal from "@/components/EvolucaoMensal.jsx";
+import ComparativoMensal from "@/components/ComparativoMensal.jsx";
+import TabelaCasos from "@/components/TabelaCasos.jsx";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import UserProfileMenu from "@/components/Modal/UserProfileMenu.jsx";
 import DashboardSifilis from "./DashboardSifilis.jsx";
@@ -36,9 +41,6 @@ import EndemiaSelector from "../components/EndemiasSelector.jsx";
 import DashboardAcidentes from "./DashboardAcidentes.jsx";
 import DashboardIntoxicacao from "./DashboardIntoxicacao.jsx";
 
-// ============================================================
-// 🔐 HELPER — centraliza o token
-// ============================================================
 const getToken = () =>
   localStorage.getItem("access_token") ||
   localStorage.getItem("token") ||
@@ -64,6 +66,18 @@ const handleAuthError = (status) => {
     return true;
   }
   return false;
+};
+
+// 🔍 Lê o role do usuário direto do payload do JWT
+const getUserRole = () => {
+  try {
+    const token = getToken();
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.role || null;
+  } catch {
+    return null;
+  }
 };
 
 const ENDEMIAS = [
@@ -137,6 +151,19 @@ const PERIODO_OPTIONS = [
 
 export default function Dashboard({ isPrivateView = false }) {
   const { user } = useAuth();
+
+  // 🌍 Detecta o papel do usuário via JWT
+  const role = getUserRole();
+  const isUBSView = isPrivateView && role === "UBS";
+  const isAdminView =
+    isPrivateView && (role === "ADMIN" || user?.is_superuser === true);
+
+  // 🆕 Mostra os gráficos extras pra UBS e Admin
+  const showExtraCharts = isUBSView || isAdminView;
+
+  // 🆕 Escopo dos dados: "unidade" pra UBS, "geral" pra admin
+  const escopoDados = isUBSView ? "unidade" : "geral";
+
   const endemiasDisponiveis = isPrivateView
     ? ENDEMIAS
     : ENDEMIAS.filter((endemia) => endemia.id !== "violencia");
@@ -171,9 +198,6 @@ export default function Dashboard({ isPrivateView = false }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // ------------------------------------------------------------
-  // ✅ FETCH CORRIGIDO — agora com Authorization
-  // ------------------------------------------------------------
   useEffect(() => {
     let cancelado = false;
     setLoading(true);
@@ -277,7 +301,7 @@ export default function Dashboard({ isPrivateView = false }) {
     } else if (/^[0-9-]+$/.test(bairroStr)) {
       return "CEP Genérico";
     }
-    return bairroStr.charAt(0).toUpperCase() + bairroStr.slice(1).toLowerCase();
+    return formatarBairro(bairroStr);
   };
 
   const casosAlerta = pacientesFiltrados.filter((p) => {
@@ -318,6 +342,7 @@ export default function Dashboard({ isPrivateView = false }) {
       };
     });
 
+  // 📊 Distribuição por UBS (modo admin / público)
   const contagemUbs = pacientesFiltrados.reduce((acc, paciente) => {
     let ubs = "Não Informada";
     if (endemiaSelecionada.id === "dengue") {
@@ -358,6 +383,38 @@ export default function Dashboard({ isPrivateView = false }) {
       : "Nenhuma";
   const ubsMaisAfetadaValor = contagemUbs[ubsMaisAfetadaNome] || 0;
 
+  // 📍 Distribuição por Bairro (usado só quando é UBS)
+  const contagemBairro = pacientesFiltrados.reduce((acc, paciente) => {
+    let bairro = "Não informado";
+    if (paciente.endereco) {
+      bairro = extrairBairroVisual(paciente.endereco);
+    } else if (paciente.nm_ubs) {
+      bairro = paciente.nm_ubs;
+    }
+    acc[bairro] = (acc[bairro] || 0) + 1;
+    return acc;
+  }, {});
+
+  const maxCasosBairro = Math.max(...Object.values(contagemBairro), 1);
+  const distribuicaoBairros = Object.entries(contagemBairro)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([nome, valor], index) => ({
+      name: nome,
+      value: valor,
+      max: maxCasosBairro,
+      color: coresDistribuicao[index % coresDistribuicao.length],
+    }));
+
+  const bairroMaisAfetadoNome =
+    Object.keys(contagemBairro).length > 0
+      ? Object.keys(contagemBairro).reduce((a, b) =>
+          contagemBairro[a] > contagemBairro[b] ? a : b,
+        )
+      : "Nenhum";
+  const bairroMaisAfetadoValor = contagemBairro[bairroMaisAfetadoNome] || 0;
+
+  // 🔢 KPIs do período
   const hoje = new Date();
   const seteDiasAtras = new Date();
   seteDiasAtras.setDate(hoje.getDate() - 7);
@@ -399,11 +456,11 @@ export default function Dashboard({ isPrivateView = false }) {
       subtext: "Graves/Sinais de alarme.",
     },
     {
-      title: "UBS mais Afetada",
-      value: ubsMaisAfetadaNome,
+      title: isUBSView ? "Bairro mais Afetado" : "UBS mais Afetada",
+      value: isUBSView ? bairroMaisAfetadoNome : ubsMaisAfetadaNome,
       icon: MapPin,
       color: "rose",
-      subtext: `${ubsMaisAfetadaValor} casos registrados.`,
+      subtext: `${isUBSView ? bairroMaisAfetadoValor : ubsMaisAfetadaValor} casos registrados.`,
     },
     {
       title: "Últimos Casos (7 dias)",
@@ -441,7 +498,7 @@ export default function Dashboard({ isPrivateView = false }) {
             <div className="flex items-center gap-2 min-w-0">
               <LayoutDashboard className="size-5 md:size-6 text-white shrink-0" />
               <h2 className="text-sm sm:text-base md:text-xl font-bold tracking-wide text-white truncate">
-                Dados Gerais
+                {isUBSView ? "Painel da Unidade" : "Dados Gerais"}
               </h2>
             </div>
           </div>
@@ -457,6 +514,7 @@ export default function Dashboard({ isPrivateView = false }) {
               <p className="text-sm md:text-base text-slate-500 mt-1">
                 Acompanhamento epidemiológico dos casos de{" "}
                 {endemiaSelecionada.nome}
+                {isUBSView ? " na sua unidade" : ""}
               </p>
             </div>
 
@@ -583,6 +641,8 @@ export default function Dashboard({ isPrivateView = false }) {
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />
+
+                  {/* Linha 2: Curva + Donut */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 overflow-hidden w-full">
                       <CurvaEpidemica pacientes={pacientesFiltrados} />
@@ -591,11 +651,23 @@ export default function Dashboard({ isPrivateView = false }) {
                       <StatusDonut pacientes={pacientesFiltrados} />
                     </div>
                   </div>
+
+                  {/* Linha 3: Perfil + Distribuição + Casos Recentes */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 overflow-hidden w-full">
                       <PerfilDemografico pacientes={pacientesFiltrados} />
                     </div>
-                    <DistribuicaoQuadrante distribuicaoUbs={distribuicaoUbs} />
+
+                    {isUBSView ? (
+                      <DistribuicaoBairro
+                        distribuicaoBairros={distribuicaoBairros}
+                      />
+                    ) : (
+                      <DistribuicaoQuadrante
+                        distribuicaoUbs={distribuicaoUbs}
+                      />
+                    )}
+
                     <CasosRecentes
                       casos={casosRecentes}
                       onSelectPaciente={(paciente) => {
@@ -604,6 +676,27 @@ export default function Dashboard({ isPrivateView = false }) {
                       }}
                     />
                   </div>
+
+                  {/* 🆕 Linhas extras para UBS e Admin */}
+                  {showExtraCharts && (
+                    <>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <ComparativoMensal
+                          pacientes={pacientesFiltrados}
+                          escopo={escopoDados}
+                        />
+                        <EvolucaoMensal
+                          pacientes={pacientesFiltrados}
+                          escopo={escopoDados}
+                        />
+                      </div>
+
+                      <TabelaCasos
+                        pacientes={pacientesFiltrados}
+                        escopo={escopoDados}
+                      />
+                    </>
+                  )}
                 </>
               )}
             </>

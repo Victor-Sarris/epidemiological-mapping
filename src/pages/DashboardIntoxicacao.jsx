@@ -20,7 +20,6 @@ import {
 const COLORS = ["#8b5cf6", "#d946ef", "#f43f5e", "#0ea5e9", "#10b981"];
 
 export default function DashboardIntoxicacao({ pacientes }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.reduce(
     (sum, p) => sum + Number(p.nu_notific || 1),
     0,
@@ -41,7 +40,6 @@ export default function DashboardIntoxicacao({ pacientes }) {
 
   const mediaPorAno = anosAtivos > 0 ? (totalCasos / anosAtivos).toFixed(1) : 0;
 
-  // 2. Gráfico de Distribuição por Ano
   const dadosEvolucao = useMemo(() => {
     return [...pacientes]
       .sort((a, b) => Number(a.ano_notific || 0) - Number(b.ano_notific || 0))
@@ -51,7 +49,6 @@ export default function DashboardIntoxicacao({ pacientes }) {
       }));
   }, [pacientes]);
 
-  // 3. Tabela de Consolidação
   const listaAnos = [...pacientes].sort(
     (a, b) => Number(b.ano_notific || 0) - Number(a.ano_notific || 0),
   );

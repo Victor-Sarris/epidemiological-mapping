@@ -10,7 +10,6 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const COLORS = ["#10b981", "#f59e0b", "#3b82f6", "#f43f5e"];
 
-// Cores idênticas ao gráfico de distribuição por UBS
 const CORES_DISTRIBUICAO = [
   "bg-blue-500",
   "bg-emerald-500",
@@ -20,7 +19,6 @@ const CORES_DISTRIBUICAO = [
 ];
 
 export default function DashboardTuberculose({ pacientes }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.reduce(
     (sum, p) => sum + Number(p.nu_notific || 0),
     0,
@@ -41,7 +39,6 @@ export default function DashboardTuberculose({ pacientes }) {
   const mediaPorUnidade =
     unidadesAtivas > 0 ? (totalCasos / unidadesAtivas).toFixed(1) : 0;
 
-  // 2. Gráfico de Distribuição por UBS (Substituindo o antigo BarChart)
   const distribuicaoUbs = useMemo(() => {
     const top5 = [...pacientes]
       .sort((a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0))
@@ -57,7 +54,6 @@ export default function DashboardTuberculose({ pacientes }) {
     }));
   }, [pacientes]);
 
-  // 3. Gráfico de Rosca: Perfil de Atendimento (Atenção Básica vs Especializada)
   const dadosCategorias = useMemo(() => {
     let ubs = 0;
     let especializadas = 0;
@@ -80,7 +76,6 @@ export default function DashboardTuberculose({ pacientes }) {
     ].filter((d) => d.value > 0);
   }, [pacientes]);
 
-  // 4. Tabela de Unidades
   const listaUnidades = [...pacientes].sort(
     (a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0),
   );
@@ -310,7 +305,6 @@ export default function DashboardTuberculose({ pacientes }) {
   );
 }
 
-// Subcomponente de KPI mantido
 function KpiCard({ title, value, icon: Icon, color, bgLight, subtitle }) {
   return (
     <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-1 duration-300">

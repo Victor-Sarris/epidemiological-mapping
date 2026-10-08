@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-// Paleta focada em tons de Roxo/Índigo (Janeiro Roxo - Hanseníase)
 const COLORS = ["#8b5cf6", "#6366f1", "#ec4899", "#14b8a6"];
 const CORES_DISTRIBUICAO = [
   "bg-violet-500",
@@ -19,7 +18,6 @@ const CORES_DISTRIBUICAO = [
 ];
 
 export default function DashboardHanseniase({ pacientes }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.reduce(
     (sum, p) => sum + Number(p.nu_notific || 0),
     0,
@@ -41,7 +39,6 @@ export default function DashboardHanseniase({ pacientes }) {
   const mediaPorUnidade =
     unidadesAtivas > 0 ? (totalCasos / unidadesAtivas).toFixed(1) : 0;
 
-  // 2. Gráfico de Distribuição por UBS (Top 5)
   const distribuicaoUbs = useMemo(() => {
     const top5 = [...pacientes]
       .sort((a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0))
@@ -57,7 +54,6 @@ export default function DashboardHanseniase({ pacientes }) {
     }));
   }, [pacientes]);
 
-  // 3. Gráfico de Rosca: Perfil de Atendimento
   const dadosCategorias = useMemo(() => {
     let ubs = 0;
     let especializadas = 0;
@@ -66,7 +62,6 @@ export default function DashboardHanseniase({ pacientes }) {
       const nome = (p.nm_ubs || "").toUpperCase();
       const casos = Number(p.nu_notific || 0);
 
-      // Se tiver "UBS", "POSTO" ou "ESF", vai pra Atenção Básica
       if (
         nome.includes("UBS") ||
         nome.includes("POSTO") ||
@@ -84,7 +79,6 @@ export default function DashboardHanseniase({ pacientes }) {
     ].filter((d) => d.value > 0);
   }, [pacientes]);
 
-  // 4. Tabela de Unidades
   const listaUnidades = [...pacientes].sort(
     (a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0),
   );

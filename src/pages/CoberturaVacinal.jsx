@@ -12,7 +12,6 @@ import {
   Info,
 } from "lucide-react";
 
-// Normaliza nome de vacina: minúsculo, sem acento, sem pontuação
 const normalizar = (s) =>
   String(s || "")
     .toLowerCase()
@@ -22,23 +21,21 @@ const normalizar = (s) =>
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 
-// Match com boundary de palavra — "tetano" NÃO casa em "antitetano"
 const contemPalavra = (nomeNormalizado, termo) => {
   const t = normalizar(termo);
   if (!t) return false;
   const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // Precisa ter espaço (ou início/fim) antes e depois do termo
   return new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(nomeNormalizado);
 };
 
 const EXCLUSAO_GLOBAL = [
   "adulto",
-  "antitetano", // imunoglobulina antitetânica
-  "imunoglobulina", // imunoglobulina humana
-  "raiva", // vacina antirrábica
-  "influenza", // campanha sazonal
+  "antitetano",
+  "imunoglobulina",
+  "raiva",
+  "influenza",
   "covid",
-  "febre amarela", // (só entrará se explicitamente listada na faixa 4 anos)
+  "febre amarela",
 ];
 
 const FAIXAS_ETARIAS = {
@@ -92,7 +89,6 @@ const isAdminUser = () => {
 
     const payload = JSON.parse(atob(token.split(".")[1]));
 
-    // Checa várias formas por segurança
     return (
       payload.role === "ADMIN" ||
       payload.role === "admin" ||
@@ -106,18 +102,15 @@ const isAdminUser = () => {
 function matchFaixa(imunobiologico, regra) {
   const nome = normalizar(imunobiologico);
 
-  // 1. Exclusão global — se bater, rejeita em qualquer faixa
   if (EXCLUSAO_GLOBAL.some((ex) => contemPalavra(nome, ex))) {
-    // Mas se a faixa explicitamente libera (extras), deixa passar
     const permitidos = regra.extras || [];
     if (!permitidos.some((ex) => contemPalavra(nome, ex))) {
       return false;
     }
   }
 
-  // 2. Match por include
   return regra.include.some((inc) => contemPalavra(nome, inc));
-} // ← ESSA CHAVE ESTAVA FALTANDO
+}
 
 function ProgressBarMS({ percentual, meta }) {
   const isMetaAtingida = percentual >= meta;
@@ -236,7 +229,6 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
     [dadosVacinais],
   );
 
-  // 👇 Detecta quais vacinas do ano NÃO entraram em nenhuma faixa etária
   const vacinasNaoAlocadas = useMemo(() => {
     const alocadas = new Set();
     Object.values(FAIXAS_ETARIAS).forEach((regra) => {
@@ -274,7 +266,7 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 w-full max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-500 pb-32 md:mb-15">
+        <div className="p-4 md:p-8 w-full max-w-350 mx-auto space-y-6 animate-in fade-in duration-500 pb-32 md:mb-15">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Activity className="size-8 text-[#1d4ed8] animate-spin" />

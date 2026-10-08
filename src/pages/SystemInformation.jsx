@@ -122,9 +122,6 @@ const REGRAS_NOMENCLATURA = [
   },
 ];
 
-// ============================================================
-// 🔐 HELPER DE AUTENTICAÇÃO — centraliza o token em 1 lugar só
-// ============================================================
 const getToken = () => {
   return (
     localStorage.getItem("access_token") ||
@@ -149,7 +146,6 @@ const handleAuthError = (status) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     sessionStorage.clear();
-    // Ajuste a rota de login se for diferente
     window.location.href = "/login";
     return true;
   }
@@ -166,7 +162,6 @@ const isAdminUser = () => {
 
     const payload = JSON.parse(atob(token.split(".")[1]));
 
-    // Checa várias formas por segurança
     return (
       payload.role === "ADMIN" ||
       payload.role === "admin" ||
@@ -221,9 +216,6 @@ export default function SystemInformation() {
     };
   }, []);
 
-  // ------------------------------------------------------------
-  // Sincronizar Governo — AGORA COM TOKEN
-  // ------------------------------------------------------------
   const handleSyncGoverno = async () => {
     setIsSyncing(true);
     setMensagem({
@@ -252,9 +244,6 @@ export default function SystemInformation() {
     }
   };
 
-  // ------------------------------------------------------------
-  // Buscar dados — AGORA COM TOKEN
-  // ------------------------------------------------------------
   const fetchDados = async () => {
     setLoading(true);
     setMensagem({ texto: "", tipo: "" });
@@ -287,7 +276,6 @@ export default function SystemInformation() {
 
   useEffect(() => {
     fetchDados();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tabelaAtiva]);
 
   const mostrarMensagem = (texto, tipo) => {
@@ -410,7 +398,6 @@ export default function SystemInformation() {
     try {
       const response = await fetch(`${baseUrl}/api/upload/`, {
         method: "POST",
-        // ⚠️ NÃO setamos Content-Type: o browser põe multipart/form-data + boundary sozinho
         headers: getAuthHeaders(),
         body: formDataUpload,
       });

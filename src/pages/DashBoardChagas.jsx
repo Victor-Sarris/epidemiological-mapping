@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-const COLORS = ["#d97706", "#dc2626", "#4f46e5", "#059669"]; // Tons de âmbar e vermelho
+const COLORS = ["#d97706", "#dc2626", "#4f46e5", "#059669"];
 const CORES_DISTRIBUICAO = [
   "bg-amber-500",
   "bg-orange-500",
@@ -18,7 +18,6 @@ const CORES_DISTRIBUICAO = [
 ];
 
 export default function DashboardChagas({ pacientes }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.reduce(
     (sum, p) => sum + Number(p.nu_notific || 0),
     0,
@@ -40,7 +39,6 @@ export default function DashboardChagas({ pacientes }) {
   const mediaPorUnidade =
     unidadesAtivas > 0 ? (totalCasos / unidadesAtivas).toFixed(1) : 0;
 
-  // 2. Gráfico de Distribuição por UBS
   const distribuicaoUbs = useMemo(() => {
     const top5 = [...pacientes]
       .sort((a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0))
@@ -56,7 +54,6 @@ export default function DashboardChagas({ pacientes }) {
     }));
   }, [pacientes]);
 
-  // 3. Gráfico de Rosca: Perfil de Atendimento
   const dadosCategorias = useMemo(() => {
     let ubs = 0;
     let especializadas = 0;
@@ -81,7 +78,6 @@ export default function DashboardChagas({ pacientes }) {
     ].filter((d) => d.value > 0);
   }, [pacientes]);
 
-  // 4. Tabela de Unidades
   const listaUnidades = [...pacientes].sort(
     (a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0),
   );

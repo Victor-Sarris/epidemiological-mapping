@@ -66,6 +66,7 @@ const MAP_STYLES = {
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         ],
         tileSize: 256,
+        maxzoom: 17,
         attribution: "Tiles &copy; Esri &mdash; Source: Esri",
       },
     },
@@ -1951,7 +1952,6 @@ function EpidemiologicMap({ isPrivateView = false }) {
     }
   };
 
-  // modal exclusivo para o mobile
   const [showMobileHint, setShowMobileHint] = useState(false);
   useEffect(() => {
     if (window.innerWidth < 768) {
@@ -1995,25 +1995,22 @@ function EpidemiologicMap({ isPrivateView = false }) {
       });
   }, []);
 
-  // Função que lida com o endereço unificado do backend (ignorando o CEP)
   const extrairBairro = (endereco) => {
     if (!endereco) return "";
     const partes = endereco.split(",");
 
     let bairroStr = partes[partes.length - 1].trim();
 
-    // Se a última parte for um número/CEP, pegamos a penúltima (>= 2 garante que não quebre em strings curtas)
     if (/^[0-9-]+$/.test(bairroStr) && partes.length >= 2) {
       bairroStr = partes[partes.length - 2].trim();
     } else if (/^[0-9-]+$/.test(bairroStr)) {
-      // Se for apenas o CEP sem o bairro, retornamos vazio para não sujar o mapa
       return "";
     }
 
     return bairroStr
       .toUpperCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, ""); // Retorna sem acentos e maiúsculo
+      .replace(/[\u0300-\u036f]/g, "");
   };
 
   useEffect(() => {
@@ -2037,7 +2034,6 @@ function EpidemiologicMap({ isPrivateView = false }) {
       return true;
     });
 
-    // 1. DICIONÁRIO BAIRRO -> ÁREA UBS
     const bairroParaAreaUbs = {
       CENTRO: "AREA UBS FLORIANO",
       SAMBAIBA: "AREA UBS DIRCEU ARCOVERDE",
@@ -2052,7 +2048,6 @@ function EpidemiologicMap({ isPrivateView = false }) {
       "NOSSA SENHORA DA GUIA": "AREA UBS NOSSA SENHORA DA GUIA",
       TIBERAO: "AREA UBS RAIMUNDO FILHO",
 
-      // --- BAIRROS NOVOS ADICIONADOS DO CONSOLE ---
       "BOM LUGAR": "AREA UBS PAULO KALUME",
       "BOSQUE SANTA TEREZINHA": "AREA UBS JOAO ELIAS OKA",
       "CAIXA D AGUA": "AREA UBS THEODORO FERREIRA SOBRAL",
@@ -2071,12 +2066,10 @@ function EpidemiologicMap({ isPrivateView = false }) {
       CANOAS: "AREA UBS JOSE PARAGUASSU",
       "PLANALTO BELA VISTA": "AREA DA UBS PEDRO SIMPLICIO",
 
-      // --- ERROS DE DIGITAÇÃO / SINAN ---
       MELADAO: "AREA DA UBS PEDRO SIMPLICIO",
       VIAZUL: "AREA UBS RAIMUNDO FILHO",
       "PEDRO SIMPLICIO": "AREA DA UBS PEDRO SIMPLICIO",
 
-      // --- CEPS SOLTOS ---
       64800280: "AREA UBS HELVIDIO DE HOLANDA BARROS",
       64800850: "AREA UBS DIRCEU ARCOVERDE",
       64800000: "AREA UBS FLORIANO",
@@ -2084,12 +2077,10 @@ function EpidemiologicMap({ isPrivateView = false }) {
 
     const contagemPorArea = {};
 
-    // 2. CONTAGEM
     pacientesFiltrados.forEach((paciente) => {
       if (paciente.endereco) {
         const bairroNormalizado = extrairBairro(paciente.endereco);
 
-        // Pega o nome da UBS correspondente ao bairro do paciente
         const nomeAreaMapa = bairroParaAreaUbs[bairroNormalizado];
 
         if (nomeAreaMapa) {
@@ -2102,7 +2093,6 @@ function EpidemiologicMap({ isPrivateView = false }) {
       }
     });
 
-    // 3. INJEÇÃO DOS DADOS NO MAPA
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2116,7 +2106,6 @@ function EpidemiologicMap({ isPrivateView = false }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
 
@@ -2147,7 +2136,7 @@ function EpidemiologicMap({ isPrivateView = false }) {
         />
       )}
       <div className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-linear-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10 transition-all duration-300">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
