@@ -7,7 +7,7 @@ import {
   FlaskConical,
 } from "lucide-react";
 import {
-  AreaChart, // Importações alteradas para gerar curvas
+  AreaChart,
   Area,
   XAxis,
   YAxis,
@@ -17,10 +17,8 @@ import {
 } from "recharts";
 
 export default function DashboardIntoxicacao({ pacientes = [] }) {
-  // 1. Processamento e Agrupamento de Dados (Robustez nas chaves)
   const dadosEvolucao = useMemo(() => {
     const agrupado = pacientes.reduce((acc, p) => {
-      // Captura o ano e número independente de como a chave venha escrita do importador
       const anoRaw = p.ano_notific || p["ANO NOTIFIC"] || p.ano || "N/I";
       const casosRaw =
         p.nu_notific || p["NU NOTIFIC"] || p.casos || p.total || 1;
@@ -35,7 +33,6 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
       return acc;
     }, {});
 
-    // Converte o objeto em array e ordena cronologicamente
     return Object.entries(agrupado)
       .map(([ano, casos]) => ({ ano, casos }))
       .sort((a, b) => {
@@ -45,10 +42,8 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
       });
   }, [pacientes]);
 
-  // 2. Processamento de KPIs usando os dados tratados
   const totalCasos = dadosEvolucao.reduce((sum, item) => sum + item.casos, 0);
 
-  // Conta apenas anos válidos para a média
   const anosValidos = dadosEvolucao.filter((item) => item.ano !== "N/I").length;
   const anosAtivos = anosValidos > 0 ? anosValidos : 1;
 
@@ -60,7 +55,6 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
   const mediaPorAno =
     anosValidos > 0 ? (totalCasos / anosValidos).toFixed(1) : 0;
 
-  // 3. Tabela de Consolidação
   const listaAnos = [...dadosEvolucao].sort(
     (a, b) => Number(b.ano) - Number(a.ano),
   );
@@ -151,7 +145,7 @@ export default function DashboardIntoxicacao({ pacientes = [] }) {
                 }}
               />
               <Area
-                type="monotone" // Este atributo transforma as linhas retas em curvas suaves
+                type="monotone"
                 dataKey="casos"
                 stroke="#8b5cf6"
                 strokeWidth={3}

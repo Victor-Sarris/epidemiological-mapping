@@ -35,7 +35,7 @@ export default function AboutDeveloper({ isPrivateView: propIsPrivateView }) {
       )}
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="px-4 md:px-8 py-3 md:py-4 flex items-center gap-3 sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] text-white shadow-sm">
+        <header className="px-4 md:px-8 py-3 md:py-4 flex items-center gap-3 sticky top-0 z-30 bg-linear-to-br from-[#4180ab] to-[#054060] text-white shadow-sm">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="md:hidden p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
@@ -51,7 +51,7 @@ export default function AboutDeveloper({ isPrivateView: propIsPrivateView }) {
         <div className="p-3 sm:p-4 md:p-8 max-w-5xl mx-auto w-full space-y-5 md:space-y-8 pb-20">
           {/* Card de Perfil */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#4180ab] to-[#054060]" />
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-linear-to-r from-[#4180ab] to-[#054060]" />
 
             <div className="p-5 sm:p-6 md:p-8 flex flex-col sm:flex-row gap-5 md:gap-8 items-center sm:items-start">
               {/* Avatar */}

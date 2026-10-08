@@ -20,9 +20,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-// =========================================================
-// FAQS (inalterado)
-// =========================================================
 const FAQS = [
   {
     q: "Como atualizo os dados do mapa?",
@@ -45,10 +42,6 @@ const FAQS = [
     icon: <Bot className="size-6 text-purple-500" />,
   },
 ];
-
-// =========================================================
-// COMPONENTES DE RENDERIZAÇÃO ESTRUTURADA
-// =========================================================
 
 /** Ranking com barras horizontais — usado para "top bairros", "panorama geral" */
 function RankingCard({ data }) {
@@ -153,9 +146,6 @@ function StructuredContent({ data }) {
   return null;
 }
 
-// =========================================================
-// Markdown customizado (sem precisar de @tailwindcss/typography)
-// =========================================================
 const mdComponents = {
   p: ({ children }) => (
     <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
@@ -195,9 +185,6 @@ const mdComponents = {
   ),
 };
 
-// =========================================================
-// PÁGINA DE SUPORTE
-// =========================================================
 function Support({ isPrivateView = false }) {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -214,7 +201,7 @@ function Support({ isPrivateView = false }) {
   ]);
 
   const messagesEndRef = useRef(null);
-  const textareaRef = useRef(null); // Ref para o campo de texto auto-ajustável
+  const textareaRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -237,7 +224,6 @@ function Support({ isPrivateView = false }) {
     ]);
     setInputValue("");
 
-    // Reseta a altura do textarea após enviar
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -286,7 +272,6 @@ function Support({ isPrivateView = false }) {
     }
   };
 
-  // Lida com a tecla Enter (envia) e Shift+Enter (quebra linha)
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -294,13 +279,11 @@ function Support({ isPrivateView = false }) {
     }
   };
 
-  // Auto-ajusta a altura do textarea conforme o usuário digita
   const handleInput = (e) => {
     setInputValue(e.target.value);
 
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"; // Reseta a altura base
-      // Define a nova altura, limitando ao máximo de 120px
+      textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
       scrollToBottom();
     }
@@ -528,7 +511,6 @@ function Support({ isPrivateView = false }) {
                 const isUser = msg.sender === "user";
                 const hasStructured = !isUser && !!msg.structured;
 
-                // Caso especial: bot com card estruturado
                 if (hasStructured) {
                   return (
                     <div key={index} className="flex w-full justify-start">
@@ -549,7 +531,6 @@ function Support({ isPrivateView = false }) {
                   );
                 }
 
-                // Caso normal: texto puro (user ou bot sem structured)
                 return (
                   <div
                     key={index}

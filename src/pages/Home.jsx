@@ -174,7 +174,6 @@ function Home() {
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
-    // Splash visível por ~1.6s, depois fade de 700ms
     const fadeTimer = setTimeout(() => setIsFadingOut(true), 1600);
     const removeTimer = setTimeout(() => setIsLoading(false), 2300);
 
