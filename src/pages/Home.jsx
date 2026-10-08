@@ -19,6 +19,7 @@ import EpiDataLogo from "../assets/EPI-DATA.png";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import PoliLegal from "@/components/Modal/PoliLegal.jsx";
 import TermsModal from "@/components/Modal/TermsModal.jsx";
+import AboutDeveloper from "./AboutDeveloper";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Dados                                    */
@@ -102,7 +103,6 @@ function SplashLoader({ isFadingOut }) {
       }`}
       aria-hidden={isFadingOut}
     >
-      {/* Blobs de fundo */}
       <div
         className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-[#054060]/10 blur-3xl"
         aria-hidden="true"
@@ -113,9 +113,7 @@ function SplashLoader({ isFadingOut }) {
       />
 
       <div className="relative flex flex-col items-center">
-        {/* Logo com anel pulsante */}
         <div className="relative flex items-center justify-center">
-          {/* Anéis de "batimento" */}
           <span className="absolute inline-flex size-32 animate-ping rounded-full bg-[#054060]/15 sm:size-40" />
           <span
             className="absolute inline-flex size-32 animate-ping rounded-full bg-[#054060]/10 sm:size-40"
@@ -129,20 +127,17 @@ function SplashLoader({ isFadingOut }) {
           />
         </div>
 
-        {/* ECG line */}
         <div className="mt-10 flex items-center gap-3">
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#054060]/70 sm:text-xs">
             Carregando
           </span>
         </div>
 
-        {/* Barra de progresso */}
         <div className="mt-4 h-1 w-56 overflow-hidden rounded-full bg-[#054060]/10 sm:w-64">
           <span className="block h-full w-1/3 animate-loading-bar rounded-full bg-linear-to-r from-[#054060] to-[#0a7ea3]" />
         </div>
       </div>
 
-      {/* Rodapé do splash */}
       <p className="absolute bottom-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 sm:text-xs">
         Secretaria de Saúde · Floriano, PI
       </p>
@@ -160,6 +155,7 @@ function Home() {
 
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isAboutDevOpen, setIsAboutDevOpen] = useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -167,7 +163,6 @@ function Home() {
   const [erroLogin, setErroLogin] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  /* -------------------------- Estado do splash loader ------------------------- */
   const [isLoading, setIsLoading] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
@@ -210,16 +205,13 @@ function Home() {
 
   return (
     <>
-      {/* Splash Loader */}
       {isLoading && <SplashLoader isFadingOut={isFadingOut} />}
 
       <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] lg:flex-row">
-        {/* Partículas */}
         <div className="pointer-events-none absolute inset-0 opacity-70">
           <ParticlesBg type="cobweb" color="#054060" num={60} bg={true} />
         </div>
 
-        {/* Blobs decorativos */}
         <div
           className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-[#054060]/10 blur-3xl"
           aria-hidden="true"
@@ -231,7 +223,6 @@ function Home() {
 
         <main className="relative z-10 flex flex-1 flex-col justify-center p-6 sm:p-10 md:-mt-14 md:p-12 lg:p-16 xl:p-20">
           <div className="mx-auto w-full max-w-2xl">
-            {/* Logo + Títulos lado a lado */}
             <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8 lg:gap-10">
               <img
                 src={EpiDataLogo}
@@ -266,20 +257,17 @@ function Home() {
               </div>
             </div>
 
-            {/* Descrição */}
             <p className="mt-8 text-center text-base font-medium leading-relaxed text-slate-600 sm:mt-10 sm:text-lg lg:text-left">
               Acompanhe a evolução de casos, dados gerais e as zonas de
               abrangência das UBSs em tempo real para tomada rápida de decisões.
             </p>
 
-            {/* Features */}
             <div className="mt-10 space-y-4 sm:mt-12 sm:space-y-5">
               {FEATURES.map((feature) => (
                 <FeatureCard key={feature.title} {...feature} />
               ))}
             </div>
 
-            {/* Estatística decorativa */}
             <div className="mt-10 hidden items-center gap-6 lg:flex">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-500">
                 <span className="relative flex size-2.5">
@@ -300,10 +288,8 @@ function Home() {
           </div>
         </main>
 
-        {/* ----------------------------- Coluna direita ----------------------------- */}
         <aside className="relative z-10 flex w-full flex-col justify-center border-t border-white/60 bg-white/70 p-6 shadow-[-30px_0_60px_-40px_rgba(5,64,96,0.25)] backdrop-blur-xl sm:p-10 md:-mt-14 md:p-12 lg:w-[480px] lg:border-l lg:border-t-0 lg:px-14 lg:py-16">
           <div className="mx-auto w-full max-w-md space-y-8 lg:space-y-10">
-            {/* Acesso público */}
             <section>
               <div className="mb-3 flex items-center gap-2.5 lg:mb-4">
                 <span className="h-px flex-1 bg-linear-to-r from-transparent via-slate-300 to-transparent lg:hidden" />
@@ -317,7 +303,7 @@ function Home() {
               <button
                 type="button"
                 onClick={() => navigate("/dashboard")}
-                className="group relative flex w-full items-center justify-between overflow-hidden rounded-2xl bg-linear-to-r from-[#054060] to-[#0a6a8c] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#054060]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#054060]/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#054060]/25 sm:text-base hover:cursor-pointer"
+                className="group relative flex w-full cursor-pointer items-center justify-between overflow-hidden rounded-2xl bg-linear-to-r from-[#054060] to-[#0a6a8c] px-5 py-4 text-sm font-semibold text-white shadow-lg shadow-[#054060]/20 transition-all duration-300 hover:shadow-xl hover:shadow-[#054060]/30 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#054060]/25 sm:text-base"
               >
                 <span
                   className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover:translate-x-full"
@@ -334,7 +320,6 @@ function Home() {
               </p>
             </section>
 
-            {/* Divisor */}
             <div className="relative flex items-center">
               <span className="h-px flex-1 bg-slate-200" />
               <span className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
@@ -343,7 +328,6 @@ function Home() {
               <span className="h-px flex-1 bg-slate-200" />
             </div>
 
-            {/* Área do profissional */}
             <section className="relative overflow-hidden rounded-2xl border border-white/80 bg-white/90 p-5 shadow-[0_10px_40px_-20px_rgba(5,64,96,0.3)] backdrop-blur-sm sm:p-7">
               <div
                 className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060]"
@@ -368,7 +352,6 @@ function Home() {
               </p>
 
               <form className="space-y-3.5" onSubmit={handleLogin} noValidate>
-                {/* Login */}
                 <div className="relative">
                   <label htmlFor="username" className="sr-only">
                     Login
@@ -390,7 +373,6 @@ function Home() {
                   />
                 </div>
 
-                {/* Senha */}
                 <div className="relative">
                   <label htmlFor="password" className="sr-only">
                     Senha
@@ -427,7 +409,6 @@ function Home() {
                   </button>
                 </div>
 
-                {/* Erro */}
                 {erroLogin && (
                   <p
                     role="alert"
@@ -441,7 +422,6 @@ function Home() {
                   </p>
                 )}
 
-                {/* Submit */}
                 <button
                   type="submit"
                   disabled={isLoggingIn || !canSubmit}
@@ -465,7 +445,6 @@ function Home() {
               </form>
             </section>
 
-            {/* Rodapé */}
             <footer className="border-t border-slate-200/70 pt-6 text-center lg:text-left">
               <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500 sm:text-[11px]">
                 Secretaria de Saúde
@@ -494,6 +473,18 @@ function Home() {
                 >
                   Termos de Uso
                 </button>
+
+                <span className="text-[10px] text-slate-300" aria-hidden="true">
+                  •
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAboutDevOpen(true)}
+                  className="cursor-pointer rounded-sm text-[10px] font-medium text-slate-400 transition-all hover:text-[#054060] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#054060]/30 sm:text-xs"
+                >
+                  Desenvolvedor
+                </button>
               </div>
             </footer>
           </div>
@@ -507,6 +498,10 @@ function Home() {
         <TermsModal
           isOpen={isTermsModalOpen}
           onClose={() => setIsTermsModalOpen(false)}
+        />
+        <AboutDeveloper
+          isOpen={isAboutDevOpen}
+          onClose={() => setIsAboutDevOpen(false)}
         />
       </div>
     </>

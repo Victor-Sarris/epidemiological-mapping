@@ -244,21 +244,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
           </div>
           <div
             className={`mt-2 transition-all duration-300 ${isCollapsed ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 max-h-10"}`}
-          >
-            <p className="text-center">
-              <Link
-                to="/profissional/desenvolvedor"
-                onClick={onClose}
-                className={`text-[12px] font-medium transition-colors px-3 py-1.5 rounded-lg inline-block ${
-                  location.pathname === "/profissional/desenvolvedor"
-                    ? "bg-[#4180ab]/10 text-[#054060] font-bold"
-                    : "text-slate-400 hover:text-[#4180ab]"
-                }`}
-              >
-                About Dev
-              </Link>
-            </p>
-          </div>
+          ></div>
         </div>
       </aside>
     </>
