@@ -19,6 +19,10 @@ import {
   BookOpen,
   ChevronUp,
   Info,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  FileDown,
 } from "lucide-react";
 
 const TABELAS = [
@@ -45,6 +49,53 @@ const TABELAS = [
     id: "coberturavacinal",
     nome: "Cobertura Vacinal",
     endpoint: "/api/coberturavacinal/",
+  },
+];
+
+/**
+ * Mapeia o id da tabela no front para a chave que o backend reconhece
+ * no endpoint /api/exportar/<doenca>/
+ * (endpoint definido em views.exportar_dados — usa _normalizar_doenca)
+ */
+const BACKEND_KEYS = {
+  dengue: "dengue",
+  tuberculose: "tuberculose",
+  sifilis: "sifilis",
+  chagas: "chagas",
+  violenciadomestica: "violencia",
+  hans: "hanseniase",
+  hepatite: "hepatite",
+  animaispec: "animais_peconhentos",
+  intoxicacao: "intoxicacao",
+  leish: "leishmaniose",
+  aidsadulta: "aids",
+  // coberturavacinal não está em DOENCAS → exportação bloqueada
+};
+
+const FORMATOS_EXPORT = [
+  {
+    id: "xlsx",
+    label: "Excel (.xlsx)",
+    desc: "Recomendado para planilhas",
+    icon: FileSpreadsheet,
+    accent: "text-emerald-600",
+    bg: "bg-emerald-50",
+  },
+  {
+    id: "csv",
+    label: "CSV (.csv)",
+    desc: "Texto separado por ponto e vírgula",
+    icon: FileText,
+    accent: "text-blue-600",
+    bg: "bg-blue-50",
+  },
+  {
+    id: "dbf",
+    label: "DBF (.dbf)",
+    desc: "Compatível com SINAN/legado",
+    icon: FileDown,
+    accent: "text-amber-600",
+    bg: "bg-amber-50",
   },
 ];
 
@@ -191,6 +242,11 @@ export default function SystemInformation() {
   const [isTableDropdownOpen, setIsTableDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // === Export ===
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(null); // guarda o formato em andamento
+  const exportDropdownRef = useRef(null);
+
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
   const [isDocOpen, setIsDocOpen] = useState(false);
 
@@ -206,6 +262,12 @@ export default function SystemInformation() {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsTableDropdownOpen(false);
+      }
+      if (
+        exportDropdownRef.current &&
+        !exportDropdownRef.current.contains(event.target)
+      ) {
+        setIsExportDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -428,8 +490,72 @@ export default function SystemInformation() {
     }
   };
 
+  // ============================================================ EXPORT
+  const handleExport = async (formato) => {
+    const backendKey = BACKEND_KEYS[tabelaAtiva.id];
+    if (!backendKey) {
+      mostrarMensagem(
+        `Exportação não disponível para ${tabelaAtiva.nome}.`,
+        "erro",
+      );
+      setIsExportDropdownOpen(false);
+      return;
+    }
+
+    setIsExporting(formato);
+    setMensagem({ texto: "", tipo: "" });
+
+    try {
+      const params = new URLSearchParams({ formato });
+      const url = `${baseUrl}/api/exportar/${backendKey}/?${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: getAuthHeaders(),
+      });
+
+      if (handleAuthError(response.status)) return;
+
+      if (!response.ok) {
+        // tenta extrair o JSON de erro do backend
+        let erroMsg = `Erro ${response.status} ao exportar`;
+        try {
+          const body = await response.json();
+          if (body?.erro) erroMsg = body.erro;
+        } catch {
+          /* corpo não era JSON, mantém mensagem padrão */
+        }
+        throw new Error(erroMsg);
+      }
+
+      const blob = await response.blob();
+
+      // Dispara o download via âncora temporária
+      const downloadUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = downloadUrl;
+      a.download = `${backendKey}_${new Date().toISOString().slice(0, 10)}.${formato}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(downloadUrl);
+
+      mostrarMensagem(
+        `${tabelaAtiva.nome} exportada com sucesso como ${formato.toUpperCase()}!`,
+        "sucesso",
+      );
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      mostrarMensagem(error.message || "Erro ao exportar os dados.", "erro");
+    } finally {
+      setIsExporting(null);
+      setIsExportDropdownOpen(false);
+    }
+  };
+
   const somenteAdmin = tabelaAtiva.id === "coberturavacinal";
   const podeEditar = !somenteAdmin || isAdmin;
+  const podeExportar = Boolean(BACKEND_KEYS[tabelaAtiva.id]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
@@ -480,7 +606,9 @@ export default function SystemInformation() {
                     </span>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${isTableDropdownOpen ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${
+                      isTableDropdownOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
@@ -781,6 +909,95 @@ export default function SystemInformation() {
                       Importar
                     </button>
 
+                    {/* ===== BOTÃO EXPORTAR (dropdown) ===== */}
+                    {podeExportar && (
+                      <div
+                        className="relative col-span-2 md:col-span-1"
+                        ref={exportDropdownRef}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setIsExportDropdownOpen((v) => !v)}
+                          disabled={!!isExporting || loading}
+                          className={`w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${
+                            isExportDropdownOpen ? "ring-2 ring-amber-300" : ""
+                          }`}
+                        >
+                          {isExporting ? (
+                            <RefreshCw className="size-4 animate-spin" />
+                          ) : (
+                            <Download className="size-4 shrink-0" />
+                          )}
+                          {isExporting
+                            ? `Exportando ${isExporting.toUpperCase()}...`
+                            : "Exportar"}
+                          <ChevronDown
+                            className={`size-3.5 transition-transform duration-200 ${
+                              isExportDropdownOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+
+                        {isExportDropdownOpen && (
+                          <div className="absolute top-full right-0 mt-2 w-72 bg-white border border-slate-100 shadow-xl rounded-xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150">
+                            <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-100">
+                              <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                                Formato de exportação
+                              </p>
+                              <p className="text-[11px] text-slate-400 mt-0.5 truncate">
+                                {tabelaAtiva.nome} • {dadosFiltrados.length}{" "}
+                                registro(s)
+                              </p>
+                            </div>
+
+                            <div className="p-1">
+                              {FORMATOS_EXPORT.map((fmt) => {
+                                const Icon = fmt.icon;
+                                const isCurrent = isExporting === fmt.id;
+                                return (
+                                  <button
+                                    key={fmt.id}
+                                    onClick={() => handleExport(fmt.id)}
+                                    disabled={!!isExporting}
+                                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg hover:bg-slate-50 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+                                  >
+                                    <div
+                                      className={`p-2 rounded-lg ${fmt.bg} shrink-0 group-hover:scale-105 transition-transform`}
+                                    >
+                                      {isCurrent ? (
+                                        <RefreshCw
+                                          className={`size-4 ${fmt.accent} animate-spin`}
+                                        />
+                                      ) : (
+                                        <Icon
+                                          className={`size-4 ${fmt.accent}`}
+                                        />
+                                      )}
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <p className="text-sm font-semibold text-slate-800 truncate">
+                                        {fmt.label}
+                                      </p>
+                                      <p className="text-[11px] text-slate-500 truncate">
+                                        {fmt.desc}
+                                      </p>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <div className="px-4 py-2 bg-slate-50 border-t border-slate-100">
+                              <p className="text-[10px] text-slate-400 leading-relaxed">
+                                💡 A exportação respeita o escopo de acesso: UBS
+                                exporta somente os próprios registros.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <button
                       onClick={() => handleOpenModal()}
                       className="flex items-center justify-center gap-2 bg-[#4180ab] hover:bg-[#32678c] text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm hover:cursor-pointer"
@@ -923,30 +1140,28 @@ export default function SystemInformation() {
                           </td>
                         ))}
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <td className="px-6 py-4 whitespace-nowrap text-right">
-                            {podeEditar ? (
-                              <div className="flex justify-end gap-2">
-                                <button
-                                  onClick={() => handleOpenModal(item)}
-                                  className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
-                                  title="Editar"
-                                >
-                                  <Edit className="size-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(item.id)}
-                                  className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors cursor-pointer"
-                                  title="Excluir"
-                                >
-                                  <Trash2 className="size-4" />
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="text-slate-300 text-xs italic pr-2">
-                                somente leitura
-                              </span>
-                            )}
-                          </td>
+                          {podeEditar ? (
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => handleOpenModal(item)}
+                                className="p-1.5 text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors cursor-pointer"
+                                title="Editar"
+                              >
+                                <Edit className="size-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="p-1.5 text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors cursor-pointer"
+                                title="Excluir"
+                              >
+                                <Trash2 className="size-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-slate-300 text-xs italic pr-2">
+                              somente leitura
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))
