@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import {
   Map as MapIcon,
   ShieldAlert,
@@ -12,6 +13,7 @@ import {
   Activity,
   TrendingUp,
   Sparkles,
+  MapPin,
 } from "lucide-react";
 import ParticlesBg from "particles-bg";
 
@@ -20,10 +22,6 @@ import { useAuth } from "../contexts/AuthContext.jsx";
 import PoliLegal from "@/components/Modal/PoliLegal.jsx";
 import TermsModal from "@/components/Modal/TermsModal.jsx";
 import AboutDeveloper from "./AboutDeveloper";
-
-/* -------------------------------------------------------------------------- */
-/*                                   Dados                                    */
-/* -------------------------------------------------------------------------- */
 
 const FEATURES = [
   {
@@ -54,10 +52,6 @@ const FEATURES = [
 
 const INPUT_CLASS =
   "w-full rounded-xl border border-slate-200/80 bg-slate-50/80 py-3 pl-11 pr-3 text-sm font-semibold text-[#054060] outline-none transition-all placeholder:font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-50 focus:border-[#054060]/40 focus:bg-white focus:ring-4 focus:ring-[#054060]/10 disabled:cursor-not-allowed disabled:opacity-60";
-
-/* -------------------------------------------------------------------------- */
-/*                              Componentes auxiliares                        */
-/* -------------------------------------------------------------------------- */
 
 function FeatureCard({
   icon: Icon,
@@ -145,10 +139,6 @@ function SplashLoader({ isFadingOut }) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*                                   Página                                   */
-/* -------------------------------------------------------------------------- */
-
 function Home() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -205,6 +195,15 @@ function Home() {
 
   return (
     <>
+      <Helmet>
+        <title>
+          SIGEP - Sistema Inteligente · Georreferencial Epidemiológico
+        </title>
+        <meta
+          name="description"
+          content="O EPI-DATA é um sistema de mapeamento epidemiológico setorial e dashboard de saúde pública desenvolvido para a Secretaria de Saúde de Floriano, Piauí. O principal objetivo é acompanhar a evolução de casos, monitorar focos de endemias e mapear as zonas de abrangência das Unidades Básicas de Saúde (UBSs), fornecendo suporte à decisão para o controle de surtos e vetores em tempo real."
+        />
+      </Helmet>
       {isLoading && <SplashLoader isFadingOut={isFadingOut} />}
 
       <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] lg:flex-row">
@@ -223,39 +222,64 @@ function Home() {
 
         <main className="relative z-10 flex flex-1 flex-col justify-center p-6 sm:p-10 md:-mt-14 md:p-12 lg:p-16 xl:p-20">
           <div className="mx-auto w-full max-w-2xl">
+            {/* ==================== HEADER REDESENHADO ==================== */}
             <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8 lg:gap-10">
-              <img
-                src={EpiDataLogo}
-                alt="EPI-DATA"
-                className="w-40 shrink-0 sm:w-48 lg:w-56 xl:w-64"
-              />
+              {/* Logo */}
+              <div className="relative shrink-0">
+                <span
+                  className="absolute inset-0 -z-10 scale-90 rounded-full bg-[#054060]/5 blur-2xl"
+                  aria-hidden="true"
+                />
+                <img
+                  src={EpiDataLogo}
+                  alt="EPI-DATA"
+                  className="w-32 drop-shadow-sm sm:w-36 lg:w-40 xl:w-44"
+                />
+              </div>
 
-              <div className="text-center sm:text-left">
+              {/* Bloco de título */}
+              <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+                {/* Chip de contexto */}
                 <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#054060]/15 bg-white/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#054060] shadow-sm backdrop-blur-sm sm:text-[11px]">
                   <Sparkles className="size-3" aria-hidden="true" />
                   Vigilância em Saúde
                 </span>
 
-                <h1 className="text-3xl font-extrabold leading-[1.05] tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+                {/* SIGEP — herói, dominante */}
+                <h1 className="text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
                   <span className="relative inline-block">
-                    <span className="relative z-10 bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
-                      Mapeamento
+                    <span className="relative z-10 bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060] bg-clip-text text-transparent">
+                      SIGEP
                     </span>
                     <span
-                      className="absolute inset-x-0 bottom-1 z-0 h-3 -rotate-1 bg-[#054060]/10"
+                      className="absolute inset-x-0 bottom-1 z-0 h-2.5 -rotate-1 bg-[#054060]/10 sm:h-3"
                       aria-hidden="true"
                     />
                   </span>
-                  <br />
-                  <span className="bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
-                    Epidemiológico
-                  </span>
-                  <span className="mt-2 block text-base font-bold tracking-normal text-slate-500 sm:text-lg lg:text-xl">
-                    Floriano · Piauí
-                  </span>
                 </h1>
+
+                {/* Subtítulo — compacto, 2 linhas no máximo */}
+                <p className="mt-3 max-w-md text-sm font-semibold leading-snug text-slate-600 sm:text-base lg:text-[17px]">
+                  <span className="bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
+                    Sistema Inteligente
+                  </span>{" "}
+                  <span className="text-slate-400 font-normal">·</span>{" "}
+                  <span className="bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
+                    Georreferencial Epidemiológico
+                  </span>
+                </p>
+
+                {/* Localização como chip sutil */}
+                <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/60 px-3 py-1 text-[11px] font-semibold text-slate-500 shadow-sm backdrop-blur-sm">
+                  <MapPin
+                    className="size-3 text-[#054060]/70"
+                    aria-hidden="true"
+                  />
+                  Floriano · Piauí
+                </span>
               </div>
             </div>
+            {/* ================== FIM HEADER REDESENHADO ================== */}
 
             <p className="mt-8 text-center text-base font-medium leading-relaxed text-slate-600 sm:mt-10 sm:text-lg lg:text-left">
               Acompanhe a evolução de casos, dados gerais e as zonas de

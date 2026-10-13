@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
@@ -2086,6 +2087,9 @@ export default function MapTubercu({ isPrivateView = false }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+      <Helmet>
+        <title>Mapa Epidemiológico - Tuberculose</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}

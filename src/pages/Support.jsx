@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
+import { Helmet } from "react-helmet-async";
 import {
   IoChatbubbles,
   IoClose,
@@ -44,9 +45,6 @@ const FAQS = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Persistência do chat (sessionStorage: sobrevive a F5, some ao fechar a aba)
-// ---------------------------------------------------------------------------
 const STORAGE_KEY = "epidata_chat_history_v1";
 
 const MENSAGEM_INICIAL = {
@@ -336,6 +334,9 @@ function Support({ isPrivateView = false }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50/50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Suporte</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}

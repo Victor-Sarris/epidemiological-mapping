@@ -56,7 +56,7 @@ export default function UserProfileMenu() {
       {/* Botão do Cabeçalho */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 p-1.5 pr-3 rounded-full transition-all duration-200 border active:scale-95 ${
+        className={`flex items-center gap-2 p-1.5 pr-3 rounded-full transition-all duration-200 border active:scale-95 cursor-pointer ${
           isOpen
             ? "bg-white/20 border-white/30"
             : "border-transparent hover:bg-white/10"

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import SidebarPrivate from "@/components/private/SidebarPrivate";
+import { Helmet } from "react-helmet-async";
 import {
   Menu,
   Edit,
@@ -559,6 +560,9 @@ export default function SystemInformation() {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Informações do Sistema</title>
+      </Helmet>
       <SidebarPrivate
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}

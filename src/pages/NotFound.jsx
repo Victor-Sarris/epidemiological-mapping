@@ -9,6 +9,7 @@ import {
   LifeBuoy,
 } from "lucide-react";
 import ParticlesBg from "particles-bg";
+import { Helmet } from "react-helmet-async";
 
 export default function NotFound() {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ export default function NotFound() {
 
   return (
     <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] p-6">
+      <Helmet>
+        <title>Erro 404</title>
+      </Helmet>
       {/* Partículas */}
       <div className="pointer-events-none absolute inset-0 opacity-60">
         <ParticlesBg type="circle" color="#054060" num={50} bg={true} />
