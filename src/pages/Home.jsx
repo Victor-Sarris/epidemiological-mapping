@@ -53,6 +53,10 @@ const FEATURES = [
 const INPUT_CLASS =
   "w-full rounded-xl border border-slate-200/80 bg-slate-50/80 py-3 pl-11 pr-3 text-sm font-semibold text-[#054060] outline-none transition-all placeholder:font-medium placeholder:text-slate-400 hover:border-slate-300 hover:bg-slate-50 focus:border-[#054060]/40 focus:bg-white focus:ring-4 focus:ring-[#054060]/10 disabled:cursor-not-allowed disabled:opacity-60";
 
+/* -------------------------------------------------------------------------- */
+/*                              Componentes auxiliares                        */
+/* -------------------------------------------------------------------------- */
+
 function FeatureCard({
   icon: Icon,
   title,
@@ -89,14 +93,21 @@ function FeatureCard({
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*                                 Splash                                     */
+/* -------------------------------------------------------------------------- */
+
 function SplashLoader({ isFadingOut }) {
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] transition-opacity duration-700 ${
-        isFadingOut ? "pointer-events-none opacity-0" : "opacity-100"
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] transition-all duration-700 ease-out ${
+        isFadingOut
+          ? "pointer-events-none opacity-0 scale-[1.02]"
+          : "opacity-100 scale-100"
       }`}
       aria-hidden={isFadingOut}
     >
+      {/* Blobs de fundo */}
       <div
         className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-[#054060]/10 blur-3xl"
         aria-hidden="true"
@@ -107,29 +118,58 @@ function SplashLoader({ isFadingOut }) {
       />
 
       <div className="relative flex flex-col items-center">
+        {/* Logo + ondas de ping */}
         <div className="relative flex items-center justify-center">
-          <span className="absolute inline-flex size-32 animate-ping rounded-full bg-[#054060]/15 sm:size-40" />
+          <span className="absolute inline-flex size-32 rounded-full bg-[#054060]/15 animate-splash-ping sm:size-40" />
           <span
-            className="absolute inline-flex size-32 animate-ping rounded-full bg-[#054060]/10 sm:size-40"
-            style={{ animationDelay: "0.4s" }}
+            className="absolute inline-flex size-32 rounded-full bg-[#054060]/10 animate-splash-ping sm:size-40"
+            style={{ animationDelay: "0.5s" }}
+          />
+          <span
+            className="absolute inline-flex size-32 rounded-full bg-[#054060]/5 animate-splash-ping sm:size-40"
+            style={{ animationDelay: "1s" }}
           />
 
           <img
             src={EpiDataLogo}
             alt="EPI-DATA"
-            className="relative w-32 animate-pulse-slow drop-shadow-lg sm:w-40"
+            className="relative w-32 drop-shadow-lg animate-splash-breathe sm:w-40"
           />
         </div>
 
+        {/* Texto "Carregando" com fade-up */}
         <div className="mt-10 flex items-center gap-3">
-          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#054060]/70 sm:text-xs">
+          <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#054060]/70 animate-splash-fade-up sm:text-xs">
             Carregando
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="size-1 rounded-full bg-[#054060]/70 animate-splash-dot" />
+            <span
+              className="size-1 rounded-full bg-[#054060]/70 animate-splash-dot"
+              style={{ animationDelay: "0.15s" }}
+            />
+            <span
+              className="size-1 rounded-full bg-[#054060]/70 animate-splash-dot"
+              style={{ animationDelay: "0.3s" }}
+            />
           </span>
         </div>
 
-        <div className="mt-4 h-1 w-56 overflow-hidden rounded-full bg-[#054060]/10 sm:w-64">
-          <span className="block h-full w-1/3 animate-loading-bar rounded-full bg-linear-to-r from-[#054060] to-[#0a7ea3]" />
+        {/* Barra de progresso */}
+        <div className="relative mt-4 h-1 w-56 overflow-hidden rounded-full bg-[#054060]/10 sm:w-64">
+          <span
+            className="absolute inset-y-0 w-1/3 rounded-full bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060] animate-splash-bar"
+            style={{ animationDelay: "0.2s" }}
+          />
         </div>
+
+        {/* Microtexto com delay */}
+        <p
+          className="mt-5 text-[10px] font-medium uppercase tracking-[0.18em] text-slate-400 animate-splash-fade-up sm:text-[11px]"
+          style={{ animationDelay: "0.4s" }}
+        >
+          Carregando dados
+        </p>
       </div>
 
       <p className="absolute bottom-8 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 sm:text-xs">
@@ -138,6 +178,10 @@ function SplashLoader({ isFadingOut }) {
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                   Página                                   */
+/* -------------------------------------------------------------------------- */
 
 function Home() {
   const navigate = useNavigate();
@@ -158,7 +202,7 @@ function Home() {
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => setIsFadingOut(true), 1600);
-    const removeTimer = setTimeout(() => setIsLoading(false), 2300);
+    const removeTimer = setTimeout(() => setIsLoading(false), 2400);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -204,6 +248,7 @@ function Home() {
           content="O EPI-DATA é um sistema de mapeamento epidemiológico setorial e dashboard de saúde pública desenvolvido para a Secretaria de Saúde de Floriano, Piauí. O principal objetivo é acompanhar a evolução de casos, monitorar focos de endemias e mapear as zonas de abrangência das Unidades Básicas de Saúde, fornecendo suporte à decisão para o controle de surtos e vetores em tempo real."
         />
       </Helmet>
+
       {isLoading && <SplashLoader isFadingOut={isFadingOut} />}
 
       <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-linear-to-br from-slate-50 via-[#eef5f9] to-[#dbe9f1] lg:flex-row">
@@ -224,7 +269,6 @@ function Home() {
           <div className="mx-auto w-full max-w-2xl">
             {/* ==================== HEADER REDESENHADO ==================== */}
             <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:gap-8 lg:gap-10">
-              {/* Logo */}
               <div className="relative shrink-0">
                 <span
                   className="absolute inset-0 -z-10 scale-90 rounded-full bg-[#054060]/5 blur-2xl"
@@ -237,15 +281,12 @@ function Home() {
                 />
               </div>
 
-              {/* Bloco de título */}
               <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-                {/* Chip de contexto */}
                 <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#054060]/15 bg-white/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#054060] shadow-sm backdrop-blur-sm sm:text-[11px]">
                   <Sparkles className="size-3" aria-hidden="true" />
                   Vigilância em Saúde
                 </span>
 
-                {/* SIGEP — herói, dominante */}
                 <h1 className="text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
                   <span className="relative inline-block">
                     <span className="relative z-10 bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060] bg-clip-text text-transparent">
@@ -258,7 +299,6 @@ function Home() {
                   </span>
                 </h1>
 
-                {/* Subtítulo — compacto, 2 linhas no máximo */}
                 <p className="mt-3 max-w-md text-sm font-semibold leading-snug text-slate-600 sm:text-base lg:text-[17px]">
                   <span className="bg-linear-to-r from-[#054060] to-[#0a7ea3] bg-clip-text text-transparent">
                     Sistema Inteligente
@@ -269,7 +309,6 @@ function Home() {
                   </span>
                 </p>
 
-                {/* Localização como chip sutil */}
                 <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/60 px-3 py-1 text-[11px] font-semibold text-slate-500 shadow-sm backdrop-blur-sm">
                   <MapPin
                     className="size-3 text-[#054060]/70"
@@ -514,7 +553,6 @@ function Home() {
           </div>
         </aside>
 
-        {/* Modais */}
         <PoliLegal
           isOpen={isPrivacyModalOpen}
           onClose={() => setIsPrivacyModalOpen(false)}
@@ -528,6 +566,51 @@ function Home() {
           onClose={() => setIsAboutDevOpen(false)}
         />
       </div>
+
+      {/* ============= KEYFRAMES INLINE (fallback) ============= */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+            @keyframes splash-ping {
+              0%   { transform: scale(0.7); opacity: 0.6; }
+              80%  { transform: scale(1.6); opacity: 0;   }
+              100% { transform: scale(1.6); opacity: 0;   }
+            }
+            @keyframes splash-breathe {
+              0%, 100% { transform: scale(1);    filter: drop-shadow(0 4px 12px rgba(5,64,96,0.15)); }
+              50%      { transform: scale(1.06); filter: drop-shadow(0 8px 20px rgba(5,64,96,0.28)); }
+            }
+            @keyframes splash-bar {
+              0%   { transform: translateX(-110%); }
+              100% { transform: translateX(320%);  }
+            }
+            @keyframes splash-fade-up {
+              0%   { opacity: 0; transform: translateY(6px); }
+              100% { opacity: 1; transform: translateY(0);   }
+            }
+            @keyframes splash-dot {
+              0%, 80%, 100% { opacity: 0.25; transform: translateY(0);    }
+              40%           { opacity: 1;    transform: translateY(-2px); }
+            }
+
+            .animate-splash-ping    { animation: splash-ping    2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+            .animate-splash-breathe { animation: splash-breathe 2.6s ease-in-out infinite; }
+            .animate-splash-bar     { animation: splash-bar     1.6s ease-in-out infinite; }
+            .animate-splash-fade-up { animation: splash-fade-up 0.6s ease-out both; }
+            .animate-splash-dot     { animation: splash-dot     1.2s ease-in-out infinite; }
+
+            @media (prefers-reduced-motion: reduce) {
+              .animate-splash-ping,
+              .animate-splash-breathe,
+              .animate-splash-bar,
+              .animate-splash-fade-up,
+              .animate-splash-dot {
+                animation: none !important;
+              }
+            }
+          `,
+        }}
+      />
     </>
   );
 }
