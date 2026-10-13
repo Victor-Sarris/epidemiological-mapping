@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import {
   ShieldCheck,
@@ -245,6 +246,9 @@ export default function DashboardCoberturaVacinal({ isPrivateView = true }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Cobertura Vacinal</title>
+      </Helmet>
       <SidebarPrivate
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}

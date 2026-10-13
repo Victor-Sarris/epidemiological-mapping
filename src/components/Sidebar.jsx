@@ -100,7 +100,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 isCollapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100"
               }`}
             >
-              Epi<span className="text-[#4180ab]">Data</span>
+              SIG<span className="text-[#4180ab]">EP</span>
             </span>
           </Link>
 

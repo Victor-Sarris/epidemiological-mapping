@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
+import { Helmet } from "react-helmet-async";
 import {
   Users,
   Activity,
@@ -473,6 +474,9 @@ export default function Dashboard({ isPrivateView = false }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Dados Gerais do Sistema</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}

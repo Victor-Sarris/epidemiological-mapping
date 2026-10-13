@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import SidebarPrivate from "../../components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
@@ -2125,6 +2126,9 @@ export default function MapViolencia({ isPrivateView = true }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+      <Helmet>
+        <title>Mapa Epidemiológico - Violência Doméstica</title>
+      </Helmet>
       <SidebarPrivate
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}

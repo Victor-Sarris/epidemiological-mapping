@@ -3,12 +3,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
+import { Helmet } from "react-helmet-async";
 import {
   IoChatbubbles,
   IoClose,
   IoWarning,
   IoSend,
   IoHardwareChip,
+  IoRefresh,
 } from "react-icons/io5";
 import {
   Menu,
@@ -42,6 +44,35 @@ const FAQS = [
     icon: <Bot className="size-6 text-purple-500" />,
   },
 ];
+
+const STORAGE_KEY = "epidata_chat_history_v1";
+
+const MENSAGEM_INICIAL = {
+  sender: "bot",
+  text: "Olá! Sou o seu assistente virtual. Como posso ajudar você hoje?",
+  structured: null,
+};
+
+function carregarHistorico() {
+  if (typeof window === "undefined") return [MENSAGEM_INICIAL];
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return [MENSAGEM_INICIAL];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch (e) {
+    console.warn("[chat] Falha ao restaurar histórico:", e);
+  }
+  return [MENSAGEM_INICIAL];
+}
+
+function limparHistorico() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
 
 /** Ranking com barras horizontais — usado para "top bairros", "panorama geral" */
 function RankingCard({ data }) {
@@ -192,13 +223,8 @@ function Support({ isPrivateView = false }) {
   const [isLoading, setIsLoading] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
 
-  const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "Olá! Sou o seu assistente virtual. Como posso ajudar você hoje?",
-      structured: null,
-    },
-  ]);
+  // Lazy initializer: lê do sessionStorage só no primeiro render
+  const [messages, setMessages] = useState(carregarHistorico);
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -211,7 +237,21 @@ function Support({ isPrivateView = false }) {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Persiste no sessionStorage a cada mudança
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn("[chat] Não foi possível salvar histórico:", e);
+    }
+  }, [messages]);
+
   const toggleChatbot = () => setIsChatbotOpen(!isChatbotOpen);
+
+  const handleResetHistorico = () => {
+    limparHistorico();
+    setMessages([MENSAGEM_INICIAL]);
+  };
 
   const handleSendMessage = async () => {
     if (inputValue.trim() === "") return;
@@ -284,13 +324,19 @@ function Support({ isPrivateView = false }) {
 
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        120,
+      )}px`;
       scrollToBottom();
     }
   };
 
   return (
     <div className="flex h-screen w-full bg-slate-50/50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Suporte</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}
@@ -491,12 +537,24 @@ function Support({ isPrivateView = false }) {
                   </span>
                 </div>
               </div>
-              <button
-                onClick={toggleChatbot}
-                className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
-              >
-                <IoClose size={24} />
-              </button>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleResetHistorico}
+                  title="Limpar conversa"
+                  aria-label="Limpar conversa"
+                  className="text-white/70 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
+                >
+                  <IoRefresh size={20} />
+                </button>
+                <button
+                  onClick={toggleChatbot}
+                  aria-label="Fechar chat"
+                  className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
+                >
+                  <IoClose size={24} />
+                </button>
+              </div>
             </div>
 
             {/* Área de Mensagens */}
@@ -582,7 +640,6 @@ function Support({ isPrivateView = false }) {
 
             {/* Área de Input */}
             <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0">
-              {/* Container que simula a caixa de input, com items-end para o botão acompanhar o crescimento */}
               <div className="relative flex items-end gap-2 bg-slate-50 rounded-3xl border border-slate-200 focus-within:border-[#054060] focus-within:ring-2 focus-within:ring-[#054060]/20 transition-all p-1.5 pl-5">
                 <textarea
                   ref={textareaRef}

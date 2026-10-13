@@ -114,7 +114,7 @@ const SidebarPrivate = ({ isOpen, onClose }) => {
                 isCollapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100"
               }`}
             >
-              Epi<span className="text-[#538CB3]">Data</span>
+              SIG<span className="text-[#538CB3]">EP</span>
             </span>
           </Link>
 

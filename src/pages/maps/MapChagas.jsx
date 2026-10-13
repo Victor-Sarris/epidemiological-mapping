@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Sidebar from "../../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
@@ -2096,6 +2097,9 @@ export default function MapChagas({ isPrivateView = false }) {
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+      <Helmet>
+        <title>Mapa Epidemiológico - Chagas</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}
