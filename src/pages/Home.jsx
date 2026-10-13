@@ -201,7 +201,7 @@ function Home() {
         </title>
         <meta
           name="description"
-          content="O EPI-DATA é um sistema de mapeamento epidemiológico setorial e dashboard de saúde pública desenvolvido para a Secretaria de Saúde de Floriano, Piauí. O principal objetivo é acompanhar a evolução de casos, monitorar focos de endemias e mapear as zonas de abrangência das Unidades Básicas de Saúde (UBSs), fornecendo suporte à decisão para o controle de surtos e vetores em tempo real."
+          content="O EPI-DATA é um sistema de mapeamento epidemiológico setorial e dashboard de saúde pública desenvolvido para a Secretaria de Saúde de Floriano, Piauí. O principal objetivo é acompanhar a evolução de casos, monitorar focos de endemias e mapear as zonas de abrangência das Unidades Básicas de Saúde, fornecendo suporte à decisão para o controle de surtos e vetores em tempo real."
         />
       </Helmet>
       {isLoading && <SplashLoader isFadingOut={isFadingOut} />}
