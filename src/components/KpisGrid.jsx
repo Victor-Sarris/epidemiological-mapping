@@ -38,8 +38,10 @@ export default function KpisGrid({ kpis }) {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {kpis.map((kpi, idx) => {
         const colors = getColorClasses(kpi.color);
-        // Simulação de tendência (você pode passar isso via props no futuro)
-        const trend = idx % 2 === 0 ? "up" : "down";
+
+        // Puxa a tendência real passada via props. Se não existir, define como neutro.
+        const trend = kpi.trend || "neutral";
+        const trendValue = kpi.trendValue || "0%";
 
         return (
           <div
@@ -66,21 +68,23 @@ export default function KpisGrid({ kpis }) {
               <p className="text-xs font-medium text-slate-400">
                 {kpi.subtext}
               </p>
-              {/* Indicador de tendência visual */}
-              <div
-                className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${
-                  trend === "up"
-                    ? "bg-rose-50 text-rose-600"
-                    : "bg-emerald-50 text-emerald-600"
-                }`}
-              >
-                {trend === "up" ? (
-                  <ArrowUpRight className="size-3" />
-                ) : (
-                  <ArrowDownRight className="size-3" />
-                )}
-                {trend === "up" ? "12%" : "5%"}
-              </div>
+
+              {trend !== "neutral" && (
+                <div
+                  className={`flex items-center gap-1 text-xs font-bold px-2 py-1 rounded-full ${
+                    trend === "up"
+                      ? "bg-rose-50 text-rose-600"
+                      : "bg-emerald-50 text-emerald-600"
+                  }`}
+                >
+                  {trend === "up" ? (
+                    <ArrowUpRight className="size-3" />
+                  ) : (
+                    <ArrowDownRight className="size-3" />
+                  )}
+                  {trendValue}
+                </div>
+              )}
             </div>
           </div>
         );

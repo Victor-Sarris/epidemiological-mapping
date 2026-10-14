@@ -1,16 +1,13 @@
 // EvolucaoMensal.jsx
 import React, { useMemo } from "react";
 import {
-  AreaChart, // Mudamos de LineChart para AreaChart
+  AreaChart,
   Area,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
-  defs, // Importante para o gradiente
-  linearGradient,
-  stop,
 } from "recharts";
 import { Activity } from "lucide-react";
 

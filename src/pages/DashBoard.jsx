@@ -236,6 +236,20 @@ export default function Dashboard({ isPrivateView = false }) {
     };
   }, [endemiaSelecionada]);
 
+  // Função auxiliar para calcular a variação percentual real
+  const calcularVariacao = (atual, anterior) => {
+    if (anterior === 0) {
+      return atual > 0
+        ? { trend: "up", value: "100%" }
+        : { trend: "neutral", value: "0%" };
+    }
+    const variacao = ((atual - anterior) / anterior) * 100;
+    return {
+      trend: variacao > 0 ? "up" : variacao < 0 ? "down" : "neutral",
+      value: `${Math.abs(Math.round(variacao))}%`,
+    };
+  };
+
   const pacientesFiltrados = useMemo(() => {
     if (filtroTipo === "todos") return pacientes;
 
@@ -278,6 +292,66 @@ export default function Dashboard({ isPrivateView = false }) {
     });
   }, [pacientes, filtroTipo, dataInicio, dataFim]);
 
+  // 🆕 Filtra os pacientes do período ANTERIOR para comparação de tendência
+  const pacientesPeriodoAnterior = useMemo(() => {
+    if (filtroTipo === "todos") return [];
+
+    const hoje = new Date();
+    let dataRefInicioAnterior = new Date();
+    let dataRefFimAnterior = new Date();
+
+    if (filtroTipo === "ultimoMes") {
+      dataRefInicioAnterior.setMonth(hoje.getMonth() - 2);
+      dataRefFimAnterior.setMonth(hoje.getMonth() - 1);
+    } else if (filtroTipo === "ultimos3Meses") {
+      dataRefInicioAnterior.setMonth(hoje.getMonth() - 6);
+      dataRefFimAnterior.setMonth(hoje.getMonth() - 3);
+    } else if (filtroTipo === "ultimos6Meses") {
+      dataRefInicioAnterior.setMonth(hoje.getMonth() - 12);
+      dataRefFimAnterior.setMonth(hoje.getMonth() - 6);
+    } else if (filtroTipo === "esteAno") {
+      dataRefInicioAnterior = new Date(hoje.getFullYear() - 1, 0, 1);
+      dataRefFimAnterior = new Date(
+        hoje.getFullYear() - 1,
+        hoje.getMonth(),
+        hoje.getDate(),
+        23,
+        59,
+        59,
+      );
+    } else if (filtroTipo === "anoPassado") {
+      dataRefInicioAnterior = new Date(hoje.getFullYear() - 2, 0, 1);
+      dataRefFimAnterior = new Date(hoje.getFullYear() - 2, 11, 31, 23, 59, 59);
+    } else if (filtroTipo === "personalizado") {
+      if (!dataInicio || !dataFim) return [];
+      const dInicio = new Date(dataInicio + "T00:00:00");
+      const dFim = new Date(dataFim + "T23:59:59");
+      const diffTime = Math.abs(dFim - dInicio);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      dataRefFimAnterior = new Date(dInicio);
+      dataRefFimAnterior.setDate(dataRefFimAnterior.getDate() - 1);
+      dataRefFimAnterior.setHours(23, 59, 59);
+
+      dataRefInicioAnterior = new Date(dataRefFimAnterior);
+      dataRefInicioAnterior.setDate(dataRefInicioAnterior.getDate() - diffDays);
+      dataRefInicioAnterior.setHours(0, 0, 0);
+    } else {
+      return [];
+    }
+
+    return pacientes.filter((p) => {
+      const dt = p.data_notificacao || p.dt_notific;
+      if (!dt) return false;
+      const [ano, mes, dia] = dt.split("-");
+      const dataNotificacao = new Date(ano, mes - 1, dia);
+      return (
+        dataNotificacao >= dataRefInicioAnterior &&
+        dataNotificacao <= dataRefFimAnterior
+      );
+    });
+  }, [pacientes, filtroTipo, dataInicio, dataFim]);
+
   const obterBairroNormalizado = (endereco) => {
     if (!endereco) return "";
     const partes = endereco.split(",");
@@ -306,6 +380,12 @@ export default function Dashboard({ isPrivateView = false }) {
   };
 
   const casosAlerta = pacientesFiltrados.filter((p) => {
+    const classFinal = String(p.classi_fin || "").trim();
+    return classFinal === "10" || classFinal === "11";
+  }).length;
+
+  // 🆕 Cálculo de alertas do período anterior
+  const casosAlertaAnterior = pacientesPeriodoAnterior.filter((p) => {
     const classFinal = String(p.classi_fin || "").trim();
     return classFinal === "10" || classFinal === "11";
   }).length;
@@ -441,6 +521,45 @@ export default function Dashboard({ isPrivateView = false }) {
         )
       : pacientesFiltrados.length;
 
+  // 🆕 Cálculo de notificações do período anterior
+  const totalNotificacoesAnterior =
+    endemiaSelecionada.id === "tuberculose"
+      ? pacientesPeriodoAnterior.reduce(
+          (acc, p) => acc + Number(p.nu_notific || 0),
+          0,
+        )
+      : pacientesPeriodoAnterior.length;
+
+  // 🆕 Cálculo de novos casos (últimos 7 dias) do período anterior para tendência
+  const catorzeDiasAtras = new Date();
+  catorzeDiasAtras.setDate(hoje.getDate() - 14);
+  const seteDiasAtrasAnterior = new Date();
+  seteDiasAtrasAnterior.setDate(hoje.getDate() - 7);
+
+  const casosUltimos7DiasAnterior = pacientes.filter((p) => {
+    const dt = p.data_notificacao || p.dt_notific;
+    if (!dt) return false;
+    const [ano, mes, dia] = dt.split("-");
+    const dataNotificacao = new Date(ano, mes - 1, dia);
+    return (
+      dataNotificacao >= catorzeDiasAtras &&
+      dataNotificacao < seteDiasAtrasAnterior
+    );
+  }).length;
+
+  const totalNotificacoesBaseAnterior = pacientes.length || 1; // Evita divisão por zero
+  const taxaNovosCasosAnterior = Math.round(
+    (casosUltimos7DiasAnterior / totalNotificacoesBaseAnterior) * 100,
+  );
+
+  // 🆕 Cálculo das tendências reais
+  const trendTotal = calcularVariacao(
+    totalNotificacoes,
+    totalNotificacoesAnterior,
+  );
+  const trendAlerta = calcularVariacao(casosAlerta, casosAlertaAnterior);
+  const trendNovos = calcularVariacao(taxaNovosCasos, taxaNovosCasosAnterior);
+
   const kpis = [
     {
       title: "Total de Notificações",
@@ -448,6 +567,8 @@ export default function Dashboard({ isPrivateView = false }) {
       icon: Users,
       color: "blue",
       subtext: "Registros no período.",
+      trend: trendTotal.trend,
+      trendValue: trendTotal.value,
     },
     {
       title: "Casos em Alerta (Graves)",
@@ -455,6 +576,8 @@ export default function Dashboard({ isPrivateView = false }) {
       icon: AlertTriangle,
       color: "amber",
       subtext: "Graves/Sinais de alarme.",
+      trend: trendAlerta.trend,
+      trendValue: trendAlerta.value,
     },
     {
       title: isUBSView ? "Bairro mais Afetado" : "UBS mais Afetada",
@@ -462,6 +585,8 @@ export default function Dashboard({ isPrivateView = false }) {
       icon: MapPin,
       color: "rose",
       subtext: `${isUBSView ? bairroMaisAfetadoValor : ubsMaisAfetadaValor} casos registrados.`,
+      trend: "neutral", // Categorias não têm tendência percentual simples
+      trendValue: "0%",
     },
     {
       title: "Últimos Casos (7 dias)",
@@ -469,6 +594,8 @@ export default function Dashboard({ isPrivateView = false }) {
       icon: Activity,
       color: "emerald",
       subtext: `${casosUltimos7Dias} casos recentes.`,
+      trend: trendNovos.trend,
+      trendValue: trendNovos.value,
     },
   ];
 
