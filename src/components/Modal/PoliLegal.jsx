@@ -35,8 +35,8 @@ export default function policalegal({ isOpen, onClose }) {
               1. Coleta e Uso de Dados
             </h3>
             <p>
-              O sistema <strong>EPI-DATA</strong>, gerido pela Secretaria de
-              Saúde de Floriano/PI, coleta e processa dados epidemiológicos
+              O sistema <strong>SIGEP</strong>, gerido pela Secretaria de Saúde
+              de Floriano/PI, coleta e processa dados epidemiológicos
               estritamente para fins de monitoramento, formulação de políticas
               públicas e controle de endemias. Os dados inseridos no sistema são
               oriundos de sistemas oficiais (como o SINAN) e são utilizados de
