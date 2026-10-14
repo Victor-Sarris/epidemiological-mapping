@@ -282,11 +282,6 @@ function Home() {
               </div>
 
               <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-                <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#054060]/15 bg-white/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#054060] shadow-sm backdrop-blur-sm sm:text-[11px]">
-                  <Sparkles className="size-3" aria-hidden="true" />
-                  Vigilância em Saúde
-                </span>
-
                 <h1 className="text-4xl font-black leading-none tracking-tight sm:text-5xl lg:text-6xl">
                   <span className="relative inline-block">
                     <span className="relative z-10 bg-linear-to-r from-[#054060] via-[#0a7ea3] to-[#054060] bg-clip-text text-transparent">
