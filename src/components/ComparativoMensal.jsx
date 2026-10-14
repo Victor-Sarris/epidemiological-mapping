@@ -70,6 +70,11 @@ export default function ComparativoMensal({
       ? "Mês atual vs. mês anterior na sua unidade"
       : "Mês atual vs. mês anterior no município";
 
+  // 🆕 Calcula a proporção para as barras visuais
+  const maxValor = Math.max(casosMesAtual, casosMesAnterior, 1);
+  const pctAnterior = (casosMesAnterior / maxValor) * 100;
+  const pctAtual = (casosMesAtual / maxValor) * 100;
+
   let corVariacao = "text-slate-500";
   let bgVariacao = "bg-slate-50 border-slate-200";
   let IconeVariacao = Minus;
@@ -103,7 +108,14 @@ export default function ComparativoMensal({
           <p className="text-3xl sm:text-4xl font-black text-slate-700">
             {casosMesAnterior}
           </p>
-          <p className="text-[10px] text-slate-400 mt-1">casos</p>
+          <p className="text-[10px] text-slate-400 mt-1 mb-2">casos</p>
+          {/* 🆕 Barra visual cinza para o mês anterior */}
+          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-slate-400 transition-all duration-700 ease-out"
+              style={{ width: `${pctAnterior}%` }}
+            ></div>
+          </div>
         </div>
 
         <div className="text-center border-l border-slate-100">
@@ -113,7 +125,14 @@ export default function ComparativoMensal({
           <p className="text-3xl sm:text-4xl font-black text-[#054060]">
             {casosMesAtual}
           </p>
-          <p className="text-[10px] text-slate-400 mt-1">casos</p>
+          <p className="text-[10px] text-slate-400 mt-1 mb-2">casos</p>
+          {/* 🆕 Barra visual azul para o mês atual */}
+          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-[#4180ab] transition-all duration-700 ease-out"
+              style={{ width: `${pctAtual}%` }}
+            ></div>
+          </div>
         </div>
       </div>
 

@@ -1,5 +1,12 @@
 import React, { useMemo } from "react";
-import { Table2 } from "lucide-react";
+import {
+  Table2,
+  AlertCircle,
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  FileSearch,
+} from "lucide-react";
 import { formatarBairro } from "@/lib/bairros";
 
 const extrairBairro = (endereco) => {
@@ -40,23 +47,27 @@ export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {
         label: "Alarme",
         cor: "bg-rose-500",
         bg: "bg-rose-50 text-rose-700 border-rose-200",
+        Icon: AlertCircle,
       };
     if (c === "5")
       return {
         label: "Descartado",
         cor: "bg-emerald-500",
         bg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        Icon: CheckCircle2,
       };
     if (c === "8")
       return {
         label: "Inconclusivo",
         cor: "bg-slate-400",
         bg: "bg-slate-50 text-slate-600 border-slate-200",
+        Icon: HelpCircle,
       };
     return {
       label: "Suspeito",
       cor: "bg-amber-500",
       bg: "bg-amber-50 text-amber-700 border-amber-200",
+      Icon: AlertTriangle,
     };
   };
 
@@ -70,28 +81,34 @@ export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {
         </div>
       </div>
 
-      <div className="overflow-x-auto -mx-5 md:-mx-6 px-5 md:px-6">
+      <div className="overflow-x-auto -mx-5 md:-mx-6 px-5 md:px-6 max-h-[500px] overflow-y-auto">
         {ultimos.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-8">
-            Nenhum caso encontrado.
-          </p>
+          <div className="flex flex-col items-center justify-center py-12 text-slate-300">
+            <FileSearch className="size-16 mb-3 opacity-50" />
+            <p className="text-sm font-medium text-slate-500">
+              Nenhum caso registrado neste período.
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Tudo tranquilo por aqui! 🎉
+            </p>
+          </div>
         ) : (
           <table className="w-full text-left text-sm text-slate-600 min-w-[600px]">
-            <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th className="px-4 py-3 font-semibold rounded-tl-lg whitespace-nowrap">
+            <thead className="text-xs text-slate-500 uppercase sticky top-0 z-10">
+              <tr className="border-b border-slate-100">
+                <th className="px-4 py-3 font-semibold rounded-tl-lg whitespace-nowrap bg-white">
                   Data
                 </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                <th className="px-4 py-3 font-semibold whitespace-nowrap bg-white">
                   Notificação
                 </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                <th className="px-4 py-3 font-semibold whitespace-nowrap bg-white">
                   Bairro
                 </th>
-                <th className="px-4 py-3 font-semibold whitespace-nowrap">
+                <th className="px-4 py-3 font-semibold whitespace-nowrap bg-white">
                   Sexo
                 </th>
-                <th className="px-4 py-3 font-semibold rounded-tr-lg whitespace-nowrap text-right">
+                <th className="px-4 py-3 font-semibold rounded-tr-lg whitespace-nowrap text-right bg-white">
                   Status
                 </th>
               </tr>
@@ -99,6 +116,7 @@ export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {
             <tbody>
               {ultimos.map((p) => {
                 const status = getStatus(p.classi_fin);
+                const StatusIcon = status.Icon;
                 const data = p.data_notificacao || p.dt_notific;
                 const dataFmt = data
                   ? data.split("-").reverse().join("/")
@@ -106,7 +124,7 @@ export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {
                 return (
                   <tr
                     key={p.id}
-                    className="border-b border-slate-50 hover:bg-slate-50/70 transition-colors"
+                    className="border-b border-slate-50 hover:bg-slate-50/80 transition-colors"
                   >
                     <td className="px-4 py-2.5 whitespace-nowrap text-slate-700 font-medium">
                       {dataFmt}
@@ -134,9 +152,7 @@ export default function TabelaCasos({ pacientes = [], escopo = "unidade" }) {
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold border ${status.bg}`}
                       >
-                        <span
-                          className={`w-1.5 h-1.5 rounded-full ${status.cor}`}
-                        ></span>
+                        <StatusIcon className="w-3 h-3" />
                         {status.label}
                       </span>
                     </td>
