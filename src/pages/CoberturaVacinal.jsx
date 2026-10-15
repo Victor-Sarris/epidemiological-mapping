@@ -52,6 +52,7 @@ const FAIXAS_ETARIAS = {
       "pneumococica",
       "meningococica",
       "rotavirus",
+      "febre amarela",
     ],
   },
   "1 ano de idade": {
@@ -68,8 +69,7 @@ const FAIXAS_ETARIAS = {
     ],
   },
   "4 anos de idade": {
-    include: ["dtp", "varicela", "poliomielite"],
-    extras: ["febre amarela"],
+    include: ["dtp", "varicela", "poliomielite", "febre amarela"],
   },
 };
 
