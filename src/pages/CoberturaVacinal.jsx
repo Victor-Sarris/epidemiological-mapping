@@ -36,7 +36,6 @@ const EXCLUSAO_GLOBAL = [
   "raiva",
   "influenza",
   "covid",
-  "febre amarela",
 ];
 
 const FAIXAS_ETARIAS = {
@@ -45,31 +44,33 @@ const FAIXAS_ETARIAS = {
   },
   "Menores de 1 ano de idade": {
     include: [
-      "penta",
-      "vip",
-      "vop",
+      "febre amarela",
       "poliomielite",
       "pneumococica",
       "meningococica",
+      "penta",
       "rotavirus",
     ],
   },
   "1 ano de idade": {
     include: [
-      "triplice viral",
-      "tetra viral",
       "hepatite a",
-      "varicela",
-      "pneumococica",
-      "meningococica",
-      "poliomielite",
-      "vip",
-      "vop",
+      "DTP (1º Reforço)",
+      "Tríplice Viral - 1º Dose",
+      "Tríplice Viral - 2º Dose",
+      "Pneumocócica Conjugada (1º Reforço)",
+      "Poliomielite (1º Reforço)",
+      "Varicela",
+      "Meningocócica Conjugada (1º Reforço)",
     ],
   },
   "4 anos de idade": {
-    include: ["dtp", "varicela", "poliomielite"],
-    extras: ["febre amarela"],
+    include: [
+      "DTP (2º Reforço)",
+      "Varicela - 2º dose",
+      "poliomielite",
+      "Febre Amarela (Reforço)",
+    ],
   },
 };
 
