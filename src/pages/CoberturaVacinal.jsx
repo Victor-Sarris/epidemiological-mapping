@@ -36,7 +36,6 @@ const EXCLUSAO_GLOBAL = [
   "raiva",
   "influenza",
   "covid",
-  "febre amarela",
 ];
 
 const FAIXAS_ETARIAS = {
