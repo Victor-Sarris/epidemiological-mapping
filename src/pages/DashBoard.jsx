@@ -315,6 +315,7 @@ export default function Dashboard({ isPrivateView = false }) {
     if (filtroTipo === "todos") return pacientes;
 
     const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
     let dataRefInicio = new Date();
     let dataRefFim = hoje;
 
@@ -329,11 +330,11 @@ export default function Dashboard({ isPrivateView = false }) {
         dataRefInicio.setMonth(hoje.getMonth() - 6);
         break;
       case "esteAno":
-        dataRefInicio = new Date(hoje.getFullYear(), 0, 1);
+        dataRefInicio = new Date(anoAtual, 0, 1);
         break;
       case "anoPassado":
-        dataRefInicio = new Date(hoje.getFullYear() - 1, 0, 1);
-        dataRefFim = new Date(hoje.getFullYear() - 1, 11, 31, 23, 59, 59);
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
         break;
       case "personalizado":
         if (!dataInicio || !dataFim) return pacientes;
@@ -345,19 +346,47 @@ export default function Dashboard({ isPrivateView = false }) {
     }
 
     return pacientes.filter((p) => {
+      // 1. Tenta filtrar por data exata (Dengue, Sífilis)
       const dt = p.data_notificacao || p.dt_notific;
-      if (!dt) return false;
-      const [ano, mes, dia] = dt.split("-");
-      const dataNotificacao = new Date(ano, mes - 1, dia);
-      return dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // 2. Fallback: Filtra por ano (Tuberculose, Chagas, Hanseníase, etc)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+
+        if (filtroTipo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroTipo === "esteAno") return anoNum === anoAtual;
+
+        // Para filtros de meses, se só temos o ano, mostramos se for do ano atual
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(filtroTipo)
+        ) {
+          return anoNum === anoAtual;
+        }
+
+        if (filtroTipo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+
+      return false; // Se não tem data nem ano, esconde
     });
   }, [pacientes, filtroTipo, dataInicio, dataFim]);
 
-  // 🆕 Filtra os pacientes do período ANTERIOR para comparação de tendência
   const pacientesPeriodoAnterior = useMemo(() => {
     if (filtroTipo === "todos") return [];
 
     const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
     let dataRefInicioAnterior = new Date();
     let dataRefFimAnterior = new Date();
 
@@ -371,9 +400,9 @@ export default function Dashboard({ isPrivateView = false }) {
       dataRefInicioAnterior.setMonth(hoje.getMonth() - 12);
       dataRefFimAnterior.setMonth(hoje.getMonth() - 6);
     } else if (filtroTipo === "esteAno") {
-      dataRefInicioAnterior = new Date(hoje.getFullYear() - 1, 0, 1);
+      dataRefInicioAnterior = new Date(anoAtual - 1, 0, 1);
       dataRefFimAnterior = new Date(
-        hoje.getFullYear() - 1,
+        anoAtual - 1,
         hoje.getMonth(),
         hoje.getDate(),
         23,
@@ -381,8 +410,8 @@ export default function Dashboard({ isPrivateView = false }) {
         59,
       );
     } else if (filtroTipo === "anoPassado") {
-      dataRefInicioAnterior = new Date(hoje.getFullYear() - 2, 0, 1);
-      dataRefFimAnterior = new Date(hoje.getFullYear() - 2, 11, 31, 23, 59, 59);
+      dataRefInicioAnterior = new Date(anoAtual - 2, 0, 1);
+      dataRefFimAnterior = new Date(anoAtual - 2, 11, 31, 23, 59, 59);
     } else if (filtroTipo === "personalizado") {
       if (!dataInicio || !dataFim) return [];
       const dInicio = new Date(dataInicio + "T00:00:00");
@@ -403,13 +432,33 @@ export default function Dashboard({ isPrivateView = false }) {
 
     return pacientes.filter((p) => {
       const dt = p.data_notificacao || p.dt_notific;
-      if (!dt) return false;
-      const [ano, mes, dia] = dt.split("-");
-      const dataNotificacao = new Date(ano, mes - 1, dia);
-      return (
-        dataNotificacao >= dataRefInicioAnterior &&
-        dataNotificacao <= dataRefFimAnterior
-      );
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicioAnterior &&
+          dataNotificacao <= dataRefFimAnterior
+        );
+      }
+
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroTipo === "anoPassado") return anoNum === anoAtual - 2;
+        if (filtroTipo === "esteAno") return anoNum === anoAtual - 1;
+
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(filtroTipo)
+        ) {
+          return anoNum === anoAtual - 1; // Fallback grosseiro para o ano anterior
+        }
+        if (filtroTipo === "personalizado" && dataInicio && dataFim) {
+          const anoInicioAnt = dataRefInicioAnterior.getFullYear();
+          const anoFimAnt = dataRefFimAnterior.getFullYear();
+          return anoNum >= anoInicioAnt && anoNum <= anoFimAnt;
+        }
+      }
+      return false;
     });
   }, [pacientes, filtroTipo, dataInicio, dataFim]);
 
