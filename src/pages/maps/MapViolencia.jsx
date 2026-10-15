@@ -12,7 +12,7 @@ import {
   MarkerContent,
   MarkerLabel,
   MarkerPopup,
-} from "../../components/map.jsx";
+} from "../../components/Map.jsx";
 import {
   Activity,
   Map as MapIcon,
