@@ -2138,12 +2138,10 @@ export default function MapSifi({ isPrivateView = false }) {
       else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
         nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
 
-      // Soma os casos aglutinados da planilha (nu_notific)
-      const casosAgregados = Number(paciente.nu_notific) || 1;
-
+      // ✅ CORREÇÃO: Sífilis tem casos isolados, soma +1 por registro
       if (nomeAreaMapa) {
         contagemPorArea[nomeAreaMapa] =
-          (contagemPorArea[nomeAreaMapa] || 0) + casosAgregados;
+          (contagemPorArea[nomeAreaMapa] || 0) + 1;
       }
     });
 
