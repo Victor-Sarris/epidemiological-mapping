@@ -5,6 +5,7 @@ import SidebarPrivate from "../../components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
 import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
+import MapPeriodFilter from "@/components/MapPeriodFilter.jsx";
 import {
   Map,
   MapGeoJSON,
@@ -1940,6 +1941,10 @@ export default function MapViolencia({ isPrivateView = true }) {
   // Define a endemia padrão para este mapa
   const endemiaAtual = "violenciadom";
 
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
   const handleEndemiaChange = (novaEndemia) => {
     if (novaEndemia === endemiaAtual) return;
     const basePath = isPrivateView
@@ -1987,18 +1992,89 @@ export default function MapViolencia({ isPrivateView = true }) {
   }, []);
 
   // Lógica principal: mapear nome da Instituição/UBS para a área GeoJSON
+  // Lógica principal: mapear nome da UBS para o nome da área no GeoJSON
   useEffect(() => {
     if (todosPacientes.length === 0) return;
 
+    // ==========================================
+    // 1. FILTRO DE PERÍODO (NOVO)
+    // ==========================================
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroPeriodo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(anoAtual, 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (dataInicio && dataFim) {
+          dataRefInicio = new Date(dataInicio + "T00:00:00");
+          dataRefFim = new Date(dataFim + "T23:59:59");
+        }
+        break;
+    }
+
+    const pacientesFiltrados = todosPacientes.filter((p) => {
+      if (filtroPeriodo === "todos") return true;
+      if (filtroPeriodo === "personalizado" && (!dataInicio || !dataFim))
+        return true;
+
+      // Tenta por data de notificação completa
+      const dt = p.data_notificacao || p.dt_notific;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // Fallback para agravos que só têm ano (Hanseníase geralmente tem ano_notific)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroPeriodo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroPeriodo === "esteAno") return anoNum === anoAtual;
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(
+            filtroPeriodo,
+          )
+        ) {
+          return anoNum === anoAtual;
+        }
+        if (filtroPeriodo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+      return false;
+    });
+
+    // ==========================================
+    // 2. MAPEAMENTO UBS -> ÁREA GEOJSON
+    // ==========================================
     const contagemPorArea = {};
 
-    todosPacientes.forEach((paciente) => {
+    pacientesFiltrados.forEach((paciente) => {
       const nomeUbsOriginal = String(
-        paciente.nm_ubs || paciente.un_saude || "",
+        paciente.nm_ubs || paciente.un_saude || paciente.id_unidade || "",
       );
-
-      // Isola o ID da Unidade
-      const idUnidade = String(paciente.id_unidade || "").trim();
 
       const nomeUbs = nomeUbsOriginal
         .toUpperCase()
@@ -2007,98 +2083,69 @@ export default function MapViolencia({ isPrivateView = true }) {
 
       let nomeAreaMapa = null;
 
-      const mapaPorId = {
-        5943817: "AREA UBS ALFREDO DE CARVALHO",
-        2777843: "AREA UBS AMOLAR",
-        2777916: "AREA UBS CAMILO FILHO",
-        2694743: "AREA UBS FLORIANO",
-        2778041: "AREA UBS DIRCEU ARCOVERDE",
-        2364611: "AREA UBS DO PAM DE FLORIANO",
-        2778157: "AREA UBS HELVIDIO DE HOLANDA BARROS",
-        2995395: "AREA UBS JASMINA BUCAR",
-        2364689: "AREA UBS JOAO ELIAS OKA",
-        5459583: "AREA UBS JOSE PARAGUASSU",
-        2364638: "AREA UBS L3",
-        2778181: "AREA UBS LEONARDO DUDIMA",
-        2364654: "AREA UBS LUIZ TAVARES",
-        2669129: "AREA UBS MARGARIDA ALVES DE ALMEIDA",
-        2364662: "AREA UBS MORRINHOS",
-        2364670: "AREA UBS NOSSA SENHORA DA GUIA",
-        2778246: "AREA UBS PAULO KALUME",
-        2609630: "AREA UBS PAULO MARTINS",
-        2778254: "AREA UBS PEDRO SIMPLICIO",
-        2778289: "AREA UBS PROTASIO DE MORAES BARBOSA",
-        2364697: "AREA UBS RAIMUNDO FILHO",
-        2778092: "AREA UBS SANTA CRUZ",
-        2778319: "AREA UBS THEODORO FERREIRA SOBRAL",
-        2364646: "AREA UBS VEREDA GRANDE II",
-        2778335: "AREA UBS VIANA CARVALHO",
-      };
+      // Dicionário heurístico de ligação UBS -> Polígono
+      if (nomeUbs.includes("DIRCEU") || nomeUbs.includes("ARCOVERDE"))
+        nomeAreaMapa = "AREA UBS DIRCEU ARCOVERDE";
+      else if (nomeUbs.includes("PARAGUASSU"))
+        nomeAreaMapa = "AREA UBS JOSE PARAGUASSU";
+      else if (nomeUbs.includes("THEODORO") || nomeUbs.includes("SOBRAL"))
+        nomeAreaMapa = "AREA UBS THEODORO FERREIRA SOBRAL";
+      else if (nomeUbs.includes("PEDRO SIMPLICIO"))
+        nomeAreaMapa = "AREA DA UBS PEDRO SIMPLICIO";
+      else if (nomeUbs.includes("ALFREDO"))
+        nomeAreaMapa = "AREA UBS ALFREDO DE CARVALHO";
+      else if (nomeUbs.includes("LUIZ TAVARES") || nomeUbs.includes("TABOCA"))
+        nomeAreaMapa = "AREA DA UBS LUIZ TAVARES";
+      else if (nomeUbs.includes("CAMILO"))
+        nomeAreaMapa = "AREA UBS CAMILO FILHO";
+      else if (nomeUbs.includes("GUIA"))
+        nomeAreaMapa = "AREA UBS NOSSA SENHORA DA GUIA";
+      else if (nomeUbs.includes("RAIMUNDO FILHO"))
+        nomeAreaMapa = "AREA UBS RAIMUNDO FILHO";
+      else if (nomeUbs.includes("KALUME"))
+        nomeAreaMapa = "AREA UBS PAULO KALUME";
+      else if (nomeUbs.includes("OKA") || nomeUbs.includes("ELIAS"))
+        nomeAreaMapa = "AREA UBS JOAO ELIAS OKA";
+      else if (nomeUbs.includes("VIANA"))
+        nomeAreaMapa = "AREA UBS VIANA DE CARVALHO";
+      else if (nomeUbs.includes("PAULO MARTINS"))
+        nomeAreaMapa = "AREA UBS PAULO MARTINS";
+      else if (nomeUbs.includes("HELVIDIO") || nomeUbs.includes("HOLANDA"))
+        nomeAreaMapa = "AREA UBS HELVIDIO DE HOLANDA BARROS";
+      else if (nomeUbs.includes("JASMINA") || nomeUbs.includes("BUCAR"))
+        nomeAreaMapa = "AREA DA UBS JASMINA BUCAR";
+      else if (nomeUbs.includes("PAM") || nomeUbs.includes("P.A.M"))
+        nomeAreaMapa = "AREA UBS PAM";
+      else if (nomeUbs.includes("SANTA CRUZ"))
+        nomeAreaMapa = "AREA UBS SANTA CRUZ";
+      else if (nomeUbs.includes("FLORIANO") || nomeUbs.includes("CENTRO"))
+        nomeAreaMapa = "AREA UBS FLORIANO";
+      else if (nomeUbs.includes("L3")) nomeAreaMapa = "AREA UBS L3";
+      else if (nomeUbs.includes("LEONARDO") || nomeUbs.includes("DUDIMA"))
+        nomeAreaMapa = "AREA UBS LEONARDO DUDIMA";
+      else if (nomeUbs.includes("MORRINHOS"))
+        nomeAreaMapa = "AREA UBS MORRINHOS";
+      else if (nomeUbs.includes("MARGARIDA") || nomeUbs.includes("ALVES"))
+        nomeAreaMapa = "AREA UBS MARGARIDA ALVES";
+      else if (nomeUbs.includes("PROTASIO"))
+        nomeAreaMapa = "AREA UBS PROTASIO DE MORAES";
+      else if (nomeUbs.includes("BENVINDO"))
+        nomeAreaMapa = "AREA UBS RAIMUNDO BENVINDO LIMA";
+      else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
+        nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
 
-      if (mapaPorId[idUnidade]) {
-        nomeAreaMapa = mapaPorId[idUnidade];
-      } else {
-        if (nomeUbs.includes("DIRCEU") || nomeUbs.includes("ARCOVERDE"))
-          nomeAreaMapa = "AREA UBS DIRCEU ARCOVERDE";
-        else if (nomeUbs.includes("PARAGUASSU"))
-          nomeAreaMapa = "AREA UBS JOSE PARAGUASSU";
-        else if (nomeUbs.includes("THEODORO") || nomeUbs.includes("SOBRAL"))
-          nomeAreaMapa = "AREA UBS THEODORO FERREIRA SOBRAL";
-        else if (nomeUbs.includes("PEDRO SIMPLICIO"))
-          nomeAreaMapa = "AREA DA UBS PEDRO SIMPLICIO";
-        else if (nomeUbs.includes("ALFREDO"))
-          nomeAreaMapa = "AREA UBS ALFREDO DE CARVALHO";
-        else if (nomeUbs.includes("LUIZ TAVARES") || nomeUbs.includes("TABOCA"))
-          nomeAreaMapa = "AREA DA UBS LUIZ TAVARES";
-        else if (nomeUbs.includes("CAMILO"))
-          nomeAreaMapa = "AREA UBS CAMILO FILHO";
-        else if (nomeUbs.includes("GUIA"))
-          nomeAreaMapa = "AREA UBS NOSSA SENHORA DA GUIA";
-        else if (nomeUbs.includes("RAIMUNDO FILHO"))
-          nomeAreaMapa = "AREA UBS RAIMUNDO FILHO";
-        else if (nomeUbs.includes("KALUME"))
-          nomeAreaMapa = "AREA UBS PAULO KALUME";
-        else if (nomeUbs.includes("OKA") || nomeUbs.includes("ELIAS"))
-          nomeAreaMapa = "AREA UBS JOAO ELIAS OKA";
-        else if (nomeUbs.includes("VIANA"))
-          nomeAreaMapa = "AREA UBS VIANA DE CARVALHO";
-        else if (nomeUbs.includes("PAULO MARTINS"))
-          nomeAreaMapa = "AREA UBS PAULO MARTINS";
-        else if (nomeUbs.includes("HELVIDIO") || nomeUbs.includes("HOLANDA"))
-          nomeAreaMapa = "AREA UBS HELVIDIO DE HOLANDA BARROS";
-        else if (nomeUbs.includes("JASMINA") || nomeUbs.includes("BUCAR"))
-          nomeAreaMapa = "AREA DA UBS JASMINA BUCAR";
-        else if (nomeUbs.includes("PAM") || nomeUbs.includes("P.A.M"))
-          nomeAreaMapa = "AREA UBS PAM";
-        else if (nomeUbs.includes("SANTA CRUZ"))
-          nomeAreaMapa = "AREA UBS SANTA CRUZ";
-        else if (nomeUbs.includes("FLORIANO") || nomeUbs.includes("CENTRO"))
-          nomeAreaMapa = "AREA UBS FLORIANO";
-        else if (nomeUbs.includes("L3")) nomeAreaMapa = "AREA UBS L3";
-        else if (nomeUbs.includes("LEONARDO") || nomeUbs.includes("DUDIMA"))
-          nomeAreaMapa = "AREA UBS LEONARDO DUDIMA";
-        else if (nomeUbs.includes("MORRINHOS"))
-          nomeAreaMapa = "AREA UBS MORRINHOS";
-        else if (nomeUbs.includes("MARGARIDA") || nomeUbs.includes("ALVES"))
-          nomeAreaMapa = "AREA UBS MARGARIDA ALVES";
-        else if (nomeUbs.includes("PROTASIO"))
-          nomeAreaMapa = "AREA UBS PROTASIO DE MORAES";
-        else if (nomeUbs.includes("BENVINDO"))
-          nomeAreaMapa = "AREA UBS RAIMUNDO BENVINDO LIMA";
-        else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
-          nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
-      }
-
-      // Soma os casos aglutinados da planilha
+      // Soma os casos aglutinados da planilha (nu_notific)
       const casosAgregados = Number(paciente.nu_notific) || 1;
 
       if (nomeAreaMapa) {
         contagemPorArea[nomeAreaMapa] =
           (contagemPorArea[nomeAreaMapa] || 0) + casosAgregados;
       }
-      // Nota: Hospitais e CAPS mantêm o comportamento de não serem mapeados
     });
 
+    // ==========================================
+    // 3. INJEÇÃO DOS DADOS NO GEOJSON
+    // ==========================================
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2112,7 +2159,6 @@ export default function MapViolencia({ isPrivateView = true }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
@@ -2128,7 +2174,7 @@ export default function MapViolencia({ isPrivateView = true }) {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [todosPacientes, activeStyle]);
+  }, [todosPacientes, activeStyle, filtroPeriodo, dataInicio, dataFim]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -2329,6 +2375,16 @@ export default function MapViolencia({ isPrivateView = true }) {
                 )}
               </div>
             )}
+            <div className="absolute top-20 right-4 z-20 flex items-center gap-2">
+              <MapPeriodFilter
+                filtroTipo={filtroPeriodo}
+                setFiltroTipo={setFiltroPeriodo}
+                dataInicio={dataInicio}
+                setDataInicio={setDataInicio}
+                dataFim={dataFim}
+                setDataFim={setDataFim}
+              />
+            </div>
             <ButtonTheme
               activeStyle={activeStyle}
               setActiveStyle={setActiveStyle}

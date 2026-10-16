@@ -41,6 +41,8 @@ import DashboardViolencia from "./private/DashBoardViolencia.jsx";
 import EndemiaSelector from "../components/EndemiasSelector.jsx";
 import DashboardAcidentes from "./DashboardAcidentes.jsx";
 import DashboardIntoxicacao from "./DashboardIntoxicacao.jsx";
+import DashBoardLeishmaniose from "./DashBoardLeishmaniose.jsx";
+import DashBoardAids from "./DashBoardAids.jsx";
 
 const getToken = () =>
   localStorage.getItem("access_token") ||
@@ -102,6 +104,16 @@ const ENDEMIAS = [
     id: "violencia",
     nome: "Violência Doméstica",
     endpoint: "/api/violenciadomestica/",
+  },
+  {
+    id: "leish",
+    nome: "Leishmaniose",
+    endpoint: "/api/leish/",
+  },
+  {
+    id: "aidsadulta",
+    nome: "Aids",
+    endpoint: "/api/aidsadulta/",
   },
 ];
 
@@ -877,6 +889,10 @@ export default function Dashboard({ isPrivateView = false }) {
                 <DashboardAcidentes pacientes={pacientesFiltrados} />
               ) : endemiaSelecionada.id === "intoxicacao" ? (
                 <DashboardIntoxicacao pacientes={pacientesFiltrados} />
+              ) : endemiaSelecionada.id === "leish" ? (
+                <DashBoardLeishmaniose pacientes={pacientesFiltrados} />
+              ) : endemiaSelecionada.id === "aidsadulta" ? (
+                <DashBoardAids pacientes={pacientesFiltrados} />
               ) : (
                 <>
                   <KpisGrid kpis={kpis} />

@@ -6,6 +6,7 @@ import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
 import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
+import MapPeriodFilter from "@/components/MapPeriodFilter.jsx";
 import {
   Map,
   MapGeoJSON,
@@ -1942,6 +1943,10 @@ export default function MapTubercu({ isPrivateView = false }) {
   // Aqui já deixamos travado na tuberculose
   const endemiaAtual = "tuberculose";
 
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
   const handleEndemiaChange = (novaEndemia) => {
     if (novaEndemia === endemiaAtual) return;
     const basePath = isPrivateView
@@ -1991,16 +1996,90 @@ export default function MapTubercu({ isPrivateView = false }) {
   }, []);
 
   // Lógica principal: mapear nome da UBS para o nome da Área no GeoJSON e somar nu_notific
+  // Lógica principal: mapear nome da UBS para o nome da área no GeoJSON
   useEffect(() => {
     if (todosPacientes.length === 0) return;
 
+    // ==========================================
+    // 1. FILTRO DE PERÍODO (NOVO)
+    // ==========================================
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroPeriodo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(anoAtual, 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (dataInicio && dataFim) {
+          dataRefInicio = new Date(dataInicio + "T00:00:00");
+          dataRefFim = new Date(dataFim + "T23:59:59");
+        }
+        break;
+    }
+
+    const pacientesFiltrados = todosPacientes.filter((p) => {
+      if (filtroPeriodo === "todos") return true;
+      if (filtroPeriodo === "personalizado" && (!dataInicio || !dataFim))
+        return true;
+
+      // Tenta por data de notificação completa
+      const dt = p.data_notificacao || p.dt_notific;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // Fallback para agravos que só têm ano (Hanseníase geralmente tem ano_notific)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroPeriodo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroPeriodo === "esteAno") return anoNum === anoAtual;
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(
+            filtroPeriodo,
+          )
+        ) {
+          return anoNum === anoAtual;
+        }
+        if (filtroPeriodo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+      return false;
+    });
+
+    // ==========================================
+    // 2. MAPEAMENTO UBS -> ÁREA GEOJSON
+    // ==========================================
     const contagemPorArea = {};
 
-    todosPacientes.forEach((paciente) => {
-      // Pega o nome da UBS ou código, remove acentos e deixa maiúsculo
+    pacientesFiltrados.forEach((paciente) => {
       const nomeUbsOriginal = String(
-        paciente.nm_ubs || paciente.id_unidade || "",
+        paciente.nm_ubs || paciente.un_saude || paciente.id_unidade || "",
       );
+
       const nomeUbs = nomeUbsOriginal
         .toUpperCase()
         .normalize("NFD")
@@ -2008,7 +2087,7 @@ export default function MapTubercu({ isPrivateView = false }) {
 
       let nomeAreaMapa = null;
 
-      // Dicionário de aproximação (heurística) para ligar a UBS à área do mapa
+      // Dicionário heurístico de ligação UBS -> Polígono
       if (nomeUbs.includes("DIRCEU") || nomeUbs.includes("ARCOVERDE"))
         nomeAreaMapa = "AREA UBS DIRCEU ARCOVERDE";
       else if (nomeUbs.includes("PARAGUASSU"))
@@ -2045,21 +2124,32 @@ export default function MapTubercu({ isPrivateView = false }) {
         nomeAreaMapa = "AREA UBS SANTA CRUZ";
       else if (nomeUbs.includes("FLORIANO") || nomeUbs.includes("CENTRO"))
         nomeAreaMapa = "AREA UBS FLORIANO";
+      else if (nomeUbs.includes("L3")) nomeAreaMapa = "AREA UBS L3";
+      else if (nomeUbs.includes("LEONARDO") || nomeUbs.includes("DUDIMA"))
+        nomeAreaMapa = "AREA UBS LEONARDO DUDIMA";
+      else if (nomeUbs.includes("MORRINHOS"))
+        nomeAreaMapa = "AREA UBS MORRINHOS";
+      else if (nomeUbs.includes("MARGARIDA") || nomeUbs.includes("ALVES"))
+        nomeAreaMapa = "AREA UBS MARGARIDA ALVES";
+      else if (nomeUbs.includes("PROTASIO"))
+        nomeAreaMapa = "AREA UBS PROTASIO DE MORAES";
+      else if (nomeUbs.includes("BENVINDO"))
+        nomeAreaMapa = "AREA UBS RAIMUNDO BENVINDO LIMA";
+      else if (nomeUbs.includes("RETIRO") || nomeUbs.includes("AMOLAR"))
+        nomeAreaMapa = "AREA UBS RETIRO AMOLAR";
+
+      // Soma os casos aglutinados da planilha (nu_notific)
+      const casosAgregados = Number(paciente.nu_notific) || 1;
 
       if (nomeAreaMapa) {
-        // A Mágica: Soma o número de notificações (nu_notific) em vez de somar 1 por linha
-        const quantidade = Number(paciente.nu_notific || 0);
         contagemPorArea[nomeAreaMapa] =
-          (contagemPorArea[nomeAreaMapa] || 0) + quantidade;
-      } else {
-        console.warn(
-          "UBS da Tuberculose não mapeada para o polígono:",
-          nomeUbsOriginal,
-        );
+          (contagemPorArea[nomeAreaMapa] || 0) + casosAgregados;
       }
     });
 
-    // Injeta os dados consolidados de volta nas features do mapa
+    // ==========================================
+    // 3. INJEÇÃO DOS DADOS NO GEOJSON
+    // ==========================================
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2073,7 +2163,6 @@ export default function MapTubercu({ isPrivateView = false }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
@@ -2089,7 +2178,7 @@ export default function MapTubercu({ isPrivateView = false }) {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [todosPacientes, activeStyle]);
+  }, [todosPacientes, activeStyle, filtroPeriodo, dataInicio, dataFim]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -2295,6 +2384,16 @@ export default function MapTubercu({ isPrivateView = false }) {
                 )}
               </div>
             )}
+            <div className="absolute top-20 right-4 z-20 flex items-center gap-2">
+              <MapPeriodFilter
+                filtroTipo={filtroPeriodo}
+                setFiltroTipo={setFiltroPeriodo}
+                dataInicio={dataInicio}
+                setDataInicio={setDataInicio}
+                dataFim={dataFim}
+                setDataFim={setDataFim}
+              />
+            </div>
             <ButtonTheme
               activeStyle={activeStyle}
               setActiveStyle={setActiveStyle}

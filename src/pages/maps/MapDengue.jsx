@@ -6,6 +6,8 @@ import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
 import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
+import { Button } from "@/components/button.jsx";
+import MapPeriodFilter from "@/components/MapPeriodFilter.jsx";
 import {
   Map,
   MapGeoJSON,
@@ -22,9 +24,9 @@ import {
   Clock,
   ExternalLink,
   Menu,
+  CalendarDays,
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Button } from "@/components/button.jsx";
 
 // importação de imagens para o maps ----------
 // imagens das ubs do perimetro urbano
@@ -1943,6 +1945,10 @@ export default function MapDengue({ isPrivateView = false }) {
   const [todosPacientes, setTodosPacientes] = useState([]);
   const endemiaAtual = "dengue";
 
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
   const handleEndemiaChange = (novaEndemia) => {
     if (novaEndemia === endemiaAtual) return;
     const basePath = isPrivateView
@@ -2014,7 +2020,80 @@ export default function MapDengue({ isPrivateView = false }) {
   useEffect(() => {
     if (todosPacientes.length === 0) return;
 
-    const pacientesFiltrados = todosPacientes.filter((p) => {
+    // ==========================================
+    // 1. FILTRO DE PERÍODO (NOVO)
+    // ==========================================
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroPeriodo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(anoAtual, 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (dataInicio && dataFim) {
+          dataRefInicio = new Date(dataInicio + "T00:00:00");
+          dataRefFim = new Date(dataFim + "T23:59:59");
+        }
+        break;
+    }
+
+    const pacientesFiltradosPorData = todosPacientes.filter((p) => {
+      if (filtroPeriodo === "todos") return true;
+      if (filtroPeriodo === "personalizado" && (!dataInicio || !dataFim))
+        return true;
+
+      // Dengue tem data_notificacao completa
+      const dt = p.data_notificacao || p.dt_notific;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // Fallback para ano (caso algum registro só tenha o ano)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroPeriodo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroPeriodo === "esteAno") return anoNum === anoAtual;
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(
+            filtroPeriodo,
+          )
+        ) {
+          return anoNum === anoAtual;
+        }
+        if (filtroPeriodo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+      return false;
+    });
+
+    // ==========================================
+    // 2. FILTRO POR AGRAVO
+    // ==========================================
+    const pacientesFiltrados = pacientesFiltradosPorData.filter((p) => {
       const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
 
       if (endemiaAtual === "dengue")
@@ -2032,7 +2111,9 @@ export default function MapDengue({ isPrivateView = false }) {
       return true;
     });
 
-    // 1. DICIONÁRIO BAIRRO -> ÁREA UBS
+    // ==========================================
+    // 3. DICIONÁRIO BAIRRO -> ÁREA UBS
+    // ==========================================
     const bairroParaAreaUbs = {
       CENTRO: "AREA UBS FLORIANO",
       SAMBAIBA: "AREA UBS DIRCEU ARCOVERDE",
@@ -2046,8 +2127,6 @@ export default function MapDengue({ isPrivateView = false }) {
       "IRAPUA II": "AREA UBS CAMILO FILHO",
       "NOSSA SENHORA DA GUIA": "AREA UBS NOSSA SENHORA DA GUIA",
       TIBERAO: "AREA UBS RAIMUNDO FILHO",
-
-      // --- BAIRROS NOVOS ADICIONADOS DO CONSOLE ---
       "BOM LUGAR": "AREA UBS PAULO KALUME",
       "BOSQUE SANTA TEREZINHA": "AREA UBS JOAO ELIAS OKA",
       "CAIXA D AGUA": "AREA UBS THEODORO FERREIRA SOBRAL",
@@ -2056,17 +2135,15 @@ export default function MapDengue({ isPrivateView = false }) {
       CURADOR: "AREA UBS THEODORO FERREIRA SOBRAL",
       IBIAPABA: "AREA UBS VIANA DE CARVALHO",
       "PAU FERRADO": "AREA UBS PAULO MARTINS",
-      "SAO BORJA": "AREA DA UBS PEDRO SIMPLICIO", // CORREÇÃO: Faltava o "DA"
+      "SAO BORJA": "AREA DA UBS PEDRO SIMPLICIO",
       "PLANALTO SAMBAIBA": "AREA UBS DIRCEU ARCOVERDE",
       CATUMBI: "AREA UBS RAIMUNDO FILHO",
       "SAO CRISTOVAO": "AREA UBS FLORIANO",
       TAMBORIL: "AREA UBS ALFREDO DE CARVALHO",
-      "CONJUNTO  PARAISO": "AREA DA UBS JASMINA BUCAR", // CORREÇÃO: Removido os acentos
-      CANCELA: "AREA UBS PAULO KALUME", // CORREÇÃO: Removido o "DA"
-      CANOAS: "AREA UBS JOSE PARAGUASSU", // CORREÇÃO: Removido os acentos
-      "PLANALTO BELA VISTA": "AREA DA UBS PEDRO SIMPLICIO", // CORREÇÃO: Removido os acentos
-
-      // --- ERROS DE DIGITAÇÃO / SINAN ---
+      "CONJUNTO  PARAISO": "AREA DA UBS JASMINA BUCAR",
+      CANCELA: "AREA UBS PAULO KALUME",
+      CANOAS: "AREA UBS JOSE PARAGUASSU",
+      "PLANALTO BELA VISTA": "AREA DA UBS PEDRO SIMPLICIO",
       MELADAO: "AREA DA UBS PEDRO SIMPLICIO",
       VIAZUL: "AREA UBS RAIMUNDO FILHO",
       "PEDRO SIMPLICIO": "AREA DA UBS PEDRO SIMPLICIO",
@@ -2074,25 +2151,24 @@ export default function MapDengue({ isPrivateView = false }) {
 
     const contagemPorArea = {};
 
-    // 2. CONTAGEM
+    // ==========================================
+    // 4. CONTAGEM
+    // ==========================================
     pacientesFiltrados.forEach((paciente) => {
       if (paciente.endereco) {
         const bairroNormalizado = extrairBairro(paciente.endereco);
-
-        // Pega o nome da UBS correspondente ao bairro do paciente
         const nomeAreaMapa = bairroParaAreaUbs[bairroNormalizado];
 
         if (nomeAreaMapa) {
           contagemPorArea[nomeAreaMapa] =
             (contagemPorArea[nomeAreaMapa] || 0) + 1;
-        } else {
-          // Descomente a linha abaixo para ver no console (F12) quais bairros faltam no dicionário
-          // console.warn("Bairro sem UBS mapeada no dicionário:", bairroNormalizado);
         }
       }
     });
 
-    // 3. INJEÇÃO DOS DADOS NO MAPA
+    // ==========================================
+    // 5. INJEÇÃO DOS DADOS NO MAPA
+    // ==========================================
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2106,7 +2182,6 @@ export default function MapDengue({ isPrivateView = false }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
@@ -2122,7 +2197,14 @@ export default function MapDengue({ isPrivateView = false }) {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [endemiaAtual, todosPacientes, activeStyle]);
+  }, [
+    endemiaAtual,
+    todosPacientes,
+    activeStyle,
+    filtroPeriodo, // 🆕 Adicione
+    dataInicio, // 🆕 Adicione
+    dataFim, // 🆕 Adicione
+  ]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
@@ -2328,6 +2410,17 @@ export default function MapDengue({ isPrivateView = false }) {
                 )}
               </div>
             )}
+
+            <div className="absolute top-20 right-4 z-20 flex items-center gap-2">
+              <MapPeriodFilter
+                filtroTipo={filtroPeriodo}
+                setFiltroTipo={setFiltroPeriodo}
+                dataInicio={dataInicio}
+                setDataInicio={setDataInicio}
+                dataFim={dataFim}
+                setDataFim={setDataFim}
+              />
+            </div>
 
             <ButtonTheme
               activeStyle={activeStyle}
