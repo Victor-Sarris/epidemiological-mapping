@@ -14,6 +14,8 @@ import MapChaga from "./maps/MapChagas.jsx";
 import MapHans from "./maps/MapHans.jsx";
 import MapHepa from "./maps/MapHepa.jsx";
 import MapViolencia from "./maps/MapViolencia.jsx";
+import MapLeishmaniose from "./maps/MapLeishmaniose.jsx";
+import MapAids from "./maps/MapAids.jsx";
 import SystemInformation from "./SystemInformation.jsx";
 import NotFound from "./NotFound.jsx";
 import ProtectedRoute from "@/utils/ProtectedRoute.jsx";
@@ -52,6 +54,14 @@ function App() {
             <Route
               path="/mapa-epidemiologico/endemias/hepatite"
               element={<MapHepa />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/leishmaniose"
+              element={<MapLeishmaniose />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/aids"
+              element={<MapAids />}
             />
             <Route
               path="/dashboard"
@@ -101,6 +111,14 @@ function App() {
               <Route
                 path="profissional/mapa-epidemiologico/endemias/violenciadom"
                 element={<MapViolencia isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/leishmaniose"
+                element={<MapLeishmaniose isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/aids"
+                element={<MapAids isPrivateView={true} />}
               />
               <Route
                 path="profissional/suporte"

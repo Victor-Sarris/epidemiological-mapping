@@ -10,6 +10,8 @@ import {
   Droplets,
   HeartHandshake,
   Check,
+  Bandage,
+  Ribbon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -103,6 +105,26 @@ export default function EndemiasFilter({
       bg: "bg-rose-100",
       hoverBg: "hover:bg-rose-50",
       rota: "/profissional/mapa-epidemiologico/endemias/violenciadom",
+    },
+    {
+      id: "leish",
+      name: "Leishmaniose",
+      shortName: "Leish",
+      icon: Bandage,
+      color: "text-teal-600",
+      bg: "bg-teal-100",
+      hoverBg: "hover:bg-teal-50",
+      rota: "/profissional/mapa-epidemiologico/endemias/leishmaniose",
+    },
+    {
+      id: "aidsadulta",
+      name: "Aids Adulta",
+      shortName: "Aids",
+      icon: Ribbon,
+      color: "text-red-600",
+      bg: "bg-red-100",
+      hoverBg: "hover:bg-red-50",
+      rota: "/profissional/mapa-epidemiologico/endemias/aids",
     },
   ];
 
