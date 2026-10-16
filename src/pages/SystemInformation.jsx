@@ -53,11 +53,6 @@ const TABELAS = [
   },
 ];
 
-/**
- * Mapeia o id da tabela no front para a chave que o backend reconhece
- * no endpoint /api/exportar/<doenca>/
- * (endpoint definido em views.exportar_dados — usa _normalizar_doenca)
- */
 const BACKEND_KEYS = {
   dengue: "dengue",
   tuberculose: "tuberculose",
@@ -131,9 +126,15 @@ const TABLE_SCHEMAS = {
   hans: ["id_unidade", "nm_ubs", "ano_notific", "nu_notific"],
   hepatite: ["nu_notific", "id_unidade", "nm_ubs", "ano_notific"],
   animaispec: ["id_unidade", "nm_ubs", "hospital", "ano_notific", "nu_notific"],
-  intoxicacao: ["ano_notific", "nu_notific"],
-  leish: ["ano_notific", "nu_notific"],
-  aidsadulta: ["ano_notific", "nu_notific"],
+  intoxicacao: [
+    "id_unidade",
+    "nm_ubs",
+    "hospital",
+    "ano_notific",
+    "nu_notific",
+  ],
+  leish: ["id_unidade", "nm_ubs", "hospital", "ano_notific", "nu_notific"],
+  aidsadulta: ["id_unidade", "nm_ubs", "hospital", "ano_notific", "nu_notific"],
   coberturavacinal: [
     "ano",
     "imunobiologico",
