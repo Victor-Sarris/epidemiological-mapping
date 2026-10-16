@@ -1969,7 +1969,7 @@ export default function MapAids({ isPrivateView = false }) {
   useEffect(() => {
     setLoading(true);
     const apiUrl = import.meta.env.VITE_API_URL;
-    fetch(`${apiUrl}/api/aidsadulto/`)
+    fetch(`${apiUrl}/api/aidsadulta/`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro na API de AIDS");
         return res.json();
