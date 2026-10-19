@@ -56,7 +56,7 @@ export default function UserProfileMenu() {
       {/* Botão do Cabeçalho */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2 p-1.5 pr-3 rounded-full transition-all duration-200 border active:scale-95 ${
+        className={`flex items-center gap-2 p-1.5 pr-3 rounded-full transition-all duration-200 border active:scale-95 cursor-pointer ${
           isOpen
             ? "bg-white/20 border-white/30"
             : "border-transparent hover:bg-white/10"
@@ -149,7 +149,7 @@ export default function UserProfileMenu() {
 
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left"
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-left cursor-pointer"
             >
               <LogOut className="size-4" />
               Terminar Sessão

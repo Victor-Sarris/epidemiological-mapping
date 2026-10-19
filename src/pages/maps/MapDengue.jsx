@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
 import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
+import { Button } from "@/components/button.jsx";
+import MapPeriodFilter from "@/components/MapPeriodFilter.jsx";
 import {
   Map,
   MapGeoJSON,
@@ -21,9 +24,9 @@ import {
   Clock,
   ExternalLink,
   Menu,
+  CalendarDays,
 } from "lucide-react";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Button } from "@/components/button.jsx";
 
 // importação de imagens para o maps ----------
 // imagens das ubs do perimetro urbano
@@ -66,6 +69,7 @@ const MAP_STYLES = {
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         ],
         tileSize: 256,
+        maxzoom: 17,
         attribution: "Tiles &copy; Esri &mdash; Source: Esri",
       },
     },
@@ -1608,11 +1612,12 @@ const marcadores = [
     name: "UBS Floriano",
     label: "UBS Floriano",
     category: "UBS",
-    rating: 4,
+    rating: 5,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#1A66",
     image: ubsFloriano,
+    phone: "",
     lng: -43.02682240512934,
     lat: -6.770093782739466,
   },
@@ -1623,9 +1628,10 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#1F3D99",
     image: dirceuArcoverde,
+    phone: "89 3515-1056",
     lng: -43.035177909954896,
     lat: -6.765799779484518,
   },
@@ -1636,7 +1642,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#6EBF89",
     image: joseParaguassu,
     lng: -43.00770775101921,
@@ -1649,7 +1655,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#D8D087",
     image: santaCruz,
     lng: -43.00218329805059,
@@ -1660,9 +1666,9 @@ const marcadores = [
     name: "UBS - Theodoro Sobral",
     label: "UBS - Theodoro Sobral",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 3,
+    hours: "07:30h - 17:00h",
     color: "#9ABC76",
     image: TheodoroSobral,
     lng: -43.020540939559325,
@@ -1677,6 +1683,7 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#5888A2",
+    phone: "89 3522-1542",
     image: pedroSimplicio,
     lng: -43.03129938856098,
     lat: -6.780671072283543,
@@ -1686,11 +1693,12 @@ const marcadores = [
     name: "UBS - Alfredo de Carvalho",
     label: "UBS - Alfredo de Carvalho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#D2C965",
     image: alfedroCarvalho,
+    phone: "89 3522-1010",
     lng: -43.03492649035711,
     lat: -6.787711988762435,
   },
@@ -1701,7 +1709,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#D7A067",
     image: defaultImage,
     lng: -43.02848164082034,
@@ -1712,9 +1720,9 @@ const marcadores = [
     name: "UBS Paulo Martins",
     label: "UBS Paulo Martins",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#D7DCA4",
     image: defaultImage,
     lng: -43.018652030194644,
@@ -1727,23 +1735,24 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#C79A89",
     image: RaimundoFilho,
+    phone: "89 3515-1042",
     lng: -43.012394698425496,
     lat: -6.776288849546959,
   },
-  // verificar se esse realmente existe ⬇️
   {
     id: "jasminabucar",
     name: "Clínica Integrada e UBS Jasmina Bucar",
     label: "Clínica Integrada e UBS Jasmina Bucar",
     category: "UBS",
     rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    reviews: 4,
+    hours: "08:00h - 18:00h",
     color: "#327F56",
     image: JasminaBucar,
+    phone: "89 3521-6512",
     lng: -43.040365240768104,
     lat: -6.7808203604476915,
   },
@@ -1753,8 +1762,8 @@ const marcadores = [
     label: "Posto de Saúde da Taboca",
     category: "UBS",
     rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    reviews: 1,
+    hours: "07:00h - 17:30h",
     color: "#C4BC56",
     image: postodeSaudeTaboca,
     lng: -43.042174574073606,
@@ -1765,9 +1774,9 @@ const marcadores = [
     name: "Posto de Saúde Viana de Carvalho",
     label: "Posto de Saúde Viana de Carvalho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 4.2,
+    reviews: 17,
+    hours: "07:00h - 17:30h",
     color: "#D289A5",
     image: VianaCarvalho,
     lng: -43.01058274720951,
@@ -1778,9 +1787,9 @@ const marcadores = [
     name: "Posto de Saúde Camilo Filho",
     label: "Posto de Saúde Camilo Filho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 3,
+    reviews: 4,
+    hours: "07:00h - 17:30h",
     color: "#AE4F7B",
     image: camiloFilho,
     lng: -43.04194310195003,
@@ -1791,11 +1800,12 @@ const marcadores = [
     name: "Posto de Saúde Paulo Kalume",
     label: "Posto de Saúde Paulo Kalume",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 3,
+    hours: "07:30h - 17:30h",
     color: "#DEBD8A",
     image: pauloKalume,
+    phone: "89 3521-1010",
     lng: -43.00642190016104,
     lat: -6.778271099329543,
   },
@@ -1804,9 +1814,9 @@ const marcadores = [
     name: "UBS Nossa Senhora da Guia",
     label: "UBS Nossa Senhora da Guia",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:00h - 17:30h",
     color: "#6DAF8F",
     image: VianaCarvalho,
     lng: -43.009957159718944,
@@ -1819,7 +1829,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#9F6BA8",
     image: joaoEliasOka,
     lng: -43.01737203229874,
@@ -1834,7 +1844,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#DEBB84",
     image: MargaridaAlvez,
     lng: -42.99622811510465,
@@ -1886,9 +1896,9 @@ const marcadores = [
     name: "UBS L3",
     label: "UBS L3",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#A771AE",
     image: UbsL3,
     lng: -42.92196772000125,
@@ -1934,6 +1944,10 @@ export default function MapDengue({ isPrivateView = false }) {
 
   const [todosPacientes, setTodosPacientes] = useState([]);
   const endemiaAtual = "dengue";
+
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   const handleEndemiaChange = (novaEndemia) => {
     if (novaEndemia === endemiaAtual) return;
@@ -2006,7 +2020,80 @@ export default function MapDengue({ isPrivateView = false }) {
   useEffect(() => {
     if (todosPacientes.length === 0) return;
 
-    const pacientesFiltrados = todosPacientes.filter((p) => {
+    // ==========================================
+    // 1. FILTRO DE PERÍODO (NOVO)
+    // ==========================================
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroPeriodo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(anoAtual, 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (dataInicio && dataFim) {
+          dataRefInicio = new Date(dataInicio + "T00:00:00");
+          dataRefFim = new Date(dataFim + "T23:59:59");
+        }
+        break;
+    }
+
+    const pacientesFiltradosPorData = todosPacientes.filter((p) => {
+      if (filtroPeriodo === "todos") return true;
+      if (filtroPeriodo === "personalizado" && (!dataInicio || !dataFim))
+        return true;
+
+      // Dengue tem data_notificacao completa
+      const dt = p.data_notificacao || p.dt_notific;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // Fallback para ano (caso algum registro só tenha o ano)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroPeriodo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroPeriodo === "esteAno") return anoNum === anoAtual;
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(
+            filtroPeriodo,
+          )
+        ) {
+          return anoNum === anoAtual;
+        }
+        if (filtroPeriodo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+      return false;
+    });
+
+    // ==========================================
+    // 2. FILTRO POR AGRAVO
+    // ==========================================
+    const pacientesFiltrados = pacientesFiltradosPorData.filter((p) => {
       const agravo = p.id_agravo ? p.id_agravo.toUpperCase() : "";
 
       if (endemiaAtual === "dengue")
@@ -2024,7 +2111,9 @@ export default function MapDengue({ isPrivateView = false }) {
       return true;
     });
 
-    // 1. DICIONÁRIO BAIRRO -> ÁREA UBS
+    // ==========================================
+    // 3. DICIONÁRIO BAIRRO -> ÁREA UBS
+    // ==========================================
     const bairroParaAreaUbs = {
       CENTRO: "AREA UBS FLORIANO",
       SAMBAIBA: "AREA UBS DIRCEU ARCOVERDE",
@@ -2038,8 +2127,6 @@ export default function MapDengue({ isPrivateView = false }) {
       "IRAPUA II": "AREA UBS CAMILO FILHO",
       "NOSSA SENHORA DA GUIA": "AREA UBS NOSSA SENHORA DA GUIA",
       TIBERAO: "AREA UBS RAIMUNDO FILHO",
-
-      // --- BAIRROS NOVOS ADICIONADOS DO CONSOLE ---
       "BOM LUGAR": "AREA UBS PAULO KALUME",
       "BOSQUE SANTA TEREZINHA": "AREA UBS JOAO ELIAS OKA",
       "CAIXA D AGUA": "AREA UBS THEODORO FERREIRA SOBRAL",
@@ -2048,17 +2135,15 @@ export default function MapDengue({ isPrivateView = false }) {
       CURADOR: "AREA UBS THEODORO FERREIRA SOBRAL",
       IBIAPABA: "AREA UBS VIANA DE CARVALHO",
       "PAU FERRADO": "AREA UBS PAULO MARTINS",
-      "SAO BORJA": "AREA DA UBS PEDRO SIMPLICIO", // CORREÇÃO: Faltava o "DA"
+      "SAO BORJA": "AREA DA UBS PEDRO SIMPLICIO",
       "PLANALTO SAMBAIBA": "AREA UBS DIRCEU ARCOVERDE",
       CATUMBI: "AREA UBS RAIMUNDO FILHO",
       "SAO CRISTOVAO": "AREA UBS FLORIANO",
       TAMBORIL: "AREA UBS ALFREDO DE CARVALHO",
-      "CONJUNTO  PARAISO": "AREA DA UBS JASMINA BUCAR", // CORREÇÃO: Removido os acentos
-      CANCELA: "AREA UBS PAULO KALUME", // CORREÇÃO: Removido o "DA"
-      CANOAS: "AREA UBS JOSE PARAGUASSU", // CORREÇÃO: Removido os acentos
-      "PLANALTO BELA VISTA": "AREA DA UBS PEDRO SIMPLICIO", // CORREÇÃO: Removido os acentos
-
-      // --- ERROS DE DIGITAÇÃO / SINAN ---
+      "CONJUNTO  PARAISO": "AREA DA UBS JASMINA BUCAR",
+      CANCELA: "AREA UBS PAULO KALUME",
+      CANOAS: "AREA UBS JOSE PARAGUASSU",
+      "PLANALTO BELA VISTA": "AREA DA UBS PEDRO SIMPLICIO",
       MELADAO: "AREA DA UBS PEDRO SIMPLICIO",
       VIAZUL: "AREA UBS RAIMUNDO FILHO",
       "PEDRO SIMPLICIO": "AREA DA UBS PEDRO SIMPLICIO",
@@ -2066,25 +2151,24 @@ export default function MapDengue({ isPrivateView = false }) {
 
     const contagemPorArea = {};
 
-    // 2. CONTAGEM
+    // ==========================================
+    // 4. CONTAGEM
+    // ==========================================
     pacientesFiltrados.forEach((paciente) => {
       if (paciente.endereco) {
         const bairroNormalizado = extrairBairro(paciente.endereco);
-
-        // Pega o nome da UBS correspondente ao bairro do paciente
         const nomeAreaMapa = bairroParaAreaUbs[bairroNormalizado];
 
         if (nomeAreaMapa) {
           contagemPorArea[nomeAreaMapa] =
             (contagemPorArea[nomeAreaMapa] || 0) + 1;
-        } else {
-          // Descomente a linha abaixo para ver no console (F12) quais bairros faltam no dicionário
-          // console.warn("Bairro sem UBS mapeada no dicionário:", bairroNormalizado);
         }
       }
     });
 
-    // 3. INJEÇÃO DOS DADOS NO MAPA
+    // ==========================================
+    // 5. INJEÇÃO DOS DADOS NO MAPA
+    // ==========================================
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2098,7 +2182,6 @@ export default function MapDengue({ isPrivateView = false }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
@@ -2114,10 +2197,20 @@ export default function MapDengue({ isPrivateView = false }) {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [endemiaAtual, todosPacientes, activeStyle]);
+  }, [
+    endemiaAtual,
+    todosPacientes,
+    activeStyle,
+    filtroPeriodo, // 🆕 Adicione
+    dataInicio, // 🆕 Adicione
+    dataFim, // 🆕 Adicione
+  ]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+      <Helmet>
+        <title>Mapa Epidemiológico - Dengue</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}
@@ -2235,49 +2328,58 @@ export default function MapDengue({ isPrivateView = false }) {
                           </MarkerLabel>
                         )}
                       </MarkerContent>
-                      <MarkerPopup className="w-62 p-0">
-                        <div className="relative h-32 overflow-hidden rounded-t-md">
+                      <MarkerPopup className="w-[300px] p-0 overflow-hidden rounded-xl border border-slate-200 shadow-xl bg-white">
+                        {/* Imagem de Capa */}
+                        <div className="relative h-36 w-full overflow-hidden group">
                           <img
                             src={place.image}
                             alt={place.name}
-                            className="object-cover w-full h-full"
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                           />
+                          {/* Gradiente sutil para melhorar contraste se necessário */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                          {/* Badge de Categoria */}
+                          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider">
+                            {place.category}
+                          </span>
                         </div>
-                        <div className="space-y-2 p-3">
+
+                        <div className="p-4 space-y-3">
+                          {/* Título e Avaliação */}
                           <div>
-                            <p className="text-muted-foreground pb-0.5 text-[11px] font-medium tracking-wide uppercase">
-                              {place.category}
-                            </p>
-                            <h3 className="text-foreground leading-tight font-semibol">
+                            <h3 className="text-base font-bold leading-tight text-slate-800">
                               {place.name}
                             </h3>
+                            {place.rating && (
+                              <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-500">
+                                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                                <span className="font-medium text-slate-700">
+                                  {place.rating}.0
+                                </span>
+                                <span>({place.reviews} avaliações)</span>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex items-center gap-3 text-sm">
-                            <div className="flex items-center gap-1">
-                              <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                              <span className="font-medium">
-                                {place.rating}
-                              </span>
-                              <span className="text-muted-foreground">
-                                ({place.reviews.toLocaleString()})
-                              </span>
-                            </div>
+
+                          {/* Horário de Funcionamento */}
+                          <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <Clock className="size-4 text-blue-500" />
+                            <span className="font-medium">{place.hours}</span>
                           </div>
-                          <div className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                            <Clock className="size-3.5" />
-                            <span>{place.hours}</span>
-                          </div>
-                          <div className="flex gap-2 pt-1">
+
+                          {/* Botão de Ação */}
+                          <div className="pt-1">
                             <Button
                               size="sm"
-                              className="flex-1 hover:cursor-pointer hover:bg-gray-100"
+                              className="w-full flex gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
                               onClick={() => {
                                 const url = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
                                 window.open(url, "_blank");
                               }}
                             >
-                              <Navigation className="size-3.5" />
-                              Rota mais rápida
+                              <Navigation className="size-4" />
+                              Traçar Rota
                             </Button>
                           </div>
                         </div>
@@ -2308,6 +2410,17 @@ export default function MapDengue({ isPrivateView = false }) {
                 )}
               </div>
             )}
+
+            <div className="absolute top-20 right-4 z-20 flex items-center gap-2">
+              <MapPeriodFilter
+                filtroTipo={filtroPeriodo}
+                setFiltroTipo={setFiltroPeriodo}
+                dataInicio={dataInicio}
+                setDataInicio={setDataInicio}
+                dataFim={dataFim}
+                setDataFim={setDataFim}
+              />
+            </div>
 
             <ButtonTheme
               activeStyle={activeStyle}

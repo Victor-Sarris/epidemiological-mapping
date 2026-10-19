@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-// Paleta focada em tons de Rosa/Carmim (Alusão às campanhas de proteção à mulher/violência)
 const COLORS = ["#e11d48", "#fb7185", "#be123c", "#f43f5e"];
 const CORES_DISTRIBUICAO = [
   "bg-rose-600",
@@ -20,9 +19,8 @@ const CORES_DISTRIBUICAO = [
 ];
 
 export default function DashboardViolencia({ pacientes }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.reduce(
-    (sum, p) => sum + Number(p.nu_notific || 1), // Fallback para 1 caso os dados venham linha a linha
+    (sum, p) => sum + Number(p.nu_notific || 1),
     0,
   );
 
@@ -42,7 +40,6 @@ export default function DashboardViolencia({ pacientes }) {
   const mediaPorUnidade =
     unidadesAtivas > 0 ? (totalCasos / unidadesAtivas).toFixed(1) : 0;
 
-  // 2. Gráfico de Distribuição por Unidade (Top 5)
   const distribuicaoUbs = useMemo(() => {
     const top5 = [...pacientes]
       .sort((a, b) => Number(b.nu_notific || 0) - Number(a.nu_notific || 0))

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
 import EndemiasFilter from "../../components/EndemiasFilter.jsx";
 import EndemiasFilterPrivate from "../../components/private/EndemiasFilterPrivate.jsx";
 import ButtonTheme from "../../components/ButtonTheme.jsx";
+import MapPeriodFilter from "@/components/MapPeriodFilter.jsx";
 import {
   Map,
   MapGeoJSON,
@@ -65,6 +67,7 @@ const MAP_STYLES = {
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         ],
         tileSize: 256,
+        maxzoom: 17,
         attribution: "Tiles &copy; Esri &mdash; Source: Esri",
       },
     },
@@ -1607,11 +1610,12 @@ const marcadores = [
     name: "UBS Floriano",
     label: "UBS Floriano",
     category: "UBS",
-    rating: 4,
+    rating: 5,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#1A66",
     image: ubsFloriano,
+    phone: "",
     lng: -43.02682240512934,
     lat: -6.770093782739466,
   },
@@ -1622,9 +1626,10 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#1F3D99",
     image: dirceuArcoverde,
+    phone: "89 3515-1056",
     lng: -43.035177909954896,
     lat: -6.765799779484518,
   },
@@ -1635,7 +1640,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#6EBF89",
     image: joseParaguassu,
     lng: -43.00770775101921,
@@ -1648,7 +1653,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#D8D087",
     image: santaCruz,
     lng: -43.00218329805059,
@@ -1659,9 +1664,9 @@ const marcadores = [
     name: "UBS - Theodoro Sobral",
     label: "UBS - Theodoro Sobral",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 3,
+    hours: "07:30h - 17:00h",
     color: "#9ABC76",
     image: TheodoroSobral,
     lng: -43.020540939559325,
@@ -1676,6 +1681,7 @@ const marcadores = [
     reviews: 2,
     hours: "07:00 AM - 5:00 PM",
     color: "#5888A2",
+    phone: "89 3522-1542",
     image: pedroSimplicio,
     lng: -43.03129938856098,
     lat: -6.780671072283543,
@@ -1685,11 +1691,12 @@ const marcadores = [
     name: "UBS - Alfredo de Carvalho",
     label: "UBS - Alfredo de Carvalho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#D2C965",
     image: alfedroCarvalho,
+    phone: "89 3522-1010",
     lng: -43.03492649035711,
     lat: -6.787711988762435,
   },
@@ -1700,7 +1707,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#D7A067",
     image: defaultImage,
     lng: -43.02848164082034,
@@ -1711,9 +1718,9 @@ const marcadores = [
     name: "UBS Paulo Martins",
     label: "UBS Paulo Martins",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#D7DCA4",
     image: defaultImage,
     lng: -43.018652030194644,
@@ -1726,23 +1733,24 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#C79A89",
     image: RaimundoFilho,
+    phone: "89 3515-1042",
     lng: -43.012394698425496,
     lat: -6.776288849546959,
   },
-  // verificar se esse realmente existe ⬇️
   {
     id: "jasminabucar",
     name: "Clínica Integrada e UBS Jasmina Bucar",
     label: "Clínica Integrada e UBS Jasmina Bucar",
     category: "UBS",
     rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    reviews: 4,
+    hours: "08:00h - 18:00h",
     color: "#327F56",
     image: JasminaBucar,
+    phone: "89 3521-6512",
     lng: -43.040365240768104,
     lat: -6.7808203604476915,
   },
@@ -1752,8 +1760,8 @@ const marcadores = [
     label: "Posto de Saúde da Taboca",
     category: "UBS",
     rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    reviews: 1,
+    hours: "07:00h - 17:30h",
     color: "#C4BC56",
     image: postodeSaudeTaboca,
     lng: -43.042174574073606,
@@ -1764,9 +1772,9 @@ const marcadores = [
     name: "Posto de Saúde Viana de Carvalho",
     label: "Posto de Saúde Viana de Carvalho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 4.2,
+    reviews: 17,
+    hours: "07:00h - 17:30h",
     color: "#D289A5",
     image: VianaCarvalho,
     lng: -43.01058274720951,
@@ -1777,9 +1785,9 @@ const marcadores = [
     name: "Posto de Saúde Camilo Filho",
     label: "Posto de Saúde Camilo Filho",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 3,
+    reviews: 4,
+    hours: "07:00h - 17:30h",
     color: "#AE4F7B",
     image: camiloFilho,
     lng: -43.04194310195003,
@@ -1790,11 +1798,12 @@ const marcadores = [
     name: "Posto de Saúde Paulo Kalume",
     label: "Posto de Saúde Paulo Kalume",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 3,
+    hours: "07:30h - 17:30h",
     color: "#DEBD8A",
     image: pauloKalume,
+    phone: "89 3521-1010",
     lng: -43.00642190016104,
     lat: -6.778271099329543,
   },
@@ -1803,9 +1812,9 @@ const marcadores = [
     name: "UBS Nossa Senhora da Guia",
     label: "UBS Nossa Senhora da Guia",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:00h - 17:30h",
     color: "#6DAF8F",
     image: VianaCarvalho,
     lng: -43.009957159718944,
@@ -1818,7 +1827,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:30h - 17:30h",
     color: "#9F6BA8",
     image: joaoEliasOka,
     lng: -43.01737203229874,
@@ -1833,7 +1842,7 @@ const marcadores = [
     category: "UBS",
     rating: 4,
     reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    hours: "07:00h - 17:30h",
     color: "#DEBB84",
     image: MargaridaAlvez,
     lng: -42.99622811510465,
@@ -1885,9 +1894,9 @@ const marcadores = [
     name: "UBS L3",
     label: "UBS L3",
     category: "UBS",
-    rating: 4,
-    reviews: 2,
-    hours: "07:00 AM - 5:00 PM",
+    rating: 5,
+    reviews: 1,
+    hours: "07:30h - 17:30h",
     color: "#A771AE",
     image: UbsL3,
     lng: -42.92196772000125,
@@ -1931,6 +1940,10 @@ export default function MapHans({ isPrivateView = false }) {
   const [todosPacientes, setTodosPacientes] = useState([]);
 
   const endemiaAtual = "hanseniase";
+
+  const [filtroPeriodo, setFiltroPeriodo] = useState("todos");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   const handleEndemiaChange = (novaEndemia) => {
     if (novaEndemia === endemiaAtual) return;
@@ -1979,11 +1992,86 @@ export default function MapHans({ isPrivateView = false }) {
   }, []);
 
   // Lógica principal: mapear nome da UBS para o nome da área no GeoJSON
+  // Lógica principal: mapear nome da UBS para o nome da área no GeoJSON
   useEffect(() => {
     if (todosPacientes.length === 0) return;
+
+    // ==========================================
+    // 1. FILTRO DE PERÍODO (NOVO)
+    // ==========================================
+    const hoje = new Date();
+    const anoAtual = hoje.getFullYear();
+    let dataRefInicio = new Date();
+    let dataRefFim = hoje;
+
+    switch (filtroPeriodo) {
+      case "ultimoMes":
+        dataRefInicio.setMonth(hoje.getMonth() - 1);
+        break;
+      case "ultimos3Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 3);
+        break;
+      case "ultimos6Meses":
+        dataRefInicio.setMonth(hoje.getMonth() - 6);
+        break;
+      case "esteAno":
+        dataRefInicio = new Date(anoAtual, 0, 1);
+        break;
+      case "anoPassado":
+        dataRefInicio = new Date(anoAtual - 1, 0, 1);
+        dataRefFim = new Date(anoAtual - 1, 11, 31, 23, 59, 59);
+        break;
+      case "personalizado":
+        if (dataInicio && dataFim) {
+          dataRefInicio = new Date(dataInicio + "T00:00:00");
+          dataRefFim = new Date(dataFim + "T23:59:59");
+        }
+        break;
+    }
+
+    const pacientesFiltrados = todosPacientes.filter((p) => {
+      if (filtroPeriodo === "todos") return true;
+      if (filtroPeriodo === "personalizado" && (!dataInicio || !dataFim))
+        return true;
+
+      // Tenta por data de notificação completa
+      const dt = p.data_notificacao || p.dt_notific;
+      if (dt) {
+        const [ano, mes, dia] = dt.split("-");
+        const dataNotificacao = new Date(ano, mes - 1, dia);
+        return (
+          dataNotificacao >= dataRefInicio && dataNotificacao <= dataRefFim
+        );
+      }
+
+      // Fallback para agravos que só têm ano (Hanseníase geralmente tem ano_notific)
+      const anoNotific = p.ano_notific || p["ANO NOTIFIC"] || p.ano;
+      if (anoNotific) {
+        const anoNum = Number(anoNotific);
+        if (filtroPeriodo === "anoPassado") return anoNum === anoAtual - 1;
+        if (filtroPeriodo === "esteAno") return anoNum === anoAtual;
+        if (
+          ["ultimoMes", "ultimos3Meses", "ultimos6Meses"].includes(
+            filtroPeriodo,
+          )
+        ) {
+          return anoNum === anoAtual;
+        }
+        if (filtroPeriodo === "personalizado" && dataInicio && dataFim) {
+          const anoInicio = new Date(dataInicio).getFullYear();
+          const anoFim = new Date(dataFim).getFullYear();
+          return anoNum >= anoInicio && anoNum <= anoFim;
+        }
+      }
+      return false;
+    });
+
+    // ==========================================
+    // 2. MAPEAMENTO UBS -> ÁREA GEOJSON
+    // ==========================================
     const contagemPorArea = {};
 
-    todosPacientes.forEach((paciente) => {
+    pacientesFiltrados.forEach((paciente) => {
       const nomeUbsOriginal = String(
         paciente.nm_ubs || paciente.un_saude || paciente.id_unidade || "",
       );
@@ -2052,14 +2140,12 @@ export default function MapHans({ isPrivateView = false }) {
       if (nomeAreaMapa) {
         contagemPorArea[nomeAreaMapa] =
           (contagemPorArea[nomeAreaMapa] || 0) + casosAgregados;
-      } else {
-        console.warn(
-          "UBS de Hanseníase não mapeada para o polígono:",
-          nomeUbsOriginal,
-        );
       }
     });
 
+    // ==========================================
+    // 3. INJEÇÃO DOS DADOS NO GEOJSON
+    // ==========================================
     const updatedFeatures = bairrosFlorianoGeoJSON.features.map((feature) => {
       const corOriginal =
         feature.properties.fill || feature.properties.color || "#808080";
@@ -2073,7 +2159,6 @@ export default function MapHans({ isPrivateView = false }) {
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "");
 
-        // Puxa do objeto que acabamos de montar a contagem agrupada
         numeroCasos = contagemPorArea[nomeAreaGeoJSON] || 0;
       }
       const corFinal = numeroCasos === 0 ? "#475569" : corOriginal;
@@ -2089,10 +2174,13 @@ export default function MapHans({ isPrivateView = false }) {
     });
 
     setGeoData({ ...bairrosFlorianoGeoJSON, features: updatedFeatures });
-  }, [todosPacientes, activeStyle]);
+  }, [todosPacientes, activeStyle, filtroPeriodo, dataInicio, dataFim]);
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
+      <Helmet>
+        <title>Mapa Epidemiológico - Hanseníase</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}
@@ -2215,34 +2303,58 @@ export default function MapHans({ isPrivateView = false }) {
                         )}
                       </MarkerContent>
 
-                      <MarkerPopup className="w-62 p-0">
-                        <div className="relative h-32 overflow-hidden rounded-t-md">
+                      <MarkerPopup className="w-[300px] p-0 overflow-hidden rounded-xl border border-slate-200 shadow-xl bg-white">
+                        {/* Imagem de Capa */}
+                        <div className="relative h-36 w-full overflow-hidden group">
                           <img
                             src={place.image}
                             alt={place.name}
-                            className="object-cover w-full h-full"
+                            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
                           />
+                          {/* Gradiente sutil para melhorar contraste se necessário */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                          {/* Badge de Categoria */}
+                          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase tracking-wider">
+                            {place.category}
+                          </span>
                         </div>
-                        <div className="space-y-2 p-3">
+
+                        <div className="p-4 space-y-3">
+                          {/* Título e Avaliação */}
                           <div>
-                            <p className="text-muted-foreground pb-0.5 text-[11px] font-medium tracking-wide uppercase">
-                              {place.category}
-                            </p>
-                            <h3 className="text-foreground leading-tight font-semibold">
+                            <h3 className="text-base font-bold leading-tight text-slate-800">
                               {place.name}
                             </h3>
+                            {place.rating && (
+                              <div className="flex items-center gap-1 mt-1.5 text-xs text-slate-500">
+                                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                                <span className="font-medium text-slate-700">
+                                  {place.rating}.0
+                                </span>
+                                <span>({place.reviews} avaliações)</span>
+                              </div>
+                            )}
                           </div>
-                          <div className="flex gap-2 pt-1">
+
+                          {/* Horário de Funcionamento */}
+                          <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            <Clock className="size-4 text-blue-500" />
+                            <span className="font-medium">{place.hours}</span>
+                          </div>
+
+                          {/* Botão de Ação */}
+                          <div className="pt-1">
                             <Button
                               size="sm"
-                              className="flex-1 cursor-pointer bg-slate-800 text-white hover:bg-slate-700"
+                              className="w-full flex gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
                               onClick={() => {
                                 const url = `https://www.google.com/maps/dir/?api=1&destination=${place.lat},${place.lng}`;
                                 window.open(url, "_blank");
                               }}
                             >
-                              <Navigation className="size-3.5 mr-2" />
-                              Rota mais rápida
+                              <Navigation className="size-4" />
+                              Traçar Rota
                             </Button>
                           </div>
                         </div>
@@ -2275,6 +2387,16 @@ export default function MapHans({ isPrivateView = false }) {
                 )}
               </div>
             )}
+            <div className="absolute top-20 right-4 z-20 flex items-center gap-2">
+              <MapPeriodFilter
+                filtroTipo={filtroPeriodo}
+                setFiltroTipo={setFiltroPeriodo}
+                dataInicio={dataInicio}
+                setDataInicio={setDataInicio}
+                dataFim={dataFim}
+                setDataFim={setDataFim}
+              />
+            </div>
             <ButtonTheme
               activeStyle={activeStyle}
               setActiveStyle={setActiveStyle}

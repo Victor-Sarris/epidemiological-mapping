@@ -100,7 +100,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 isCollapsed ? "max-w-0 opacity-0" : "max-w-32 opacity-100"
               }`}
             >
-              Epi<span className="text-[#4180ab]">Data</span>
+              SIG<span className="text-[#4180ab]">EP</span>
             </span>
           </Link>
 
@@ -229,6 +229,9 @@ const Sidebar = ({ isOpen, onClose }) => {
               </span>
             </div>
           </div>
+          <div
+            className={`mt-2 transition-all duration-300 ${isCollapsed ? "opacity-0 max-h-0 overflow-hidden" : "opacity-100 max-h-10"}`}
+          ></div>
         </div>
       </aside>
     </>

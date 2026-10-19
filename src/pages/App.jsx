@@ -4,8 +4,6 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Home from "./Home.jsx";
 import Dashboard from "./DashBoard.jsx";
-import DashboardSifilis from "./DashboardSifilis.jsx";
-import DashboardTuberculose from "./DashBoardTuberculose.jsx";
 import Support from "./Support.jsx";
 import { AuthProvider } from "../contexts/AuthContext.jsx";
 import EpidemiologicMap from "./EpidemiologyMap.jsx";
@@ -16,10 +14,13 @@ import MapChaga from "./maps/MapChagas.jsx";
 import MapHans from "./maps/MapHans.jsx";
 import MapHepa from "./maps/MapHepa.jsx";
 import MapViolencia from "./maps/MapViolencia.jsx";
+import MapLeishmaniose from "./maps/MapLeishmaniose.jsx";
+import MapAids from "./maps/MapAids.jsx";
 import SystemInformation from "./SystemInformation.jsx";
 import NotFound from "./NotFound.jsx";
 import ProtectedRoute from "@/utils/ProtectedRoute.jsx";
 import CoberturaVacinal from "./CoberturaVacinal.jsx";
+import AboutDeveloper from "./AboutDeveloper.jsx";
 
 function App() {
   return (
@@ -55,10 +56,22 @@ function App() {
               element={<MapHepa />}
             />
             <Route
+              path="/mapa-epidemiologico/endemias/leishmaniose"
+              element={<MapLeishmaniose />}
+            />
+            <Route
+              path="/mapa-epidemiologico/endemias/aids"
+              element={<MapAids />}
+            />
+            <Route
               path="/dashboard"
               element={<Dashboard isPrivateView={false} />}
             />
             <Route path="/suporte" element={<Support />} />
+            <Route
+              path="/desenvolvedor"
+              element={<AboutDeveloper isPrivateView={false} />}
+            />
             <Route path="*" element={<NotFound />} />
 
             {/* =================== Rotas Privadas Admin ===================*/}
@@ -100,6 +113,14 @@ function App() {
                 element={<MapViolencia isPrivateView={true} />}
               />
               <Route
+                path="profissional/mapa-epidemiologico/endemias/leishmaniose"
+                element={<MapLeishmaniose isPrivateView={true} />}
+              />
+              <Route
+                path="profissional/mapa-epidemiologico/endemias/aids"
+                element={<MapAids isPrivateView={true} />}
+              />
+              <Route
                 path="profissional/suporte"
                 element={<Support isPrivateView={true} />}
               />
@@ -110,6 +131,11 @@ function App() {
               <Route
                 path="profissional/cobertura-vacinal"
                 element={<CoberturaVacinal />}
+                isPrivateView={true}
+              />
+              <Route
+                path="profissional/desenvolvedor"
+                element={<AboutDeveloper />}
                 isPrivateView={true}
               />
             </Route>

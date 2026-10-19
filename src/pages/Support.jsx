@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import Sidebar from "../components/Sidebar.jsx";
 import SidebarPrivate from "@/components/private/SidebarPrivate.jsx";
+import { Helmet } from "react-helmet-async";
 import {
   IoChatbubbles,
   IoClose,
   IoWarning,
   IoSend,
   IoHardwareChip,
+  IoRefresh,
 } from "react-icons/io5";
 import {
   Menu,
@@ -18,7 +22,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-// Lista de Flashcards / Dúvidas Comuns
 const FAQS = [
   {
     q: "Como atualizo os dados do mapa?",
@@ -42,25 +45,190 @@ const FAQS = [
   },
 ];
 
+const STORAGE_KEY = "epidata_chat_history_v1";
+
+const MENSAGEM_INICIAL = {
+  sender: "bot",
+  text: "Olá! Sou o seu assistente virtual. Como posso ajudar você hoje?",
+  structured: null,
+};
+
+function carregarHistorico() {
+  if (typeof window === "undefined") return [MENSAGEM_INICIAL];
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    if (!raw) return [MENSAGEM_INICIAL];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch (e) {
+    console.warn("[chat] Falha ao restaurar histórico:", e);
+  }
+  return [MENSAGEM_INICIAL];
+}
+
+function limparHistorico() {
+  try {
+    sessionStorage.removeItem(STORAGE_KEY);
+  } catch (_) {
+    /* ignore */
+  }
+}
+
+/** Ranking com barras horizontais — usado para "top bairros", "panorama geral" */
+function RankingCard({ data }) {
+  const max = Math.max(...data.itens.map((i) => i.valor), 1);
+  const medalhas = ["🥇", "🥈", "🥉"];
+
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white p-4 shadow-sm w-full">
+      <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+        📊 {data.titulo}
+      </h3>
+      <ul className="space-y-2.5">
+        {data.itens.map((item, i) => (
+          <li key={i} className="flex items-center gap-2">
+            <span className="w-6 text-xs font-bold text-slate-500 shrink-0">
+              {medalhas[i] || `${i + 1}º`}
+            </span>
+            <span className="flex-1 text-xs text-slate-700 truncate font-medium">
+              {item.label}
+            </span>
+            <div className="w-20 bg-slate-100 h-1.5 rounded-full overflow-hidden shrink-0">
+              <div
+                className={`h-full rounded-full ${
+                  i === 0 ? "bg-[#4180ab]" : "bg-[#4180ab]/60"
+                }`}
+                style={{ width: `${(item.valor / max) * 100}%` }}
+              />
+            </div>
+            <span className="text-xs font-bold text-[#054060] w-8 text-right shrink-0">
+              {item.valor}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** KPI grande — usado para "quantos casos de X" */
+function KpiCard({ data }) {
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-gradient-to-br from-[#4180ab]/10 to-white p-5 shadow-sm w-full">
+      <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">
+        {data.titulo}
+      </p>
+      <p className="text-4xl font-extrabold text-[#054060] leading-none">
+        {data.valor}
+      </p>
+      <p className="text-xs text-slate-500 mt-1">{data.subtitulo}</p>
+    </div>
+  );
+}
+
+/** Tabela compacta — usado para cobertura vacinal */
+function TabelaCard({ data }) {
+  return (
+    <div className="rounded-2xl rounded-tl-sm border border-slate-200 bg-white p-4 shadow-sm w-full overflow-hidden">
+      <h3 className="font-bold text-slate-800 text-sm mb-3 flex items-center gap-2">
+        💉 {data.titulo}
+      </h3>
+      <div className="overflow-x-auto -mx-1">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-slate-200 text-left text-slate-500">
+              {data.colunas.map((c, i) => (
+                <th
+                  key={i}
+                  className="pb-2 pr-2 font-semibold whitespace-nowrap"
+                >
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {data.linhas.map((linha, i) => (
+              <tr key={i} className="border-b border-slate-100 last:border-0">
+                {linha.map((cell, j) => (
+                  <td
+                    key={j}
+                    className={`py-2 pr-2 ${
+                      j === 0 ? "font-medium text-slate-700" : "text-slate-600"
+                    }`}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function StructuredContent({ data }) {
+  if (!data) return null;
+  if (data.tipo === "ranking") return <RankingCard data={data} />;
+  if (data.tipo === "kpi") return <KpiCard data={data} />;
+  if (data.tipo === "tabela") return <TabelaCard data={data} />;
+  return null;
+}
+
+const mdComponents = {
+  p: ({ children }) => (
+    <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>
+  ),
+  strong: ({ children }) => (
+    <strong className="font-bold text-slate-900">{children}</strong>
+  ),
+  em: ({ children }) => <em className="italic">{children}</em>,
+  ul: ({ children }) => (
+    <ul className="list-disc pl-4 mb-2 space-y-1">{children}</ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="list-decimal pl-4 mb-2 space-y-1">{children}</ol>
+  ),
+  li: ({ children }) => <li className="text-sm">{children}</li>,
+  h1: ({ children }) => (
+    <h1 className="font-bold text-base mb-2">{children}</h1>
+  ),
+  h2: ({ children }) => <h2 className="font-bold text-sm mb-2">{children}</h2>,
+  h3: ({ children }) => (
+    <h3 className="font-semibold text-sm mb-1">{children}</h3>
+  ),
+  code: ({ children }) => (
+    <code className="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">
+      {children}
+    </code>
+  ),
+  a: ({ children, href }) => (
+    <a
+      href={href}
+      className="text-blue-600 underline hover:text-blue-800"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  ),
+};
+
 function Support({ isPrivateView = false }) {
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Estado para controlar qual Flashcard está aberto
   const [openFaq, setOpenFaq] = useState(null);
 
-  const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "Olá! Sou o seu assistente virtual. Como posso ajudar você hoje?",
-    },
-  ]);
+  // Lazy initializer: lê do sessionStorage só no primeiro render
+  const [messages, setMessages] = useState(carregarHistorico);
 
   const messagesEndRef = useRef(null);
+  const textareaRef = useRef(null);
 
-  // Auto-scroll para a última mensagem
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -69,8 +237,20 @@ function Support({ isPrivateView = false }) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const toggleChatbot = () => {
-    setIsChatbotOpen(!isChatbotOpen);
+  // Persiste no sessionStorage a cada mudança
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch (e) {
+      console.warn("[chat] Não foi possível salvar histórico:", e);
+    }
+  }, [messages]);
+
+  const toggleChatbot = () => setIsChatbotOpen(!isChatbotOpen);
+
+  const handleResetHistorico = () => {
+    limparHistorico();
+    setMessages([MENSAGEM_INICIAL]);
   };
 
   const handleSendMessage = async () => {
@@ -78,10 +258,17 @@ function Support({ isPrivateView = false }) {
 
     const userText = inputValue;
 
-    // Adiciona a mensagem do usuário
-    setMessages((prev) => [...prev, { sender: "user", text: userText }]);
+    setMessages((prev) => [
+      ...prev,
+      { sender: "user", text: userText, structured: null },
+    ]);
     setInputValue("");
-    setIsLoading(true); // Ativa o estado de carregamento
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+    }
+
+    setIsLoading(true);
 
     try {
       const rawApiUrl = import.meta.env.VITE_API_URL || "";
@@ -101,7 +288,11 @@ function Support({ isPrivateView = false }) {
       if (data.status === "success") {
         setMessages((prev) => [
           ...prev,
-          { sender: "bot", text: data.response },
+          {
+            sender: "bot",
+            text: data.response,
+            structured: data.structured || null,
+          },
         ]);
       } else {
         throw new Error("Erro na resposta da API");
@@ -113,22 +304,39 @@ function Support({ isPrivateView = false }) {
         {
           sender: "bot",
           text: "Desculpe, ocorreu um erro de conexão com o servidor. Tente novamente mais tarde.",
+          structured: null,
         },
       ]);
     } finally {
-      setIsLoading(false); // Desativa o estado de carregamento
+      setIsLoading(false);
     }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
+  const handleInput = (e) => {
+    setInputValue(e.target.value);
+
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      textareaRef.current.style.height = `${Math.min(
+        textareaRef.current.scrollHeight,
+        120,
+      )}px`;
+      scrollToBottom();
+    }
+  };
+
   return (
     <div className="flex h-screen w-full bg-slate-50/50 overflow-hidden text-slate-800">
+      <Helmet>
+        <title>Suporte</title>
+      </Helmet>
       {isPrivateView ? (
         <SidebarPrivate
           isOpen={isSidebarOpen}
@@ -142,17 +350,20 @@ function Support({ isPrivateView = false }) {
       )}
 
       <main className="flex-1 flex flex-col h-full w-full overflow-y-auto overflow-x-hidden ml-0 md:ml-[var(--sidebar-width,16rem)] transition-all duration-300">
-        <header className="md:hidden px-4 py-4 flex items-center justify-between sticky top-0 z-30 bg-[#4180ab] shadow-lg border-b border-[#043048]">
+        <header className="px-4 md:px-8 py-3 flex items-center justify-between sticky top-0 z-30 bg-gradient-to-br from-[#4180ab] to-[#054060] backdrop-blur-md shadow-sm border-b border-white/10">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+              className="md:hidden p-2 text-white bg-white/10 rounded-lg hover:bg-white/20 active:scale-95 transition-all"
             >
               <Menu className="size-6" />
             </button>
-            <h2 className="text-lg font-bold text-white tracking-wide">
-              Suporte
-            </h2>
+            <div className="flex items-center gap-2 text-white">
+              <HelpCircle className="size-5 md:size-6" />
+              <h2 className="text-base md:text-xl font-bold tracking-wide">
+                Administração do Sistema
+              </h2>
+            </div>
           </div>
         </header>
 
@@ -212,7 +423,8 @@ function Support({ isPrivateView = false }) {
               <HelpCircle className="text-[#4180ab] size-6" />
               Dúvidas Frequentes
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Adicionado 'items-start' para evitar que os cards estiquem */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
               {FAQS.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
@@ -227,10 +439,16 @@ function Support({ isPrivateView = false }) {
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${isOpen ? "bg-blue-50" : "bg-slate-50 group-hover:bg-slate-100"}`}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                          isOpen
+                            ? "bg-blue-50"
+                            : "bg-slate-50 group-hover:bg-slate-100"
+                        }`}
                       >
                         <div
-                          className={`transition-transform duration-300 ${isOpen ? "scale-110" : "scale-100"}`}
+                          className={`transition-transform duration-300 ${
+                            isOpen ? "scale-110" : "scale-100"
+                          }`}
                         >
                           {faq.icon}
                         </div>
@@ -238,7 +456,9 @@ function Support({ isPrivateView = false }) {
                       <div className="flex-1 w-full">
                         <div className="flex justify-between items-start w-full">
                           <h3
-                            className={`font-bold text-base md:text-lg pr-4 transition-colors ${isOpen ? "text-[#054060]" : "text-slate-800"}`}
+                            className={`font-bold text-base md:text-lg pr-4 transition-colors ${
+                              isOpen ? "text-[#054060]" : "text-slate-800"
+                            }`}
                           >
                             {faq.q}
                           </h3>
@@ -251,7 +471,7 @@ function Support({ isPrivateView = false }) {
                         <div
                           className={`overflow-hidden transition-all duration-300 ease-in-out ${
                             isOpen
-                              ? "max-h-40 mt-3 opacity-100"
+                              ? "max-h-96 mt-3 opacity-100"
                               : "max-h-0 opacity-0"
                           }`}
                         >
@@ -300,9 +520,9 @@ function Support({ isPrivateView = false }) {
 
         {/* Janela do Chatbot Modal */}
         {isChatbotOpen && (
-          <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full h-full md:h-150 md:w-100 bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
+          <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 w-full h-[100dvh] md:h-[600px] md:w-[400px] bg-white md:rounded-3xl shadow-2xl border border-slate-200 z-50 flex flex-col overflow-hidden animate-in slide-in-from-bottom-8 duration-300">
             {/* Header do Chat */}
-            <div className="bg-[#4180ab] p-4 md:p-5 flex justify-between items-center shadow-md z-10">
+            <div className="bg-[#4180ab] p-4 md:p-5 flex justify-between items-center shadow-md z-10 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center border border-white/30 backdrop-blur-sm">
                   <IoHardwareChip className="text-white text-xl" />
@@ -317,12 +537,24 @@ function Support({ isPrivateView = false }) {
                   </span>
                 </div>
               </div>
-              <button
-                onClick={toggleChatbot}
-                className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
-              >
-                <IoClose size={24} />
-              </button>
+
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={handleResetHistorico}
+                  title="Limpar conversa"
+                  aria-label="Limpar conversa"
+                  className="text-white/70 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
+                >
+                  <IoRefresh size={20} />
+                </button>
+                <button
+                  onClick={toggleChatbot}
+                  aria-label="Fechar chat"
+                  className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-colors cursor-pointer"
+                >
+                  <IoClose size={24} />
+                </button>
+              </div>
             </div>
 
             {/* Área de Mensagens */}
@@ -333,24 +565,60 @@ function Support({ isPrivateView = false }) {
                 </span>
               </div>
 
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`flex w-full ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
+              {messages.map((msg, index) => {
+                const isUser = msg.sender === "user";
+                const hasStructured = !isUser && !!msg.structured;
+
+                if (hasStructured) {
+                  return (
+                    <div key={index} className="flex w-full justify-start">
+                      <div className="flex flex-col gap-2 max-w-[85%] w-full">
+                        <StructuredContent data={msg.structured} />
+                        {msg.text && (
+                          <div className="bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm p-3.5 text-sm md:text-base shadow-sm">
+                            <ReactMarkdown
+                              remarkPlugins={[remarkGfm]}
+                              components={mdComponents}
+                            >
+                              {msg.text}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+
+                return (
                   <div
-                    className={`p-3.5 text-sm md:text-base max-w-[85%] shadow-sm ${
-                      msg.sender === "user"
-                        ? "bg-[#054060] text-white rounded-2xl rounded-tr-sm"
-                        : "bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm"
+                    key={index}
+                    className={`flex w-full ${
+                      isUser ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {msg.text}
+                    <div
+                      className={`p-3.5 text-sm md:text-base max-w-[85%] shadow-sm ${
+                        isUser
+                          ? "bg-[#054060] text-white rounded-2xl rounded-tr-sm whitespace-pre-wrap"
+                          : "bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-tl-sm"
+                      }`}
+                    >
+                      {isUser ? (
+                        msg.text
+                      ) : (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={mdComponents}
+                        >
+                          {msg.text}
+                        </ReactMarkdown>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
-              {/* Indicador de Digitação (Carregamento) */}
+              {/* Indicador de Digitação */}
               {isLoading && (
                 <div className="flex w-full justify-start">
                   <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-sm p-4 shadow-sm flex items-center gap-1.5">
@@ -367,26 +635,26 @@ function Support({ isPrivateView = false }) {
                 </div>
               )}
 
-              {/* Div invisível para ancorar o scroll */}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Área de Input */}
-            <div className="p-4 bg-white border-t border-slate-100">
-              <div className="relative flex items-center gap-2">
-                <input
-                  type="text"
+            <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0">
+              <div className="relative flex items-end gap-2 bg-slate-50 rounded-3xl border border-slate-200 focus-within:border-[#054060] focus-within:ring-2 focus-within:ring-[#054060]/20 transition-all p-1.5 pl-5">
+                <textarea
+                  ref={textareaRef}
+                  rows={1}
                   placeholder="Escreva sua mensagem..."
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={handleInput}
                   onKeyDown={handleKeyDown}
                   disabled={isLoading}
-                  className="w-full bg-slate-50 text-slate-800 pl-5 pr-14 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:border-[#054060] focus:ring-2 focus:ring-[#054060]/20 transition-all text-sm disabled:opacity-50"
+                  className="w-full bg-transparent text-slate-800 py-3 pr-2 focus:outline-none text-sm disabled:opacity-50 resize-none overflow-y-auto min-h-[44px] max-h-[120px] custom-scrollbar"
                 />
                 <button
                   onClick={handleSendMessage}
                   disabled={inputValue.trim() === "" || isLoading}
-                  className="absolute right-1.5 p-2.5 bg-[#054060] text-white rounded-full hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center justify-center"
+                  className="p-3 bg-[#054060] text-white rounded-full hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors shadow-sm flex items-center justify-center shrink-0 mb-0.5"
                 >
                   <IoSend size={18} className="translate-x-0.5" />
                 </button>

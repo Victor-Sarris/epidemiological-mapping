@@ -24,7 +24,6 @@ import DistribuicaoQuadrante from "@/components/DistribuicaoQuadrante";
 const COLORS = ["#8b5cf6", "#d946ef", "#f43f5e", "#0ea5e9"];
 
 export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
-  // 1. Processamento de KPIs
   const totalCasos = pacientes.length;
   const casosCongenita = pacientes.filter((p) =>
     p.id_agravo?.toUpperCase().includes("A50"),
@@ -54,7 +53,6 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
       .map(([nome, valor]) => ({ name: nome, value: valor }));
   }, [pacientes]);
 
-  // 3. Processamento para Curva Epidêmica (Por Mês)
   const dadosEvolucao = useMemo(() => {
     const contagemMes = {};
     pacientes.forEach((p) => {
@@ -72,7 +70,6 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
     }));
   }, [pacientes]);
 
-  // 4. Casos Recentes formatados para o componente
   const casosRecentesFormatados = [...pacientes]
     .sort((a, b) => new Date(b.dt_notific) - new Date(a.dt_notific))
     .slice(0, 5)
@@ -247,7 +244,6 @@ export default function DashboardSifilis({ pacientes, distribuicaoUbs }) {
   );
 }
 
-// Subcomponente de KPI
 function KpiCard({ title, value, icon: Icon, color, bgLight, subtitle }) {
   return (
     <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-slate-100 flex items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-1 duration-300">
