@@ -2240,7 +2240,7 @@ export default function MapDengue({ isPrivateView = false }) {
         ...feature,
         properties: {
           ...feature.properties,
-          color: corFinal, // <-- AQUI ESTAVA O BUG! Antes era corOriginal
+          color: corOriginal,
           casos: numeroCasos,
         },
       };
